@@ -1,41 +1,54 @@
-pragma solidity <0.6.0;
+pragma solidity >=0.5.16;
 
 
 contract CarManager {
     address public root;
 
-    uint256 ID;
+    mapping(address => bool) public brands; // now is dealership
 
-    mapping(address => bool) public brands; // now is dealer ship
+    mapping(string => Car) trackedCars;
 
-    mapping(uint256 => Car) trackedCars;
+    mapping(address => bool) public auhtorizedShops; // now is mechanic
 
-    mapping(address => bool) auhtorizedShops; // now is mechanic
+    mapping(address => bool) public ITVAuthorities;
 
-    mapping(address => bool) public auhtorizedITV;
-
-    // Enums
-    enum CarType {Vehicle2W, Vehicle3W, Vehicle, VehicleH, VehicleA, VehicleS} // (!!) W, weel, H, Heavy S, Service A, Agriculture
-    enum CarOwnershipType {Factory, Brand, User}
-    enum CarState { Shiped, ForSale, ProcessingSale, Sold, ProcessingRgister, Registered} // processingSale ~ reserved
-    enum ITV {Initial, Passed, NotPassed, Negative} // NotPassed = car can go mechanic, Negative = car need transport to mechanic
-    // end - Enums
-
-    struct Car {
-        uint256 ID;
-        address ownerID;
-        string licensePlate;
-        // creation time perhaps needed
-        CarType carType;
-        // car state
-        CarOwnershipType carOwnerType;
-        CarState carState;
-        // ITV state
-        ITV itv;
-        // car history = perhaps it need a struct type!!
+    enum PermitType {
+        TWO_WHEEL,
+        THREE_WHEEL,
+        FOUR_WHEEL,
+        HEAVY,
+        AGRICULTURE,
+        SERVICE
     }
 
-    event CarAdded(uint256 ID);
+    enum CarState {
+        SHIPPED,
+        FOR_SALE,
+        PROCESSING_SALE,
+        SOLD,
+        PROCESSING_REGISTER,
+        REGISTERED
+    }
+
+    enum ITVState {INTITIAL, PASSED, NOT_PASSED, NEGATIVE}
+
+    struct ITV {
+        ITVState state;
+        uint256 lastInspection;
+    }
+
+    struct Car {
+        uint256 creationDate;
+        address ownerID;
+        string licensePlate;
+        PermitType permitType;
+        CarState state;
+        ITV itv;
+        // history: all maintenance events
+    }
+
+    event CarAdded(string licensePlate, uint256 date);
+    event ITVInspection(string licensePlate, uint256 date);
 
     modifier onlyRoot() {
         require(msg.sender == root, "Only root can manage brands");
@@ -52,80 +65,94 @@ contract CarManager {
 
     modifier onlyITV() {
         require(
-            auhtorizedITV[msg.sender] == true,
+            ITVAuthorities[msg.sender] == true,
             "Only ITV can perform this action"
         );
         _;
     }
 
-    modifier onlyOwner(uint256 carID, string memory errorMsg) {
-        require(msg.sender == trackedCars[carID].ownerID, errorMsg);
+    modifier onlyOwner(string memory licensePlate) {
+        require(
+            msg.sender == trackedCars[licensePlate].ownerID,
+            "Only car owner can perform this action"
+        );
         _;
     }
 
     constructor() public {
         root = msg.sender;
-        ID = 0;
     }
 
     function addBrand(address brandID) public onlyRoot {
         brands[brandID] = true;
     }
 
-    function addITV(address ItvID) public onlyRoot {
-        auhtorizedITV[ItvID] = true;
-    }
-
     function deleteBrand(address brandID) public onlyRoot {
         brands[brandID] = false;
     }
 
-    function deleteITV(address ItvID) public onlyRoot {
-        auhtorizedITV[ItvID] = false;
+    function addITV(address ItvID) public onlyRoot {
+        ITVAuthorities[ItvID] = true;
     }
 
-    function addCar(string memory licensePlate, uint256 _carTypeIndex) public onlyActiveBrand {
-        ID = ID + 1; // safe math !!
-        trackedCars[ID] = Car({
-            ID: ID,
+    function deleteITV(address ItvID) public onlyRoot {
+        ITVAuthorities[ItvID] = false;
+    }
+
+    function addCar(string memory licensePlate, uint256 permitTypeIndex)
+        public
+        onlyActiveBrand
+    {
+        uint256 creationDate = block.timestamp;
+        trackedCars[licensePlate] = Car({
+            creationDate: creationDate,
             ownerID: msg.sender,
             licensePlate: licensePlate,
-            // creation time perhaps needed
-            // setting default enums
-            // (!!) CarType can not be updated ??
-            carType: CarType(_carTypeIndex),
-            carOwnerType: CarOwnershipType.Brand,
-            carState: CarState.ForSale,
-            itv: ITV.Initial
+            permitType: PermitType(permitTypeIndex),
+            state: CarState.FOR_SALE,
+            itv: ITV({state: ITVState.INTITIAL, lastInspection: 0})
         });
-        emit CarAdded(ID);
+        emit CarAdded(licensePlate, creationDate);
     }
 
-    // update car
-    // update status
-    function updateCarOwenerType(uint256 _ID, uint256 _carOwnershipIndex) public onlyActiveBrand {
-        trackedCars[_ID].carOwnerType = CarOwnershipType(_carOwnershipIndex);
+    function updateCarState(string memory licensePlate, uint256 carStateIndex)
+        public
+        onlyActiveBrand
+    {
+        trackedCars[licensePlate].state = CarState(carStateIndex);
     }
-    function updateCarState(uint256 _ID, uint256 _carStateIndex) public onlyActiveBrand { // modifier ??
-        trackedCars[_ID].carState = CarState(_carStateIndex);
-    }
-    function updateITV(uint256 _ID, uint256 _itv) public onlyITV {
-        trackedCars[_ID].itv = ITV(_itv);
-    }
-    // transfer, maintenance, ITV
 
-    function getCar(uint256 _ID)
+    function updateITV(string memory licensePlate, uint256 itvStateIndex)
+        public
+        onlyITV
+    {
+        Car storage car = trackedCars[licensePlate];
+        uint256 date = block.timestamp;
+        car.itv.state = ITVState(itvStateIndex);
+        car.itv.lastInspection = date;
+        emit ITVInspection(licensePlate, date);
+    }
+
+    function getCar(string memory _licensePlate)
         public
         view
-        returns (uint256 carID, address ownerID, string memory licensePlate, uint256 carOwnerType, uint256 carITVstate)
+        returns (
+            uint256 creationDate,
+            address ownerID,
+            string memory licensePlate,
+            uint256 permitType,
+            uint256 itvState,
+            uint256 lastInspection
+        )
     {
-        Car memory car = trackedCars[_ID];
+        Car memory car = trackedCars[_licensePlate];
         return (
-            carID = car.ID,
+            creationDate = car.creationDate,
             ownerID = car.ownerID,
             licensePlate = car.licensePlate,
-            carOwnerType = uint256(car.carOwnerType),
-            carITVstate = uint256(car.itv)
+            permitType = uint256(car.permitType),
+            itvState = uint256(car.itv.state),
+            lastInspection = car.itv.lastInspection
         );
     }
 }
