@@ -12,6 +12,10 @@ contract CarManager {
 
     mapping(address => bool) public ITVAuthorities;
 
+    /*
+     * Permit type or car type is related to the ITV - inspection intervals are determined by this variable
+     * We must look into the `legal` types of vehicles and permits
+     */
     enum PermitType {
         TWO_WHEEL,
         THREE_WHEEL,
@@ -21,6 +25,10 @@ contract CarManager {
         SERVICE
     }
 
+    /*
+     * At the moment this state adds nothing to the contract - it doesn't give the users relevant information,
+     * and it doesn't modify functions. We must update this to include relevant information or remove it.
+     */
     enum CarState {
         SHIPPED,
         FOR_SALE,
@@ -30,8 +38,13 @@ contract CarManager {
         REGISTERED
     }
 
+    /*
+     * What is the ITV INITIAL state? Are there any other states?
+     * Again, this needs to include relevant, precise information.
+     */
     enum ITVState {INTITIAL, PASSED, NOT_PASSED, NEGATIVE}
 
+    // What should the initial value of lastInspection be? How does the ITV manage this?
     struct ITV {
         ITVState state;
         uint256 lastInspection;
