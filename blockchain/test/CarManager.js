@@ -1,4 +1,4 @@
-const CarManager = artifacts.require("CarManager")
+const CarManager = artifacts.require("CarManager");
 
 contract("CarManager", accounts => {
   const root = accounts[0];
@@ -6,9 +6,10 @@ contract("CarManager", accounts => {
   const itvAccount = accounts[2];
   const userAccount = accounts[3];
 
+  const carID = web3.utils.asciiToHex("1G1YY25R695700001");
   const licensePlate = "7610JBB";
 
-  const permitTypes = {
+  const carTypes = {
     TWO_WHEEL: 0,
     THREE_WHEEL: 1,
     FOUR_WHEEL: 2,
@@ -18,13 +19,12 @@ contract("CarManager", accounts => {
   };
 
   const itvStates = {
-    INITIAL: 0,
-    PASSED: 1,
-    NOT_PASSED: 2,
-    NEGATIVE: 3
+    PASSED: 0,
+    NOT_PASSED: 1,
+    NEGATIVE: 2
   };
 
-  let carManager
+  let carManager;
   beforeEach(async () => {
     carManager = await CarManager.new();
   });
@@ -67,17 +67,17 @@ contract("CarManager", accounts => {
   it("fails to add a new car as non-active brand", async () => {
     await carManager.addBrand(brandAccount, { from: root });
     try {
-      await carManager.addCar(licensePlate, permitTypes.FOUR_WHEEL, { from: root });
+      await carManager.addCar(carID, licensePlate, carTypes.FOUR_WHEEL, { from: root });
     } catch (e) {
       assert.equal(e.reason, "Only active brand can add a new car", "Error: invalid error reason");
     }
   });
 
   it("adds a new car as an active brand", async () => {
-    const carType = permitTypes.FOUR_WHEEL;
+    const carType = carTypes.FOUR_WHEEL;
     await carManager.addBrand(brandAccount, { from: root });
-    await carManager.addCar(licensePlate, carType, { from: brandAccount });
-    const { ownerID, licensePlate: plate } = await carManager.getCar(licensePlate);
+    await carManager.addCar(carID, licensePlate, carType, { from: brandAccount });
+    const { ownerID, licensePlate: plate } = await carManager.getCar(carID);
     assert.equal(ownerID, brandAccount, "Error: invalid ownerID");
     assert.equal(licensePlate, plate, "Error: invalid license plate");
   });
@@ -97,10 +97,10 @@ contract("CarManager", accounts => {
 
   it("updates car ITV state", async () => {
     await carManager.addBrand(brandAccount, { from: root });
-    await carManager.addCar(licensePlate, permitTypes.FOUR_WHEEL, { from: brandAccount });
+    await carManager.addCar(carID, licensePlate, carTypes.FOUR_WHEEL, { from: brandAccount });
     await carManager.addITV(itvAccount, { from: root });
-    await carManager.updateITV(licensePlate, itvStates.PASSED, { from: itvAccount });
-    const { itvState } = await carManager.getCar(licensePlate);
+    await carManager.updateITV(carID, itvStates.PASSED, { from: itvAccount });
+    const { itvState } = await carManager.getCar(carID);
     assert.equal(itvStates.PASSED, itvState, "Error: carITVstate not updated");
   });
 });
