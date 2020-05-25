@@ -22,10 +22,11 @@ contract Permissions {
         owner = msg.sender;
     }
 
-    function addPermission(address _contract, bytes memory _method, address _to)
-        public
-        onlyOwner
-    {
+    function addPermission(
+        address _contract,
+        bytes memory _method,
+        address _to
+    ) public onlyOwner {
         bytes32 methodHash = keccak256(_method);
         permissions[_contract][methodHash][_to] = true;
         emit PermissionAdded(_contract, methodHash, _to);
@@ -39,5 +40,14 @@ contract Permissions {
         bytes32 methodHash = keccak256(_method);
         permissions[_contract][methodHash][_to] = false;
         emit PermissionRemoved(_contract, methodHash, _to);
+    }
+
+    function requestAccess(
+        address _contract,
+        bytes memory _method,
+        address _to
+    ) public view returns (bool) {
+        bytes32 method = keccak256(_method);
+        return permissions[_contract][method][_to];
     }
 }

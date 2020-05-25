@@ -92,4 +92,10 @@ contract("Permissions", async accounts => {
     assert.equal(methodHash, methodResult, "error: wrong event method");
     assert.equal(_to, toResult, "error: wrong event 'to' address");
   });
+
+  it("retrieves permissions correctly", async () => {
+    await contract.addPermission(_contract, _method, _to, { from: owner });
+    const access = await contract.requestAccess(_contract, _method, _to);
+    assert.isOk(access, "error: failed to retrieve permissions");
+  });
 }); 
