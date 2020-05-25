@@ -6,7 +6,7 @@ contract("Permissions", async accounts => {
 
   // add/remove permissions test variables
   const _contract = accounts[2];
-  const _method = web3.utils.asciiToHex("addBrandaddress");
+  const _method = "addBrandaddress";
   const _to = accounts[3];
 
   const errors = {
@@ -46,6 +46,7 @@ contract("Permissions", async accounts => {
     try {
       await contract.addPermission(_contract, _method, _to, { from: owner });
       const methodHash = await web3.utils.soliditySha3(_method);
+
       const permission = await contract.permissions(_contract, methodHash, _to);
       assert.isOk(permission, "error: failed to add permission as owner");
     } catch (e) {
@@ -56,10 +57,10 @@ contract("Permissions", async accounts => {
   it("emits a 'PermissionAdded' event correctly", async () => {
     const { receipt: { logs: [eventObj] } } = await contract.addPermission(_contract, _method, _to, { from: owner });
     const { event: eventName, args: { _contract: contractResult, _method: methodResult, _to: toResult } } = eventObj;
-    const methodHash = await web3.utils.soliditySha3(_method);
+
     assert.equal(eventName, events.PERMISSION_ADDED, "error: wrong event name");
     assert.equal(_contract, contractResult, "error: wrong event contract");
-    assert.equal(methodHash, methodResult, "error: wrong event method");
+    assert.equal(_method, methodResult, "error: wrong event method");
     assert.equal(_to, toResult, "error: wrong event 'to' address");
   });
 
@@ -76,6 +77,7 @@ contract("Permissions", async accounts => {
     try {
       await contract.removePermission(_contract, _method, _to, { from: owner });
       const methodHash = await web3.utils.soliditySha3(_method);
+
       const permission = await contract.permissions(_contract, methodHash, _to);
       assert.isNotOk(permission, "error: failed to remove permission as owner");
     } catch (e) {
@@ -86,10 +88,10 @@ contract("Permissions", async accounts => {
   it("emits a 'PermissionRemoved' event correctly", async () => {
     const { receipt: { logs: [eventObj] } } = await contract.removePermission(_contract, _method, _to, { from: owner });
     const { event: eventName, args: { _contract: contractResult, _method: methodResult, _to: toResult } } = eventObj;
-    const methodHash = await web3.utils.soliditySha3(_method);
+
     assert.equal(eventName, events.PERMISSION_REMOVED, "error: wrong event name");
     assert.equal(_contract, contractResult, "error: wrong event contract");
-    assert.equal(methodHash, methodResult, "error: wrong event method");
+    assert.equal(_method, methodResult, "error: wrong event method");
     assert.equal(_to, toResult, "error: wrong event 'to' address");
   });
 

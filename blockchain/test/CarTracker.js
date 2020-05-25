@@ -4,7 +4,7 @@ const Auth = artifacts.require("Permissions");
 contract("CarTracker", async accounts => {
   const owner = accounts[0];
   const carManager = accounts[1];
-  const method = web3.utils.asciiToHex("addCar(bytes,string,uint256)");
+  const method = "addCar(bytes,string,uint256)";
 
   const carID = web3.utils.asciiToHex("1G1YY25R695700001");
   const licensePlate = "7610JBB";
@@ -28,8 +28,8 @@ contract("CarTracker", async accounts => {
   let auth;
   beforeEach(async () => {
     try {
-      carTracker = await CarTracker.new();
       auth = await Auth.new({ from: owner });
+      carTracker = await CarTracker.new(auth.address);
     } catch (e) {
       assert.fail("error: contracts failed to deploy");
     }

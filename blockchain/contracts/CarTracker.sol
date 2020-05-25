@@ -12,14 +12,14 @@ contract CarTracker is CarInterface {
     event CarAdded(bytes32 carID, uint256 date);
     event ITVInspection(bytes32 carID, uint256 date);
 
-    modifier onlyAuthorized(bytes memory _method, address _account) {
+    modifier onlyAuthorized(string memory _method, address _account) {
         bool hasAccess = auth.requestAccess(address(this), _method, _account);
         require(hasAccess, "Unauthorized");
         _;
     }
 
-    constructor() public {
-        auth = new Permissions();
+    constructor(address authorizerContractAddress) public {
+        auth = Permissions(authorizerContractAddress);
     }
 
     function addCar(
