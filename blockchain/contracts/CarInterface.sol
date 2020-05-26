@@ -30,7 +30,6 @@ interface CarInterface {
 
     enum ITVState {PASSED, NOT_PASSED, NEGATIVE}
 
-    // What should the initial value of lastInspection be? How does the ITV manage this?
     struct ITV {
         ITVState state;
         uint256 lastInspection;
@@ -45,4 +44,27 @@ interface CarInterface {
         CarState _state;
         ITV itv;
     }
+
+    function addCar(
+        bytes calldata,
+        string calldata,
+        uint256
+    ) external;
+
+    function updateCarState(bytes calldata, uint256) external;
+
+    function updateITV(bytes calldata, uint256) external;
+
+    function getCar(bytes calldata)
+        external
+        view
+        returns (
+            bytes32,
+            uint256,
+            address,
+            string memory,
+            uint256,
+            uint256,
+            uint256
+        );
 }

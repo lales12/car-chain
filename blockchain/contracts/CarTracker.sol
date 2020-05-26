@@ -1,4 +1,4 @@
-pragma solidity >=0.5.16;
+pragma solidity >=0.6.0;
 
 import "./Permissions.sol";
 import "./CarInterface.sol";
@@ -23,10 +23,14 @@ contract CarTracker is CarInterface {
     }
 
     function addCar(
-        bytes memory carID,
-        string memory licensePlate,
+        bytes calldata carID,
+        string calldata licensePlate,
         uint256 carTypeIndex
-    ) public onlyAuthorized("addCar(bytes,string,uint256)", msg.sender) {
+    )
+        external
+        override
+        onlyAuthorized("addCar(bytes,string,uint256)", msg.sender)
+    {
         uint256 creationBlock = block.number;
         bytes32 _ID = keccak256(carID);
         trackedCars[_ID] = Car({
@@ -41,12 +45,20 @@ contract CarTracker is CarInterface {
         emit CarAdded(_ID, creationBlock);
     }
 
-    function updateCarState(bytes memory ID, uint256 carStateIndex) public {
+    function updateCarState(bytes calldata ID, uint256 carStateIndex)
+        external
+        override
+        onlyAuthorized("updateCarState(bytes,uint256)", msg.sender)
+    {
         bytes32 _ID = keccak256(ID);
         trackedCars[_ID]._state = CarState(carStateIndex);
     }
 
-    function updateITV(bytes memory ID, uint256 itvStateIndex) public {
+    function updateITV(bytes calldata ID, uint256 itvStateIndex)
+        external
+        override
+        onlyAuthorized("updateITV(bytes,uint256)", msg.sender)
+    {
         bytes32 _ID = keccak256(ID);
         Car storage car = trackedCars[_ID];
         uint256 date = now;
@@ -55,8 +67,9 @@ contract CarTracker is CarInterface {
         emit ITVInspection(_ID, date);
     }
 
-    function getCar(bytes memory carID)
-        public
+    function getCar(bytes calldata carID)
+        external
+        override
         view
         returns (
             bytes32 ID,

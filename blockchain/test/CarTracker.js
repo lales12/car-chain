@@ -4,7 +4,13 @@ const Auth = artifacts.require("Permissions");
 contract("CarTracker", async accounts => {
   const owner = accounts[0];
   const carManager = accounts[1];
-  const method = "addCar(bytes,string,uint256)";
+  const unauthorizedAccount = accounts[2];
+
+  const methods = {
+    addCar: "addCar(bytes,string,uint256)",
+    updateCarState: "updateCarState(bytes,uint256)",
+    updateITV: "updateITV(bytes,uint256)"
+  };
 
   const carID = web3.utils.asciiToHex("1G1YY25R695700001");
   const licensePlate = "7610JBB";
@@ -22,6 +28,10 @@ contract("CarTracker", async accounts => {
     PASSED: 0,
     NOT_PASSED: 1,
     NEGATIVE: 2
+  };
+
+  const errors = {
+    unauthorized: "Unauthorized"
   };
 
   let carTracker;
@@ -45,18 +55,22 @@ contract("CarTracker", async accounts => {
     assert.equal(owner, authOwner, "error: failed to assign correct contract owner");
   });
 
+  it("fails to add a car from unauthorized account", async () => {
+    try {
+      await auth.addPermission(carTracker.address, methods.addCar, carManager, { from: owner });
+      await carTracker.addCar(carID, licensePlate, carTypes.THREE_WHEEL, { from: unauthorizedAccount });
+    } catch (e) {
+      assert.equal(e.reason, errors.unauthorized, "error: unexpected error on add car");
+    }
+  });
+
   it("allows carManager to add a new car", async () => {
     try {
-      const { receipt: { logs: [event] } } = await auth.addPermission(carTracker.address, method, carManager, { from: owner });
-      const { event: eventName, args: { _contract, _method, _to } } = event;
-      // const methodHash = await web3.utils.soliditySha3(method);
-      // const authorized = await auth.permissions(carTracker.address, methodHash, carManager);
-      // console.log({authorized});
-      // reverts on unauthorized error when requesting access to permissions contract event though everything looks fine
+      await auth.addPermission(carTracker.address, methods.addCar, carManager, { from: owner });
       await carTracker.addCar(carID, licensePlate, carTypes.FOUR_WHEEL, { from: carManager });
     } catch (e) {
-      console.log({ e });
       assert.fail("error: failed to add a new car");
     }
   });
+
 });
