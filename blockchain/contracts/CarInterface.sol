@@ -45,6 +45,10 @@ interface CarInterface {
         ITV itv;
     }
 
+    event CarAdded(bytes32 indexed carID, uint256 date);
+    event CarStateUpdated(bytes32 indexed carID, uint256 date);
+    event ITVInspection(bytes32 indexed carID, uint256 date);
+
     function addCar(
         bytes calldata,
         string calldata,
@@ -63,6 +67,7 @@ interface CarInterface {
             uint256,
             address,
             string memory,
+            uint256,
             uint256,
             uint256,
             uint256

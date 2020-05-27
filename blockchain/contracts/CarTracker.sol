@@ -9,9 +9,6 @@ contract CarTracker is CarInterface {
 
     mapping(bytes32 => Car) trackedCars;
 
-    event CarAdded(bytes32 carID, uint256 date);
-    event ITVInspection(bytes32 carID, uint256 date);
-
     modifier onlyAuthorized(string memory _method, address _account) {
         bool hasAccess = auth.requestAccess(address(this), _method, _account);
         require(hasAccess, "Unauthorized");
@@ -52,6 +49,7 @@ contract CarTracker is CarInterface {
     {
         bytes32 _ID = keccak256(ID);
         trackedCars[_ID]._state = CarState(carStateIndex);
+        emit CarStateUpdated(_ID, now);
     }
 
     function updateITV(bytes calldata ID, uint256 itvStateIndex)
@@ -76,7 +74,8 @@ contract CarTracker is CarInterface {
             uint256 creationBlock,
             address ownerID,
             string memory licensePlate,
-            uint256 permitType,
+            uint256 carType,
+            uint256 carState,
             uint256 itvState,
             uint256 lastInspection
         )
@@ -88,7 +87,8 @@ contract CarTracker is CarInterface {
             creationBlock = car.creationBlock,
             ownerID = car.ownerID,
             licensePlate = car.licensePlate,
-            permitType = uint256(car._type),
+            carType = uint256(car._type),
+            carState = uint256(car._state),
             itvState = uint256(car.itv.state),
             lastInspection = car.itv.lastInspection
         );
