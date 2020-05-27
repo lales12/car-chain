@@ -2,9 +2,7 @@ const CarTracker = artifacts.require("CarTracker");
 const Auth = artifacts.require("Permissions");
 
 contract("CarTracker", async accounts => {
-  const owner = accounts[0];
-  const carManager = accounts[1];
-  const unauthorizedAccount = accounts[2];
+  const [owner, carManager, unauthorizedAccount, dealership, itvAuthority] = accounts;
 
   const methods = {
     addCar: "addCar(bytes,string,uint256)",
@@ -24,6 +22,15 @@ contract("CarTracker", async accounts => {
     AGRICULTURE: 5
   };
 
+  const carStates = {
+    SHIPPED: 0,
+    FOR_SALE: 1,
+    PROCESSING_SALE: 2,
+    SOLD: 3,
+    PROCESSING_REGISTER: 4,
+    REGISTERED: 5
+  };
+
   const itvStates = {
     PASSED: 0,
     NOT_PASSED: 1,
@@ -33,6 +40,8 @@ contract("CarTracker", async accounts => {
   const errors = {
     unauthorized: "Unauthorized"
   };
+
+  const lastInspectionDefaultValue = 0;
 
   let carTracker;
   let auth;
@@ -65,12 +74,56 @@ contract("CarTracker", async accounts => {
   });
 
   it("allows carManager to add a new car", async () => {
+    await auth.addPermission(carTracker.address, methods.addCar, carManager, { from: owner });
+    await carTracker.addCar(carID, licensePlate, carTypes.FOUR_WHEEL, { from: carManager });
+    const { ID, ownerID, licensePlate: licensePlateReturned, carType, carState, itvState, lastInspection } = await carTracker.getCar(carID);
+    const carIDHash = web3.utils.keccak256(carID);
+    assert.equal(ID, carIDHash);
+    assert.equal(ownerID, carManager);
+    assert.equal(licensePlateReturned, licensePlate);
+    assert.equal(carType, carTypes.FOUR_WHEEL);
+    assert.equal(carState, carStates.FOR_SALE);
+    assert.equal(itvState, itvStates.PASSED);
+    assert.equal(lastInspection, lastInspectionDefaultValue);
+  });
+
+  it("fails to update car state from unauthorized account", async () => {
     try {
       await auth.addPermission(carTracker.address, methods.addCar, carManager, { from: owner });
       await carTracker.addCar(carID, licensePlate, carTypes.FOUR_WHEEL, { from: carManager });
+      await auth.addPermission(carTracker.address, methods.updateCarState, dealership, { from: owner });
+      await carTracker.updateCarState(carID, carStates.SOLD, { from: unauthorizedAccount });
     } catch (e) {
-      assert.fail("error: failed to add a new car");
+      assert.equal(e.reason, errors.unauthorized, "error: unexpected error on update car state");
     }
   });
 
+  it("updates car state from authorized account", async () => {
+    await auth.addPermission(carTracker.address, methods.addCar, carManager, { from: owner });
+    await carTracker.addCar(carID, licensePlate, carTypes.FOUR_WHEEL, { from: carManager });
+    await auth.addPermission(carTracker.address, methods.updateCarState, dealership, { from: owner });
+    await carTracker.updateCarState(carID, carStates.SOLD, { from: dealership });
+    const { carState } = await carTracker.getCar(carID);
+    assert.equal(carState, carStates.SOLD, "error: wrong car state after update");
+  });
+
+  it("fails to update itv state from unauthorized account", async () => {
+    try {
+      await auth.addPermission(carTracker.address, methods.addCar, carManager, { from: owner });
+      await carTracker.addCar(carID, licensePlate, carTypes.FOUR_WHEEL, { from: carManager });
+      await auth.addPermission(carTracker.address, methods.updateITV, itvAuthority, { from: owner });
+      await carTracker.updateITV(carID, itvStates.NOT_PASSED, { from: unauthorizedAccount });
+    } catch (e) {
+      assert.equal(e.reason, errors.unauthorized, "error: unexpected error on update itv state");
+    }
+  });
+
+  it("updates itv state from authorized account", async () => {
+    await auth.addPermission(carTracker.address, methods.addCar, carManager, { from: owner });
+    await carTracker.addCar(carID, licensePlate, carTypes.FOUR_WHEEL, { from: carManager });
+    await auth.addPermission(carTracker.address, methods.updateITV, itvAuthority, { from: owner });
+    await carTracker.updateITV(carID, itvStates.NOT_PASSED, { from: itvAuthority });
+    const { itvState } = await carTracker.getCar(carID);
+    assert.equal(itvState, itvStates.NOT_PASSED, "error: wrong itv state after update");
+  });
 });
