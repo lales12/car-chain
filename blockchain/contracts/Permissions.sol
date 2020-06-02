@@ -10,11 +10,20 @@ contract Permissions {
      */
     mapping(address => mapping(bytes32 => mapping(address => bool))) public permissions;
 
-    event PermissionAdded(address _contract, string _method, address _to);
-    event PermissionRemoved(address _contract, string _method, address _to);
+    event PermissionAdded(
+        address indexed _contract,
+        string _method,
+        address _to
+    );
+
+    event PermissionRemoved(
+        address indexed _contract,
+        string _method,
+        address _to
+    );
 
     modifier onlyOwner() {
-        require(msg.sender == owner, "Only owner can perform this action");
+        require(msg.sender == owner, "Only owner can manage permissions");
         _;
     }
 
@@ -28,7 +37,6 @@ contract Permissions {
         address _to
     ) public onlyOwner {
         bytes32 methodHash = keccak256(abi.encodePacked(_method));
-
         permissions[_contract][methodHash][_to] = true;
         emit PermissionAdded(_contract, _method, _to);
     }

@@ -10,7 +10,7 @@ contract("Permissions", async accounts => {
   const _to = accounts[3];
 
   const errors = {
-    ONLY_OWNER: "Only owner can perform this action",
+    ONLY_OWNER: "Only owner can manage permissions",
   };
 
   const events = {
