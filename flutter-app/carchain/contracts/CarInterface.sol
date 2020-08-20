@@ -1,4 +1,4 @@
-pragma solidity >=0.6.0;
+pragma solidity >=0.5.16;
 
 
 interface CarInterface {
@@ -49,11 +49,7 @@ interface CarInterface {
     event CarStateUpdated(bytes32 indexed carID, uint256 date);
     event ITVInspection(bytes32 indexed carID, uint256 date);
 
-    function addCar(
-        bytes calldata,
-        string calldata,
-        uint256
-    ) external;
+    function addCar(bytes calldata, string calldata, uint256) external;
 
     function updateCarState(bytes calldata, uint256) external;
 
