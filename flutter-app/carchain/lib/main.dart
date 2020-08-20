@@ -1,38 +1,34 @@
-import 'package:carchain/carChain.dart';
+import 'package:carchain/app_config.dart';
 import 'package:carchain/contract_models/permissions.dart';
+import 'package:carchain/services_provider.dart';
+import 'package:carchain/wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:provider/single_child_widget.dart';
 
-void main() {
-  runApp(MyApp());
+void main() async {
+  // bootstrapping;
+  WidgetsFlutterBinding.ensureInitialized();
+  final appConfigProvider = await createProviders(AppConfig().params["dev"]);
+  runApp(MyApp(appConfigProvider));
 }
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+  MyApp(this.appConfigProvider);
+  final List<SingleChildWidget> appConfigProvider;
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => Permissions(
-          '18d12adf5415b3858fe57ffa8124f05d37113dc6c508fb6b1023e6ee0ace2fc2'),
+    return MultiProvider(
+      providers: appConfigProvider,
       child: MaterialApp(
         title: 'Car Chain',
         theme: ThemeData(
-          // This is the theme of your application.
-          //
-          // Try running your application with "flutter run". You'll see the
-          // application has a blue toolbar. Then, without quitting the app, try
-          // changing the primarySwatch below to Colors.green and then invoke
-          // "hot reload" (press "r" in the console where you ran "flutter run",
-          // or simply save your changes to "hot reload" in a Flutter IDE).
-          // Notice that the counter didn't reset back to zero; the application
-          // is not restarted.
-          primarySwatch: Colors.blue,
-          // This makes the visual density adapt to the platform that you run
-          // the app on. For desktop platforms, the controls will be smaller and
-          // closer together (more dense) than on mobile platforms.
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
-        home: CarChain(),
+            primarySwatch: Colors.blue,
+            visualDensity: VisualDensity.adaptivePlatformDensity,
+            inputDecorationTheme:
+                InputDecorationTheme(contentPadding: EdgeInsets.all(5.0))),
+        home: Wrapper(),
       ),
     );
   }

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:carchain/config.dart';
+import 'package:carchain/app_config.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart';
@@ -23,13 +23,13 @@ class Permissions extends ChangeNotifier {
   // public variables
   EthereumAddress contractOwner;
 
-  Permissions(String userPrivKey) {
-    initiateSetup(userPrivKey);
+  Permissions(String userPrivKey, AppConfigParams params) {
+    initiateSetup(userPrivKey, params);
   }
 
-  Future<void> initiateSetup(String privateKey) async {
-    _client = Web3Client(rpcUrl, Client(), socketConnector: () {
-      return IOWebSocketChannel.connect(wsUrl).cast<String>();
+  Future<void> initiateSetup(String privateKey, AppConfigParams params) async {
+    _client = Web3Client(params.rpc, Client(), socketConnector: () {
+      return IOWebSocketChannel.connect(params.ws).cast<String>();
     });
 
     await _getAbi();
