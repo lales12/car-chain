@@ -7,7 +7,7 @@ import 'package:http/http.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
 
-class PermissionContract extends ChangeNotifier {
+class Permissions extends ChangeNotifier {
   Web3Client _client;
   String _abiCode;
   Credentials _credentials;
@@ -23,15 +23,13 @@ class PermissionContract extends ChangeNotifier {
   // public variables
   EthereumAddress contractOwner;
 
-  PermissionContract(String userPrivKey) {
-    initiateSetup(userPrivKey);
+  Permissions(String userPrivKey, AppConfigParams params) {
+    initiateSetup(userPrivKey, params);
   }
 
-  Future<void> initiateSetup(String privateKey) async {
-    print(configParams.rpcUrl);
-    print(configParams.wsUrl);
-    _client = Web3Client(configParams.rpcUrl, Client(), socketConnector: () {
-      return IOWebSocketChannel.connect(configParams.wsUrl).cast<String>();
+  Future<void> initiateSetup(String privateKey, AppConfigParams params) async {
+    _client = Web3Client(params.rpc, Client(), socketConnector: () {
+      return IOWebSocketChannel.connect(params.ws).cast<String>();
     });
 
     await _getAbi();

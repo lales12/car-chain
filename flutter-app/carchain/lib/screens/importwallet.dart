@@ -1,19 +1,22 @@
+import 'package:carchain/services/walletmanager.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
-class Authenticate extends StatefulWidget {
+class ImportWallet extends StatefulWidget {
   @override
-  _AuthenticateState createState() => _AuthenticateState();
+  _ImportWalletState createState() => _ImportWalletState();
 }
 
-class _AuthenticateState extends State<Authenticate> {
+class _ImportWalletState extends State<ImportWallet> {
   final _formKey = GlobalKey<FormState>();
   String privateKey = '';
+
   @override
   Widget build(BuildContext context) {
+    final walletManager = Provider.of<WalletManager>(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Log In'),
+        title: Text('Import Wallet'),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(20.0),
@@ -25,7 +28,7 @@ class _AuthenticateState extends State<Authenticate> {
             children: [
               SizedBox(height: 20.0),
               Text(
-                'Login to Your Account',
+                'Import A Wallet',
               ),
               SizedBox(height: 20.0),
               TextFormField(
@@ -39,11 +42,12 @@ class _AuthenticateState extends State<Authenticate> {
               SizedBox(height: 20.0),
               RaisedButton(
                 child: Text(
-                  'Sign In',
+                  'Import',
                 ),
                 onPressed: () async {
                   if (_formKey.currentState.validate()) {
                     print(privateKey);
+                    walletManager.setWalletFromPrivKey(privateKey);
                   }
                 },
               ),

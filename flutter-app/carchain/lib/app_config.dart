@@ -1,18 +1,20 @@
+// uncoment what you don't use to avoid problem warning
+
 class AppConfig {
-  AppConfig() {
-    params['dev'] =
-        AppConfigParams("http://192.168.0.17:7545", "ws://192.168.0.17:7545/");
-
-    params['ropsten'] = AppConfigParams(
-        "https://ropsten.infura.io/v3/628074215a2449eb960b4fe9e95feb09",
-        "wss://ropsten.infura.io/ws/v3/628074215a2449eb960b4fe9e95feb09");
-  }
-
-  Map<String, AppConfigParams> params = Map<String, AppConfigParams>();
+  String rpcUrl;
+  String wsUrl;
+  AppConfig({this.rpcUrl, this.wsUrl});
 }
 
-class AppConfigParams {
-  final String rpc;
-  final String ws;
-  AppConfigParams(this.rpc, this.ws);
-}
+Map<String, String> _dev = {
+  'rpcUrl': 'http://192.168.0.17:7545',
+  'wsUrl': 'ws://192.168.0.17:7545/'
+};
+
+// Map<String, String> _ropsten = {
+//   'rpcUrl': 'https://ropsten.infura.io/v3/628074215a2449eb960b4fe9e95feb09',
+//   'wsUrl': 'wss://ropsten.infura.io/ws/v3/628074215a2449eb960b4fe9e95feb09'
+// };
+
+AppConfig configParams =
+    AppConfig(rpcUrl: _dev['rpcUrl'], wsUrl: _dev['wsUrl']);

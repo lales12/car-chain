@@ -1,3 +1,5 @@
+import 'package:carchain/services/notifier_service.dart';
+
 import 'configuration_service.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:carchain/util/hd_key.dart';

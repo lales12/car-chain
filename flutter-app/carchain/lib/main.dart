@@ -1,34 +1,24 @@
-import 'package:carchain/app_config.dart';
-import 'package:carchain/contract_models/permissions.dart';
-import 'package:carchain/services_provider.dart';
-import 'package:carchain/wrapper.dart';
+import 'package:carchain/screens/wrapper.dart';
+import 'package:carchain/services/walletmanager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:provider/single_child_widget.dart';
 
 void main() async {
-  // bootstrapping;
-  WidgetsFlutterBinding.ensureInitialized();
-  final appConfigProvider = await createProviders(AppConfig().params["dev"]);
-  runApp(MyApp(appConfigProvider));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
-  MyApp(this.appConfigProvider);
-  final List<SingleChildWidget> appConfigProvider;
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: appConfigProvider,
+    return ChangeNotifierProvider(
+      create: (_) => WalletManager(),
       child: MaterialApp(
-        title: 'Car Chain',
+        home: Wrapper(),
         theme: ThemeData(
             primarySwatch: Colors.blue,
             visualDensity: VisualDensity.adaptivePlatformDensity,
             inputDecorationTheme:
                 InputDecorationTheme(contentPadding: EdgeInsets.all(5.0))),
-        home: Wrapper(),
       ),
     );
   }
