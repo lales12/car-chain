@@ -142,20 +142,26 @@ class PermissionContract extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addPermission(EthereumAddress contractAddress,
+  Future<String> addPermission(EthereumAddress contractAddress,
       String functionName, EthereumAddress toAddress) async {
-    await _client.call(
-        contract: _contract,
-        function: _addPermission,
-        params: [contractAddress, functionName, toAddress]);
+    String res = await _client.sendTransaction(
+        _credentials,
+        Transaction.callContract(
+            contract: _contract,
+            function: _addPermission,
+            parameters: [contractAddress, functionName, toAddress]));
+    return res;
   }
 
-  Future<void> removePermission(EthereumAddress contractAddress,
+  Future<String> removePermission(EthereumAddress contractAddress,
       String functionName, EthereumAddress toAddress) async {
-    await _client.call(
-        contract: _contract,
-        function: _removePermission,
-        params: [contractAddress, functionName, toAddress]);
+    String res = await _client.sendTransaction(
+        _credentials,
+        Transaction.callContract(
+            contract: _contract,
+            function: _removePermission,
+            parameters: [contractAddress, functionName, toAddress]));
+    return res;
   }
 
   Future<bool> requestAccess(EthereumAddress contractAddress,

@@ -22,17 +22,20 @@ List<Item> _data = [
     shortDiscribe:
         'Add permistion to a user to use a function in a smart contract.',
     isExpanded: false,
+    // callFunction: permissionsContract.addPermission,
   ),
   Item(
     name: 'Remove Permission',
     shortDiscribe:
         'Remove permistion to a user to use a function in a smart contract.',
     isExpanded: false,
+    // callFunction: permissionsContract.removePermission,
   ),
   Item(
-    name: 'Request Access',
+    name: 'Access Status',
     shortDiscribe: 'Request the Status of your permision',
     isExpanded: false,
+    // callFunction: permissionsContract.requestAccess,
   ),
 ];
 
@@ -42,20 +45,22 @@ class PermissionsTab extends StatefulWidget {
 }
 
 class _PermissionsTabState extends State<PermissionsTab> {
-  String callContractAddress = '';
-  String callFunctionName = '';
-  String callToAddress = '';
+  String inputContractAddress = '';
+  String inputFunctionName = '';
+  String inputToAddress = '';
   @override
   Widget build(BuildContext context) {
     final permissionsContract = Provider.of<PermissionContract>(context);
+
     if (permissionsContract.doneLoading) {
       // print('permistion contract address: ' +
       //     permissionsContract.contractAddress.toString());
+      print(permissionsContract.addPermisionEvent ?? 'no event yet');
       return Scaffold(
           body: SingleChildScrollView(
         child: Container(
           padding: EdgeInsets.all(8.0),
-          child: _buildPanel(),
+          child: _buildPanel(_data, permissionsContract),
         ),
       ));
     }
@@ -64,7 +69,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
     );
   }
 
-  Widget _buildPanel() {
+  Widget _buildPanel(List<Item> _data, PermissionContract permissionsContract) {
     return ExpansionPanelList(
       expandedHeaderPadding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0),
       expansionCallback: (int index, bool isExpanded) {
@@ -102,7 +107,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                       validator: (val) =>
                           val.isEmpty ? 'Enter a valid Contract Address' : null,
                       onChanged: (val) {
-                        callContractAddress = val;
+                        inputContractAddress = val;
                       }),
                   SizedBox(height: 20.0),
                   new TextFormField(
@@ -111,7 +116,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                       validator: (val) =>
                           val.isEmpty ? 'Enter a valid Function Name' : null,
                       onChanged: (val) {
-                        callFunctionName = val;
+                        inputFunctionName = val;
                       }),
                   SizedBox(height: 20.0),
                   new TextFormField(
@@ -120,7 +125,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                       validator: (val) =>
                           val.isEmpty ? 'Enter a valid To Address' : null,
                       onChanged: (val) {
-                        callToAddress = val;
+                        inputToAddress = val;
                       }),
                   SizedBox(height: 20.0),
                   new RaisedButton(
@@ -130,9 +135,39 @@ class _PermissionsTabState extends State<PermissionsTab> {
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
                         print('button pressed: ' + item.name);
-                        print(callContractAddress);
-                        print(callFunctionName);
-                        print(callToAddress);
+                        print(inputContractAddress);
+                        print(inputFunctionName);
+                        print(inputToAddress);
+                        switch (item.name) {
+                          case 'Add Permission':
+                            String result =
+                                await permissionsContract.addPermission(
+                                    EthereumAddress.fromHex(
+                                        inputContractAddress),
+                                    inputFunctionName,
+                                    EthereumAddress.fromHex(inputToAddress));
+                            print('done call tx: ' + result);
+                            break;
+                          case 'Remove Permission':
+                            String result =
+                                await permissionsContract.removePermission(
+                                    EthereumAddress.fromHex(
+                                        inputContractAddress),
+                                    inputFunctionName,
+                                    EthereumAddress.fromHex(inputToAddress));
+                            print('done call tx: ' + result);
+                            break;
+                          case 'Access Status':
+                            bool result =
+                                await permissionsContract.requestAccess(
+                                    EthereumAddress.fromHex(
+                                        inputContractAddress),
+                                    inputFunctionName,
+                                    EthereumAddress.fromHex(inputToAddress));
+                            print('done call tx: ' + result.toString());
+                            break;
+                          default:
+                        }
                       }
                     },
                   ),
