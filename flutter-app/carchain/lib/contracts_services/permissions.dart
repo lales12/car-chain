@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:carchain/app_config.dart';
@@ -6,6 +7,20 @@ import 'package:flutter/widgets.dart';
 import 'package:http/http.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
+
+class AddPermisionEvent {
+  EthereumAddress contract;
+  String method;
+  EthereumAddress to;
+  AddPermisionEvent({this.contract, this.method, this.to});
+}
+
+class RemovePermisionEvent {
+  EthereumAddress contract;
+  String method;
+  EthereumAddress to;
+  RemovePermisionEvent({this.contract, this.method, this.to});
+}
 
 class PermissionContract extends ChangeNotifier {
   Web3Client _client;
@@ -24,6 +39,8 @@ class PermissionContract extends ChangeNotifier {
   EthereumAddress contractOwner;
   EthereumAddress contractAddress;
   bool doneLoading = false;
+  AddPermisionEvent addPermisionEvent;
+  RemovePermisionEvent removePermisionEvent;
 
   PermissionContract(String userPrivKey) {
     initiateSetup(userPrivKey);
@@ -74,10 +91,50 @@ class PermissionContract extends ChangeNotifier {
     // events
     _permissionAdded = _contract.event("PermissionAdded");
     _permissionRemoved = _contract.event("PermissionRemoved");
-    // public variable setter
+    // public variable
     await _getContractOwner();
+    await _subscribeToAddPermisionEvent();
+    await _subscribeToremovePermisionEvent();
   }
 
+  Future<void> _subscribeToAddPermisionEvent() async {
+    // listen for the Transfer event when it's emitted by the contract above
+    _client
+        .events(
+            FilterOptions.events(contract: _contract, event: _permissionAdded))
+        .take(1)
+        .listen((event) {
+      final decoded = _permissionAdded.decodeResults(event.topics, event.data);
+
+      addPermisionEvent = AddPermisionEvent(
+        contract: decoded[0] as EthereumAddress,
+        method: decoded[1] as String,
+        to: decoded[2] as EthereumAddress,
+      );
+      notifyListeners();
+    });
+  }
+
+  Future<void> _subscribeToremovePermisionEvent() async {
+    // listen for the Transfer event when it's emitted by the contract above
+    _client
+        .events(FilterOptions.events(
+            contract: _contract, event: _permissionRemoved))
+        .take(1)
+        .listen((event) {
+      final decoded =
+          _permissionRemoved.decodeResults(event.topics, event.data);
+
+      removePermisionEvent = RemovePermisionEvent(
+        contract: decoded[0] as EthereumAddress,
+        method: decoded[1] as String,
+        to: decoded[2] as EthereumAddress,
+      );
+      notifyListeners();
+    });
+  }
+
+  // functions
   Future<void> _getContractOwner() async {
     List response =
         await _client.call(contract: _contract, function: _owner, params: []);

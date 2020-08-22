@@ -49,8 +49,8 @@ class _PermissionsTabState extends State<PermissionsTab> {
   Widget build(BuildContext context) {
     final permissionsContract = Provider.of<PermissionContract>(context);
     if (permissionsContract.doneLoading) {
-      print('permistion contract address: ' +
-          permissionsContract.contractAddress.toString());
+      // print('permistion contract address: ' +
+      //     permissionsContract.contractAddress.toString());
       return Scaffold(
           body: SingleChildScrollView(
         child: Container(
