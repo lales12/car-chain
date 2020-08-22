@@ -32,6 +32,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     final walletManager = Provider.of<WalletManager>(context);
+    // print('home: privKey ' + walletManager.wallet.privkey.toString());
     return MultiProvider(
       // we use this multi provider to provide smart contracts to all child widgets
       providers: [

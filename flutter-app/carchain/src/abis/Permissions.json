@@ -4106,9 +4106,68 @@
     "name": "solc",
     "version": "0.5.16+commit.9c3226ce.Emscripten.clang"
   },
-  "networks": {},
+  "networks": {
+    "5777": {
+      "events": {
+        "0x94300d03d1055ea383f39c4abccbcac04d49f0f1accb8437c0c4d439d7f6830e": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "_contract",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "_method",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "_to",
+              "type": "address"
+            }
+          ],
+          "name": "PermissionAdded",
+          "type": "event"
+        },
+        "0x7c6d23618077d72c4ada8d745c3ff287eab55a292a8c4433faae4141684d1ec8": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "_contract",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "_method",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "_to",
+              "type": "address"
+            }
+          ],
+          "name": "PermissionRemoved",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x0f20FFfbEAA996C6E85144E53E3048A7755f6486",
+      "transactionHash": "0x9a4f9c008930d7d66e29895de904ecc416d020d9d2b2709e78c3f6434760d346"
+    }
+  },
   "schemaVersion": "3.2.3",
-  "updatedAt": "2020-08-22T01:36:13.350Z",
+  "updatedAt": "2020-08-22T01:42:08.628Z",
+  "networkType": "ethereum",
   "devdoc": {
     "methods": {}
   },

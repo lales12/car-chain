@@ -22,14 +22,16 @@ class PermissionContract extends ChangeNotifier {
   ContractEvent _permissionRemoved;
   // public variables
   EthereumAddress contractOwner;
+  EthereumAddress contractAddress;
+  bool doneLoading = false;
 
   PermissionContract(String userPrivKey) {
     initiateSetup(userPrivKey);
   }
 
   Future<void> initiateSetup(String privateKey) async {
-    print(configParams.rpcUrl);
-    print(configParams.wsUrl);
+    // print(configParams.rpcUrl);
+    // print(configParams.wsUrl);
     _client = Web3Client(configParams.rpcUrl, Client(), socketConnector: () {
       return IOWebSocketChannel.connect(configParams.wsUrl).cast<String>();
     });
@@ -37,6 +39,8 @@ class PermissionContract extends ChangeNotifier {
     await _getAbi();
     await _getCredentials(privateKey);
     await _getDeployedContract();
+    doneLoading = true;
+    notifyListeners();
   }
 
   Future<void> _getAbi() async {
@@ -46,15 +50,17 @@ class PermissionContract extends ChangeNotifier {
     _abiCode = jsonEncode(jsonAbi["abi"]);
     _contractAddress =
         EthereumAddress.fromHex(jsonAbi["networks"]["5777"]["address"]);
-    print('permissions contract address');
-    print(_contractAddress);
+    // print('permissions contract address');
+    // print(_contractAddress);
+    contractAddress = _contractAddress;
+    notifyListeners();
   }
 
   Future<void> _getCredentials(String privateKey) async {
     _credentials = await _client.credentialsFromPrivateKey(privateKey);
     _userAddress = await _credentials.extractAddress();
-    print('useraddress from privkey');
-    print(_userAddress);
+    // print('useraddress from privkey');
+    // print(_userAddress);
   }
 
   Future<void> _getDeployedContract() async {
