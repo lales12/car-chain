@@ -19,6 +19,12 @@ class WalletManager with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> distroyWallet() async {
+    wallet = null;
+    await clearPrefs();
+    notifyListeners();
+  }
+
   // initialize shared preferences
   Future initPrefs() async {
     if (prefs == null) prefs = await SharedPreferences.getInstance();
@@ -42,7 +48,8 @@ class WalletManager with ChangeNotifier {
     prefs.setString(prefKey, privKey);
   }
 
-  Wallet getWallet() {
-    return wallet ?? null;
+  Future clearPrefs() async {
+    await initPrefs();
+    prefs.clear();
   }
 }

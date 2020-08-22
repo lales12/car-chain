@@ -8,6 +8,7 @@ contract Permissions {
      * create a mapping(contract => mapping(method => mapping(address => bool)) permissions;
      * this will be reponsible for managing all permissions.
      */
+
     mapping(address => mapping(bytes32 => mapping(address => bool))) public permissions;
 
     event PermissionAdded(
@@ -52,11 +53,14 @@ contract Permissions {
     }
 
     function requestAccess(
+        // shouldn't be named hasAccess ??
         address _contract,
         string memory _method,
-        address _to
+        address _to // this could be message.sender
     ) public view returns (bool) {
         bytes32 methodHash = keccak256(abi.encodePacked(_method));
         return permissions[_contract][methodHash][_to];
     }
+
+    // we could have a requestAccess payable so we make money when somebody want access to somthing
 }

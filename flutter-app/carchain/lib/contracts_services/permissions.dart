@@ -53,7 +53,6 @@ class PermissionContract extends ChangeNotifier {
     // print('permissions contract address');
     // print(_contractAddress);
     contractAddress = _contractAddress;
-    notifyListeners();
   }
 
   Future<void> _getCredentials(String privateKey) async {

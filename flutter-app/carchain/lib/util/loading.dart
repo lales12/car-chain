@@ -18,7 +18,7 @@ class _LoadingState extends State<Loading> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SpinKitFadingCube(
+            SpinKitDoubleBounce(
               color: Theme.of(context).accentColor,
               size: 50.0,
             ),

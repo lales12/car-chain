@@ -1,4 +1,5 @@
-import 'package:carchain/contract_models/permissions.dart';
+import 'package:carchain/contracts_services/permissions.dart';
+import 'package:carchain/screens/settings.dart';
 import 'package:carchain/screens/tabs/hometab.dart';
 import 'package:carchain/screens/tabs/permissionstab.dart';
 import 'package:carchain/services/walletmanager.dart';
@@ -32,17 +33,27 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     final walletManager = Provider.of<WalletManager>(context);
-    // print('home: privKey ' + walletManager.wallet.privkey.toString());
     return MultiProvider(
       // we use this multi provider to provide smart contracts to all child widgets
       providers: [
         ChangeNotifierProvider<PermissionContract>(
-          create: (_) => PermissionContract(walletManager.getWallet().privkey),
+          create: (_) => PermissionContract(walletManager.wallet.privkey),
         ),
       ],
       child: Scaffold(
         appBar: AppBar(
           title: Text('Car Chain'),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Settings()),
+                );
+              },
+            )
+          ],
         ),
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: selectedIndex,

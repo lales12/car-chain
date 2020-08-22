@@ -9,7 +9,7 @@ class Wrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final walletManager = Provider.of<WalletManager>(context);
-    if (walletManager.getWallet() == null) {
+    if (walletManager.wallet == null) {
       return ImportWallet();
     } else {
       return Home();
