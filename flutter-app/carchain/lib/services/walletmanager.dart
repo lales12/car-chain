@@ -1,26 +1,40 @@
-import 'package:carchain/models/wallet.dart';
+import 'package:carchain/app_config.dart';
+import 'package:carchain/models/AppUserWallet.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:web3dart/web3dart.dart';
 
 class WalletManager with ChangeNotifier {
   String prefKey = 'privKey';
   SharedPreferences prefs;
-  Wallet wallet;
+  AppUserWallet appUserWallet;
+
+  final client = Web3Client(configParams.rpcUrl, Client());
 
   WalletManager() {
-    wallet = null; // while waiting for loading prefs
+    appUserWallet = null; // while waiting for loading prefs
     loadFromPrefs();
   }
 
-  // toggle value of isDarkTheme
+  Stream<AppUserWallet> appUserWalletStream() async* {
+    if (appUserWallet != null) {
+      final credentials =
+          await client.credentialsFromPrivateKey(appUserWallet.privkey);
+      final address = await credentials.extractAddress();
+      appUserWallet.balance = await client.getBalance(address);
+      yield appUserWallet;
+    }
+  }
+
   void setWalletFromPrivKey(String privKey) {
-    wallet = Wallet(privkey: privKey);
+    appUserWallet = AppUserWallet(privkey: privKey);
     saveToPrefs(privKey);
     notifyListeners();
   }
 
   Future<void> distroyWallet() async {
-    wallet = null;
+    appUserWallet = null;
     await clearPrefs();
     notifyListeners();
   }
@@ -30,19 +44,17 @@ class WalletManager with ChangeNotifier {
     if (prefs == null) prefs = await SharedPreferences.getInstance();
   }
 
-  // get value of isDarkTheme from prefs, by default true
   Future loadFromPrefs() async {
     await initPrefs();
     String privKey = prefs.getString(prefKey) ?? null;
     if (privKey != null) {
-      wallet = Wallet(privkey: privKey);
+      appUserWallet = AppUserWallet(privkey: privKey);
     } else {
-      wallet = null;
+      appUserWallet = null;
     }
     notifyListeners();
   }
 
-  // save value of isDarkTheme to prefs
   Future saveToPrefs(String privKey) async {
     await initPrefs();
     prefs.setString(prefKey, privKey);

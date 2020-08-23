@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:carchain/contracts_services/permissions.dart';
 import 'package:carchain/util/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:web3dart/credentials.dart';
 
 class Item {
@@ -22,20 +25,17 @@ List<Item> _data = [
     shortDiscribe:
         'Add permistion to a user to use a function in a smart contract.',
     isExpanded: false,
-    // callFunction: permissionsContract.addPermission,
   ),
   Item(
     name: 'Remove Permission',
     shortDiscribe:
         'Remove permistion to a user to use a function in a smart contract.',
     isExpanded: false,
-    // callFunction: permissionsContract.removePermission,
   ),
   Item(
     name: 'Access Status',
     shortDiscribe: 'Request the Status of your permision',
     isExpanded: false,
-    // callFunction: permissionsContract.requestAccess,
   ),
 ];
 
@@ -84,6 +84,8 @@ class _PermissionsTabState extends State<PermissionsTab> {
       },
       children: _data.map<ExpansionPanel>((Item item) {
         GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+        final RoundedLoadingButtonController _btnController =
+            new RoundedLoadingButtonController();
         return ExpansionPanel(
           headerBuilder: (BuildContext context, bool isExpanded) {
             return ListTile(
@@ -128,9 +130,13 @@ class _PermissionsTabState extends State<PermissionsTab> {
                         inputToAddress = val;
                       }),
                   SizedBox(height: 20.0),
-                  new RaisedButton(
+                  new RoundedLoadingButton(
+                    color: Theme.of(context).primaryColor,
+                    controller: _btnController,
                     child: Text(
                       item.name,
+                      style:
+                          TextStyle(color: Theme.of(context).primaryColorLight),
                     ),
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
@@ -146,6 +152,12 @@ class _PermissionsTabState extends State<PermissionsTab> {
                                         inputContractAddress),
                                     inputFunctionName,
                                     EthereumAddress.fromHex(inputToAddress));
+                            if (result != null) {
+                              _btnController.success();
+                              Timer(Duration(seconds: 3), () {
+                                _btnController.reset();
+                              });
+                            }
                             print('done call tx: ' + result);
                             break;
                           case 'Remove Permission':
@@ -155,6 +167,12 @@ class _PermissionsTabState extends State<PermissionsTab> {
                                         inputContractAddress),
                                     inputFunctionName,
                                     EthereumAddress.fromHex(inputToAddress));
+                            if (result != null) {
+                              _btnController.success();
+                              Timer(Duration(seconds: 3), () {
+                                _btnController.reset();
+                              });
+                            }
                             print('done call tx: ' + result);
                             break;
                           case 'Access Status':
@@ -164,10 +182,19 @@ class _PermissionsTabState extends State<PermissionsTab> {
                                         inputContractAddress),
                                     inputFunctionName,
                                     EthereumAddress.fromHex(inputToAddress));
-                            print('done call tx: ' + result.toString());
+                            if (result != null) {
+                              _btnController.success();
+                              Timer(Duration(seconds: 3), () {
+                                _btnController.reset();
+                              });
+                            }
+                            print(
+                                'done call have access: ' + result.toString());
                             break;
                           default:
                         }
+                      } else {
+                        _btnController.reset();
                       }
                     },
                   ),
