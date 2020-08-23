@@ -1,4 +1,3 @@
-import 'package:carchain/models/AppUserWallet.dart';
 import 'package:carchain/screens/home.dart';
 import 'package:carchain/screens/importwallet.dart';
 import 'package:carchain/services/walletmanager.dart';

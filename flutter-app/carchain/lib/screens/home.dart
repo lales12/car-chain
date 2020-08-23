@@ -3,10 +3,8 @@ import 'package:carchain/models/AppUserWallet.dart';
 import 'package:carchain/screens/settings.dart';
 import 'package:carchain/screens/tabs/hometab.dart';
 import 'package:carchain/screens/tabs/permissionstab.dart';
-import 'package:carchain/services/walletmanager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:web3dart/web3dart.dart';
 
 class Home extends StatefulWidget {
   @override
