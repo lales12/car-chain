@@ -105,6 +105,7 @@ class PermissionContract extends ChangeNotifier {
     List response =
         await _client.call(contract: _contract, function: _owner, params: []);
     contractOwner = response[0];
+    print('contract owner: ' + contractOwner.toString());
     notifyListeners();
   }
 
@@ -156,22 +157,26 @@ class PermissionContract extends ChangeNotifier {
   Future<String> addPermission(EthereumAddress contractAddress,
       String functionName, EthereumAddress toAddress) async {
     String res = await _client.sendTransaction(
-        _credentials,
-        Transaction.callContract(
-            contract: _contract,
-            function: _addPermission,
-            parameters: [contractAddress, functionName, toAddress]));
+      _credentials,
+      Transaction.callContract(
+          contract: _contract,
+          function: _addPermission,
+          parameters: [contractAddress, functionName, toAddress]),
+      fetchChainIdFromNetworkId: true,
+    );
     return res;
   }
 
   Future<String> removePermission(EthereumAddress contractAddress,
       String functionName, EthereumAddress toAddress) async {
     String res = await _client.sendTransaction(
-        _credentials,
-        Transaction.callContract(
-            contract: _contract,
-            function: _removePermission,
-            parameters: [contractAddress, functionName, toAddress]));
+      _credentials,
+      Transaction.callContract(
+          contract: _contract,
+          function: _removePermission,
+          parameters: [contractAddress, functionName, toAddress]),
+      fetchChainIdFromNetworkId: true,
+    );
     return res;
   }
 

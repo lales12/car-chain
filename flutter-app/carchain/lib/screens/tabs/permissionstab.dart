@@ -174,54 +174,62 @@ class _PermissionsTabState extends State<PermissionsTab> {
                         print(inputContractAddress);
                         print(inputFunctionName);
                         print(inputToAddress);
-                        switch (item.name) {
-                          case 'Add Permission':
-                            String result =
-                                await permissionsContract.addPermission(
-                                    EthereumAddress.fromHex(
-                                        inputContractAddress),
-                                    inputFunctionName,
-                                    EthereumAddress.fromHex(inputToAddress));
-                            if (result != null) {
-                              _btnController.success();
-                              Timer(Duration(seconds: 3), () {
-                                _btnController.stop();
-                              });
-                            }
-                            print('done call tx: ' + result);
-                            break;
-                          case 'Remove Permission':
-                            String result =
-                                await permissionsContract.removePermission(
-                                    EthereumAddress.fromHex(
-                                        inputContractAddress),
-                                    inputFunctionName,
-                                    EthereumAddress.fromHex(inputToAddress));
-                            if (result != null) {
-                              _btnController.success();
-                              Timer(Duration(seconds: 3), () {
-                                _btnController.stop();
-                              });
-                            }
-                            print('done call tx: ' + result);
-                            break;
-                          case 'Access Status':
-                            bool result =
-                                await permissionsContract.requestAccess(
-                                    EthereumAddress.fromHex(
-                                        inputContractAddress),
-                                    inputFunctionName,
-                                    EthereumAddress.fromHex(inputToAddress));
-                            if (result != null) {
-                              _btnController.success();
-                              Timer(Duration(seconds: 3), () {
-                                _btnController.stop();
-                              });
-                            }
-                            print(
-                                'done call have access: ' + result.toString());
-                            break;
-                          default:
+                        try {
+                          switch (item.name) {
+                            case 'Add Permission':
+                              String result =
+                                  await permissionsContract.addPermission(
+                                      EthereumAddress.fromHex(
+                                          inputContractAddress),
+                                      inputFunctionName,
+                                      EthereumAddress.fromHex(inputToAddress));
+                              if (result != null) {
+                                _btnController.success();
+                                Timer(Duration(seconds: 3), () {
+                                  _btnController.stop();
+                                });
+                              }
+                              print('done call tx: ' + result);
+                              break;
+                            case 'Remove Permission':
+                              String result =
+                                  await permissionsContract.removePermission(
+                                      EthereumAddress.fromHex(
+                                          inputContractAddress),
+                                      inputFunctionName,
+                                      EthereumAddress.fromHex(inputToAddress));
+                              if (result != null) {
+                                _btnController.success();
+                                Timer(Duration(seconds: 3), () {
+                                  _btnController.stop();
+                                });
+                              }
+                              print('done call tx: ' + result);
+                              break;
+                            case 'Access Status':
+                              bool result =
+                                  await permissionsContract.requestAccess(
+                                      EthereumAddress.fromHex(
+                                          inputContractAddress),
+                                      inputFunctionName,
+                                      EthereumAddress.fromHex(inputToAddress));
+                              if (result != null) {
+                                _btnController.success();
+                                Timer(Duration(seconds: 3), () {
+                                  _btnController.stop();
+                                });
+                              }
+                              print('done call have access: ' +
+                                  result.toString());
+                              break;
+                            default:
+                          }
+                        } catch (e) {
+                          print('error: ' + e.toString());
+                          _btnController.error();
+                          Timer(Duration(seconds: 3), () {
+                            _btnController.stop();
+                          });
                         }
                       } else {
                         _btnController.reset();
