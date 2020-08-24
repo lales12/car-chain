@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
           create: (_) => WalletManager(),
         ),
         StreamProvider<AppUserWallet>.value(
-            value: WalletManager().appUserWalletStream())
+            value: WalletManager().appUserWalletStream()),
       ],
       child: MaterialApp(home: Wrapper(), theme: lightTheme),
     );

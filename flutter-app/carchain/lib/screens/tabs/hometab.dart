@@ -14,7 +14,7 @@ class _HomeTabState extends State<HomeTab> {
   @override
   Widget build(BuildContext context) {
     final appUserWallet = Provider.of<AppUserWallet>(context);
-    if (appUserWallet.balance != null) {
+    if (appUserWallet != null && appUserWallet.balance != null) {
       return Scaffold(
         body: SingleChildScrollView(
           child: Column(

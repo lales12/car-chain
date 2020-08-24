@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class IconCountCard extends StatelessWidget {
   final Icon cardIcon;
@@ -13,7 +14,9 @@ class IconCountCard extends StatelessWidget {
       child: ListTile(
         title: Text(cardTitle),
         leading: cardIcon,
-        trailing: Text(count),
+        trailing: count != null
+            ? Text(count)
+            : SpinKitFadingCircle(color: Theme.of(context).accentColor),
         subtitle: Text(subTitle),
       ),
     );

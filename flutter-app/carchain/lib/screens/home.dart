@@ -3,6 +3,7 @@ import 'package:carchain/models/AppUserWallet.dart';
 import 'package:carchain/screens/settings.dart';
 import 'package:carchain/screens/tabs/hometab.dart';
 import 'package:carchain/screens/tabs/permissionstab.dart';
+import 'package:carchain/util/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -33,12 +34,20 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     final appUserWallet = Provider.of<AppUserWallet>(context);
+    if (appUserWallet == null) {
+      return Loading(
+        loadingMessage: '',
+      );
+    }
     return MultiProvider(
       // we use this multi provider to provide smart contracts to all child widgets
       providers: [
         ChangeNotifierProvider<PermissionContract>(
           create: (_) => PermissionContract(appUserWallet.privkey),
         ),
+        // StreamProvider<AddPermisionEvent>.value(
+        //     value: PermissionContract(appUserWallet.privkey)
+        //         .permissionAddedStream(appUserWallet.privkey)),
       ],
       child: Scaffold(
         appBar: AppBar(

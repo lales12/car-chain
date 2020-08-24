@@ -48,19 +48,47 @@ class _PermissionsTabState extends State<PermissionsTab> {
   String inputContractAddress = '';
   String inputFunctionName = '';
   String inputToAddress = '';
+
   @override
   Widget build(BuildContext context) {
     final permissionsContract = Provider.of<PermissionContract>(context);
-
     if (permissionsContract.doneLoading) {
-      // print('permistion contract address: ' +
-      //     permissionsContract.contractAddress.toString());
-      print(permissionsContract.addPermisionEvent ?? 'no event yet');
+      print('permistion contract address: ' +
+          permissionsContract.contractAddress.toString());
       return Scaffold(
           body: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.all(8.0),
-          child: _buildPanel(_data, permissionsContract),
+        child: Column(
+          // padding: EdgeInsets.all(8.0),
+          children: [
+            _buildPanel(_data, permissionsContract),
+            SizedBox(height: 20.0),
+            StreamBuilder(
+                stream: permissionsContract.addPermissionEventStream,
+                builder: (context, AsyncSnapshot<AddPermisionEvent> snapShot) {
+                  if (snapShot.hasError) {
+                    return Text('error: ' + snapShot.toString());
+                  } else if (snapShot.connectionState ==
+                      ConnectionState.waiting) {
+                    return Text('waiting...');
+                  } else {
+                    return Text('added data: ' + snapShot.data.method);
+                  }
+                }),
+            SizedBox(height: 20.0),
+            StreamBuilder(
+                stream: permissionsContract.removePermissionEventStream,
+                builder:
+                    (context, AsyncSnapshot<RemovePermisionEvent> snapShot) {
+                  if (snapShot.hasError) {
+                    return Text('error: ' + snapShot.toString());
+                  } else if (snapShot.connectionState ==
+                      ConnectionState.waiting) {
+                    return Text('waiting...');
+                  } else {
+                    return Text('removed data: ' + snapShot.data.method);
+                  }
+                }),
+          ],
         ),
       ));
     }
@@ -155,7 +183,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                             if (result != null) {
                               _btnController.success();
                               Timer(Duration(seconds: 3), () {
-                                _btnController.reset();
+                                _btnController.stop();
                               });
                             }
                             print('done call tx: ' + result);
@@ -170,7 +198,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                             if (result != null) {
                               _btnController.success();
                               Timer(Duration(seconds: 3), () {
-                                _btnController.reset();
+                                _btnController.stop();
                               });
                             }
                             print('done call tx: ' + result);
@@ -185,7 +213,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                             if (result != null) {
                               _btnController.success();
                               Timer(Duration(seconds: 3), () {
-                                _btnController.reset();
+                                _btnController.stop();
                               });
                             }
                             print(

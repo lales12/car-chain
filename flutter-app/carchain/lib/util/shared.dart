@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 // **** To change color for themes, modify these variables ****
 // LIGHT THEME COLORS
-Color light_primaryDarkColor = Color(0xff1D3557); //Colors.green[600];
-Color light_primaryMiddleColor = Color(0xff457B9D); //Colors.green[300];
-Color light_primaryLightColor = Colors.grey[100];
-Color light_accentColor = Color(0xffE63946); //Colors.green[800];
-Color light_contrastColor = Colors.white;
+const Color light_primaryDarkColor = Color(0xff1D3557); //Colors.green[600];
+const Color light_primaryMiddleColor = Color(0xff457B9D); //Colors.green[300];
+const Color light_primaryLightColor = Color(0xfff5f5f5);
+const Color light_accentColor = Color(0xffE63946); //Colors.green[800];
+const Color light_contrastColor = Colors.white;
 
 final ThemeData lightTheme = ThemeData.light().copyWith(
   highlightColor: light_contrastColor,

@@ -5,6 +5,7 @@ import 'package:carchain/app_config.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart';
+import 'package:provider/provider.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -36,17 +37,16 @@ class PermissionContract extends ChangeNotifier {
   ContractEvent _permissionAdded;
   ContractEvent _permissionRemoved;
   // public variables
+  BlockNum contractDeployedBlockNumber;
   EthereumAddress contractOwner;
   EthereumAddress contractAddress;
   bool doneLoading = false;
-  AddPermisionEvent addPermisionEvent;
-  RemovePermisionEvent removePermisionEvent;
 
   PermissionContract(String userPrivKey) {
-    initiateSetup(userPrivKey);
+    _initiateSetup(userPrivKey);
   }
 
-  Future<void> initiateSetup(String privateKey) async {
+  Future<void> _initiateSetup(String privateKey) async {
     // print(configParams.rpcUrl);
     // print(configParams.wsUrl);
     _client = Web3Client(configParams.rpcUrl, Client(), socketConnector: () {
@@ -56,6 +56,8 @@ class PermissionContract extends ChangeNotifier {
     await _getAbi();
     await _getCredentials(privateKey);
     await _getDeployedContract();
+    // public variable
+    await _getContractOwner();
     doneLoading = true;
     notifyListeners();
   }
@@ -70,6 +72,11 @@ class PermissionContract extends ChangeNotifier {
     // print('permissions contract address');
     // print(_contractAddress);
     contractAddress = _contractAddress;
+    // gettting contractDeployedBlockNumber
+    String _deplyTxHash = jsonAbi["networks"]["5777"]["transactionHash"];
+    TransactionInformation txInfo =
+        await _client.getTransactionByHash(_deplyTxHash);
+    contractDeployedBlockNumber = txInfo.blockNumber;
   }
 
   Future<void> _getCredentials(String privateKey) async {
@@ -91,47 +98,6 @@ class PermissionContract extends ChangeNotifier {
     // events
     _permissionAdded = _contract.event("PermissionAdded");
     _permissionRemoved = _contract.event("PermissionRemoved");
-    // public variable
-    await _getContractOwner();
-    await _subscribeToAddPermisionEvent();
-    await _subscribeToremovePermisionEvent();
-  }
-
-  Future<void> _subscribeToAddPermisionEvent() async {
-    // listen for the Transfer event when it's emitted by the contract above
-    _client
-        .events(
-            FilterOptions.events(contract: _contract, event: _permissionAdded))
-        .take(1)
-        .listen((event) {
-      final decoded = _permissionAdded.decodeResults(event.topics, event.data);
-
-      addPermisionEvent = AddPermisionEvent(
-        contract: decoded[0] as EthereumAddress,
-        method: decoded[1] as String,
-        to: decoded[2] as EthereumAddress,
-      );
-      notifyListeners();
-    });
-  }
-
-  Future<void> _subscribeToremovePermisionEvent() async {
-    // listen for the Transfer event when it's emitted by the contract above
-    _client
-        .events(FilterOptions.events(
-            contract: _contract, event: _permissionRemoved))
-        .take(1)
-        .listen((event) {
-      final decoded =
-          _permissionRemoved.decodeResults(event.topics, event.data);
-
-      removePermisionEvent = RemovePermisionEvent(
-        contract: decoded[0] as EthereumAddress,
-        method: decoded[1] as String,
-        to: decoded[2] as EthereumAddress,
-      );
-      notifyListeners();
-    });
   }
 
   // functions
@@ -142,6 +108,48 @@ class PermissionContract extends ChangeNotifier {
     notifyListeners();
   }
 
+  //events
+  Stream<AddPermisionEvent> get addPermissionEventStream {
+    print('addPermissionEventStream from block: ' +
+        contractDeployedBlockNumber.blockNum.toString());
+    return _client
+        .events(FilterOptions.events(
+            contract: _contract,
+            event: _permissionAdded,
+            fromBlock: contractDeployedBlockNumber))
+        .map((event) {
+      final decoded = _permissionAdded.decodeResults(event.topics, event.data);
+      print('from stream listen: ' + decoded[1]);
+      return AddPermisionEvent(
+        contract: decoded[0] as EthereumAddress,
+        method: decoded[1] as String,
+        to: decoded[2] as EthereumAddress,
+      );
+    });
+  }
+
+  Stream<RemovePermisionEvent> get removePermissionEventStream {
+    print('removePermissionEventStream from block: ' +
+        contractDeployedBlockNumber.blockNum.toString());
+    return _client
+        .events(FilterOptions.events(
+            contract: _contract,
+            event: _permissionRemoved,
+            fromBlock: contractDeployedBlockNumber))
+        .map((event) {
+      print(event.topics);
+      final decoded =
+          _permissionRemoved.decodeResults(event.topics, event.data);
+
+      return RemovePermisionEvent(
+        contract: decoded[0] as EthereumAddress,
+        method: decoded[1] as String,
+        to: decoded[2] as EthereumAddress,
+      );
+    });
+  }
+
+  // callable functions
   Future<String> addPermission(EthereumAddress contractAddress,
       String functionName, EthereumAddress toAddress) async {
     String res = await _client.sendTransaction(
