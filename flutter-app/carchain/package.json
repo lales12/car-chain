@@ -1,0 +1,18 @@
+{
+	"name": "carchain",
+	"version": "1.0.0",
+	"description": "A Flutter App for Car Chain.",
+	"main": "truffle-config.js",
+	"directories": {
+		"lib": "lib",
+		"test": "test"
+	},
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"truffle-hdwallet-provider": "^1.0.17"
+	}
+}

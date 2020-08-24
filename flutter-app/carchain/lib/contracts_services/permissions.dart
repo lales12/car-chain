@@ -5,7 +5,6 @@ import 'package:carchain/app_config.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart';
-import 'package:provider/provider.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -67,13 +66,14 @@ class PermissionContract extends ChangeNotifier {
         await rootBundle.loadString("src/abis/Permissions.json");
     var jsonAbi = jsonDecode(abiStringFile);
     _abiCode = jsonEncode(jsonAbi["abi"]);
-    _contractAddress =
-        EthereumAddress.fromHex(jsonAbi["networks"]["5777"]["address"]);
+    _contractAddress = EthereumAddress.fromHex(
+        jsonAbi["networks"][configParams.networkId]["address"]);
     // print('permissions contract address');
     // print(_contractAddress);
     contractAddress = _contractAddress;
     // gettting contractDeployedBlockNumber
-    String _deplyTxHash = jsonAbi["networks"]["5777"]["transactionHash"];
+    String _deplyTxHash =
+        jsonAbi["networks"][configParams.networkId]["transactionHash"];
     TransactionInformation txInfo =
         await _client.getTransactionByHash(_deplyTxHash);
     contractDeployedBlockNumber = txInfo.blockNumber;
@@ -109,9 +109,11 @@ class PermissionContract extends ChangeNotifier {
   }
 
   //events
-  Stream<AddPermisionEvent> get addPermissionEventStream {
+  List<AddPermisionEvent> temp = List<AddPermisionEvent>();
+  Stream<List<AddPermisionEvent>> get addPermissionEventStream {
     print('addPermissionEventStream from block: ' +
         contractDeployedBlockNumber.blockNum.toString());
+
     return _client
         .events(FilterOptions.events(
             contract: _contract,
@@ -120,11 +122,12 @@ class PermissionContract extends ChangeNotifier {
         .map((event) {
       final decoded = _permissionAdded.decodeResults(event.topics, event.data);
       print('from stream listen: ' + decoded[1]);
-      return AddPermisionEvent(
+      temp.add(AddPermisionEvent(
         contract: decoded[0] as EthereumAddress,
         method: decoded[1] as String,
         to: decoded[2] as EthereumAddress,
-      );
+      ));
+      return temp;
     });
   }
 

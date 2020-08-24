@@ -4107,6 +4107,63 @@
     "version": "0.5.16+commit.9c3226ce.Emscripten.clang"
   },
   "networks": {
+    "3": {
+      "events": {
+        "0x94300d03d1055ea383f39c4abccbcac04d49f0f1accb8437c0c4d439d7f6830e": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "_contract",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "_method",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "_to",
+              "type": "address"
+            }
+          ],
+          "name": "PermissionAdded",
+          "type": "event"
+        },
+        "0x7c6d23618077d72c4ada8d745c3ff287eab55a292a8c4433faae4141684d1ec8": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "_contract",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "_method",
+              "type": "string"
+            },
+            {
+              "indexed": false,
+              "internalType": "address",
+              "name": "_to",
+              "type": "address"
+            }
+          ],
+          "name": "PermissionRemoved",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0xfFbaCc549872B1be55d1E4A18030127D328d2e91",
+      "transactionHash": "0xe64fae9281af5ebbb01fc4cd44d1f9eaea22d199a3594bf9dec11b74557c1fa1"
+    },
     "5777": {
       "events": {
         "0x94300d03d1055ea383f39c4abccbcac04d49f0f1accb8437c0c4d439d7f6830e": {
@@ -4166,7 +4223,7 @@
     }
   },
   "schemaVersion": "3.2.3",
-  "updatedAt": "2020-08-24T10:38:22.943Z",
+  "updatedAt": "2020-08-24T19:57:02.992Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {}

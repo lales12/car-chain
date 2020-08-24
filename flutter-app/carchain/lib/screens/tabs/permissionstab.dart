@@ -64,14 +64,16 @@ class _PermissionsTabState extends State<PermissionsTab> {
             SizedBox(height: 20.0),
             StreamBuilder(
                 stream: permissionsContract.addPermissionEventStream,
-                builder: (context, AsyncSnapshot<AddPermisionEvent> snapShot) {
+                builder:
+                    (context, AsyncSnapshot<List<AddPermisionEvent>> snapShot) {
                   if (snapShot.hasError) {
                     return Text('error: ' + snapShot.toString());
                   } else if (snapShot.connectionState ==
                       ConnectionState.waiting) {
-                    return Text('waiting...');
+                    return Text('AddPermisionEvent waiting...');
                   } else {
-                    return Text('added data: ' + snapShot.data.method);
+                    return Text(
+                        'added data: ' + snapShot.data.length.toString());
                   }
                 }),
             SizedBox(height: 20.0),
@@ -83,7 +85,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                     return Text('error: ' + snapShot.toString());
                   } else if (snapShot.connectionState ==
                       ConnectionState.waiting) {
-                    return Text('waiting...');
+                    return Text('RemovePermisionEvent waiting...');
                   } else {
                     return Text('removed data: ' + snapShot.data.method);
                   }
