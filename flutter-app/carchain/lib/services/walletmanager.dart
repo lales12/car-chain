@@ -18,10 +18,16 @@ class WalletManager with ChangeNotifier {
   }
 
   Stream<AppUserWallet> appUserWalletStream() async* {
+    await initPrefs();
+    String privKey = prefs.getString(prefKey) ?? null;
+    if (privKey != null) {
+      appUserWallet = AppUserWallet(privkey: privKey);
+    }
     if (appUserWallet != null) {
       final credentials =
           await client.credentialsFromPrivateKey(appUserWallet.privkey);
       final address = await credentials.extractAddress();
+      appUserWallet.pubKey = address;
       appUserWallet.balance = await client.getBalance(address);
       yield appUserWallet;
     }

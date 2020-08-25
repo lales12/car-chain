@@ -110,46 +110,51 @@ class PermissionContract extends ChangeNotifier {
   }
 
   //events
-  List<AddPermisionEvent> temp = List<AddPermisionEvent>();
   Stream<List<AddPermisionEvent>> get addPermissionEventStream {
     print('addPermissionEventStream from block: ' +
         contractDeployedBlockNumber.blockNum.toString());
 
     return _client
-        .events(FilterOptions.events(
+        .getLogs(FilterOptions.events(
             contract: _contract,
             event: _permissionAdded,
             fromBlock: contractDeployedBlockNumber))
-        .map((event) {
-      final decoded = _permissionAdded.decodeResults(event.topics, event.data);
-      print('from stream listen: ' + decoded[1]);
-      temp.add(AddPermisionEvent(
-        contract: decoded[0] as EthereumAddress,
-        method: decoded[1] as String,
-        to: decoded[2] as EthereumAddress,
-      ));
-      return temp;
+        .asStream()
+        .map((eventList) {
+      return eventList.map((event) {
+        final decoded =
+            _permissionAdded.decodeResults(event.topics, event.data);
+        print('from stream listen: ' + decoded[1]);
+        return AddPermisionEvent(
+          contract: decoded[0] as EthereumAddress,
+          method: decoded[1] as String,
+          to: decoded[2] as EthereumAddress,
+        );
+      }).toList();
     });
   }
 
-  Stream<RemovePermisionEvent> get removePermissionEventStream {
+  Stream<List<RemovePermisionEvent>> get removePermissionEventStream {
     print('removePermissionEventStream from block: ' +
         contractDeployedBlockNumber.blockNum.toString());
+
     return _client
-        .events(FilterOptions.events(
+        .getLogs(FilterOptions.events(
             contract: _contract,
             event: _permissionRemoved,
             fromBlock: contractDeployedBlockNumber))
-        .map((event) {
-      print(event.topics);
-      final decoded =
-          _permissionRemoved.decodeResults(event.topics, event.data);
+        .asStream()
+        .map((eventList) {
+      return eventList.map((event) {
+        final decoded =
+            _permissionRemoved.decodeResults(event.topics, event.data);
 
-      return RemovePermisionEvent(
-        contract: decoded[0] as EthereumAddress,
-        method: decoded[1] as String,
-        to: decoded[2] as EthereumAddress,
-      );
+        return RemovePermisionEvent(
+          contract: decoded[0] as EthereumAddress,
+          method: decoded[1] as String,
+          to: decoded[2] as EthereumAddress,
+        );
+      }).toList();
     });
   }
 

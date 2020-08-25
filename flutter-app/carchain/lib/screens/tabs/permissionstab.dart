@@ -57,40 +57,44 @@ class _PermissionsTabState extends State<PermissionsTab> {
           permissionsContract.contractAddress.toString());
       return Scaffold(
           body: SingleChildScrollView(
-        child: Column(
-          // padding: EdgeInsets.all(8.0),
-          children: [
-            _buildPanel(_data, permissionsContract),
-            SizedBox(height: 20.0),
-            StreamBuilder(
-                stream: permissionsContract.addPermissionEventStream,
-                builder:
-                    (context, AsyncSnapshot<List<AddPermisionEvent>> snapShot) {
-                  if (snapShot.hasError) {
-                    return Text('error: ' + snapShot.toString());
-                  } else if (snapShot.connectionState ==
-                      ConnectionState.waiting) {
-                    return Text('AddPermisionEvent waiting...');
-                  } else {
-                    return Text(
-                        'added data: ' + snapShot.data.length.toString());
-                  }
-                }),
-            SizedBox(height: 20.0),
-            StreamBuilder(
-                stream: permissionsContract.removePermissionEventStream,
-                builder:
-                    (context, AsyncSnapshot<RemovePermisionEvent> snapShot) {
-                  if (snapShot.hasError) {
-                    return Text('error: ' + snapShot.toString());
-                  } else if (snapShot.connectionState ==
-                      ConnectionState.waiting) {
-                    return Text('RemovePermisionEvent waiting...');
-                  } else {
-                    return Text('removed data: ' + snapShot.data.method);
-                  }
-                }),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            // padding: EdgeInsets.all(8.0),
+            children: [
+              _buildPanel(_data, permissionsContract),
+              SizedBox(height: 20.0),
+              StreamBuilder(
+                  stream: permissionsContract.addPermissionEventStream,
+                  builder: (context,
+                      AsyncSnapshot<List<AddPermisionEvent>> snapShot) {
+                    if (snapShot.hasError) {
+                      return Text('error: ' + snapShot.toString());
+                    } else if (snapShot.connectionState ==
+                        ConnectionState.waiting) {
+                      return Text('AddPermisionEvent waiting...');
+                    } else {
+                      return Text(
+                          'added data: ' + snapShot.data.length.toString());
+                    }
+                  }),
+              SizedBox(height: 20.0),
+              StreamBuilder(
+                  stream: permissionsContract.removePermissionEventStream,
+                  builder: (context,
+                      AsyncSnapshot<List<RemovePermisionEvent>> snapShot) {
+                    if (snapShot.hasError) {
+                      return Text('error: ' + snapShot.toString());
+                    } else if (snapShot.connectionState ==
+                        ConnectionState.waiting) {
+                      return Text('RemovePermisionEvent waiting...');
+                    } else {
+                      return Text(
+                          'removed data: ' + snapShot.data.length.toString());
+                    }
+                  }),
+            ],
+          ),
         ),
       ));
     }
@@ -100,14 +104,15 @@ class _PermissionsTabState extends State<PermissionsTab> {
   }
 
   Widget _buildPanel(List<Item> _data, PermissionContract permissionsContract) {
+    // using set state in builder functions reset the entier widget
     return ExpansionPanelList(
       expandedHeaderPadding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0),
       expansionCallback: (int index, bool isExpanded) {
-        _data.forEach((item) {
-          setState(() {
-            item.isExpanded = false;
-          });
-        });
+        // _data.forEach((item) {
+        //   setState(() {
+        //     item.isExpanded = false;
+        //   });
+        // });
         setState(() {
           _data[index].isExpanded = !isExpanded;
         });
@@ -214,6 +219,37 @@ class _PermissionsTabState extends State<PermissionsTab> {
                                       inputFunctionName,
                                       EthereumAddress.fromHex(inputToAddress));
                               if (result != null) {
+                                if (result) {
+                                  final snackBar = SnackBar(
+                                    duration: Duration(seconds: 10),
+                                    content: Text('Access is granted.'),
+                                    action: SnackBarAction(
+                                      label: 'OK',
+                                      onPressed: () {
+                                        // Some code to undo the change.
+                                      },
+                                    ),
+                                  );
+
+                                  // Find the Scaffold in the widget tree and use
+                                  // it to show a SnackBar.
+                                  Scaffold.of(context).showSnackBar(snackBar);
+                                } else {
+                                  final snackBar = SnackBar(
+                                    duration: Duration(seconds: 10),
+                                    content: Text('Access is not granted.'),
+                                    action: SnackBarAction(
+                                      label: 'OK',
+                                      onPressed: () {
+                                        // Some code to undo the change.
+                                      },
+                                    ),
+                                  );
+
+                                  // Find the Scaffold in the widget tree and use
+                                  // it to show a SnackBar.
+                                  Scaffold.of(context).showSnackBar(snackBar);
+                                }
                                 _btnController.success();
                                 Timer(Duration(seconds: 3), () {
                                   _btnController.stop();
@@ -225,7 +261,23 @@ class _PermissionsTabState extends State<PermissionsTab> {
                             default:
                           }
                         } catch (e) {
-                          print('error: ' + e.toString());
+                          // print('error: ' + e.toString());
+
+                          final snackBar = SnackBar(
+                            duration: Duration(seconds: 10),
+                            content: Text('error: ' + e.toString()),
+                            action: SnackBarAction(
+                              label: 'OK',
+                              onPressed: () {
+                                // Some code to undo the change.
+                              },
+                            ),
+                          );
+
+                          // Find the Scaffold in the widget tree and use
+                          // it to show a SnackBar.
+                          Scaffold.of(context).showSnackBar(snackBar);
+
                           _btnController.error();
                           Timer(Duration(seconds: 3), () {
                             _btnController.stop();
