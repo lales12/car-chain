@@ -1,3 +1,4 @@
+import 'package:carchain/contracts_services/cartracker.dart';
 import 'package:carchain/contracts_services/permissions.dart';
 import 'package:carchain/models/AppUserWallet.dart';
 import 'package:carchain/screens/renderqr.dart';
@@ -46,9 +47,9 @@ class _HomeState extends State<Home> {
         ChangeNotifierProvider<PermissionContract>(
           create: (_) => PermissionContract(appUserWallet.privkey),
         ),
-        // StreamProvider<AddPermisionEvent>.value(
-        //     value: PermissionContract(appUserWallet.privkey)
-        //         .permissionAddedStream(appUserWallet.privkey)),
+        ChangeNotifierProvider<CarTracker>(
+          create: (_) => CarTracker(),
+        ),
       ],
       child: Scaffold(
         appBar: AppBar(

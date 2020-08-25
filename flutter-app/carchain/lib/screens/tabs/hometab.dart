@@ -1,3 +1,4 @@
+import 'package:carchain/contracts_services/cartracker.dart';
 import 'package:carchain/models/AppUserWallet.dart';
 import 'package:carchain/util/cards.dart';
 import 'package:carchain/util/loading.dart';
@@ -14,6 +15,12 @@ class _HomeTabState extends State<HomeTab> {
   @override
   Widget build(BuildContext context) {
     final appUserWallet = Provider.of<AppUserWallet>(context);
+    final carTracker = Provider.of<CarTracker>(context);
+    if (carTracker != null) {
+      print('carTracker: ' + carTracker.doneLoading.toString());
+      print('carTracker functions: ' +
+          carTracker.contractFunctionsList.toString());
+    }
     if (appUserWallet != null && appUserWallet.balance != null) {
       return Scaffold(
         body: SingleChildScrollView(

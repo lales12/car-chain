@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:carchain/contracts_services/cartracker.dart';
 import 'package:carchain/contracts_services/permissions.dart';
 import 'package:carchain/util/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:web3dart/credentials.dart';
+import 'package:web3dart/web3dart.dart';
 
 class Item {
   Item({
@@ -52,6 +54,8 @@ class _PermissionsTabState extends State<PermissionsTab> {
   @override
   Widget build(BuildContext context) {
     final permissionsContract = Provider.of<PermissionContract>(context);
+    final carTrackerFunctionList =
+        Provider.of<CarTracker>(context).contractFunctionsList;
     if (permissionsContract.doneLoading) {
       print('permistion contract address: ' +
           permissionsContract.contractAddress.toString());
@@ -62,7 +66,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
           child: Column(
             // padding: EdgeInsets.all(8.0),
             children: [
-              _buildPanel(_data, permissionsContract),
+              _buildPanel(_data, permissionsContract, carTrackerFunctionList),
               SizedBox(height: 20.0),
               StreamBuilder(
                   stream: permissionsContract.addPermissionEventStream,
@@ -103,7 +107,8 @@ class _PermissionsTabState extends State<PermissionsTab> {
     );
   }
 
-  Widget _buildPanel(List<Item> _data, PermissionContract permissionsContract) {
+  Widget _buildPanel(List<Item> _data, PermissionContract permissionsContract,
+      List<ContractFunction> carTrackerFunctionList) {
     // using set state in builder functions reset the entier widget
     return ExpansionPanelList(
       expandedHeaderPadding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0),
@@ -147,14 +152,23 @@ class _PermissionsTabState extends State<PermissionsTab> {
                         inputContractAddress = val;
                       }),
                   SizedBox(height: 20.0),
-                  new TextFormField(
-                      decoration:
-                          InputDecoration().copyWith(hintText: 'Function Name'),
-                      validator: (val) =>
-                          val.isEmpty ? 'Enter a valid Function Name' : null,
-                      onChanged: (val) {
-                        inputFunctionName = val;
-                      }),
+                  DropdownButtonFormField(
+                    items: carTrackerFunctionList.map((func) {
+                      return DropdownMenuItem(
+                          value: func.name, child: Text(func.name));
+                    }).toList(),
+                    decoration:
+                        InputDecoration().copyWith(hintText: 'Functions'),
+                    onChanged: (val) => inputFunctionName = val,
+                  ),
+                  // new TextFormField(
+                  //     decoration:
+                  //         InputDecoration().copyWith(hintText: 'Function Name'),
+                  //     validator: (val) =>
+                  //         val.isEmpty ? 'Enter a valid Function Name' : null,
+                  //     onChanged: (val) {
+                  //       inputFunctionName = val;
+                  //     }),
                   SizedBox(height: 20.0),
                   new TextFormField(
                       decoration:
