@@ -10077,9 +10077,55 @@
     "name": "solc",
     "version": "0.5.16+commit.9c3226ce.Emscripten.clang"
   },
-  "networks": {},
+  "networks": {
+    "5777": {
+      "events": {
+        "0x4a2a2d7039e091da713f76b2ffac5166a367a618a72a32c0682eebee8b0fb832": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "bytes32",
+              "name": "carID",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "date",
+              "type": "uint256"
+            }
+          ],
+          "name": "CarAdded",
+          "type": "event"
+        },
+        "0x1117001f1a7b8a526188d9bca8b42cd75234da1b298bb0a3160dc086b145333e": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "bytes32",
+              "name": "carID",
+              "type": "bytes32"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "date",
+              "type": "uint256"
+            }
+          ],
+          "name": "ITVInspection",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x09cD6cbFA8A57a37699f1F31D7dd4ABF4b61A997",
+      "transactionHash": "0x2af685dace1390bf94830c17f4c88f73b6d65126180e88464a046f7ad7d30aa4"
+    }
+  },
   "schemaVersion": "3.2.3",
-  "updatedAt": "2020-08-24T19:57:03.005Z",
+  "updatedAt": "2020-08-25T20:27:28.829Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {}

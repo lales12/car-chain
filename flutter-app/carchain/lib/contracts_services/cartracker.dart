@@ -8,6 +8,46 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
 
+// object classes
+class Car {
+  FixedBytes id;
+  BigInt creationBlock;
+  EthereumAddress ownerID;
+  String licensePlate;
+  BigInt carType;
+  BigInt carState;
+  BigInt itvState;
+  BigInt lastInspection;
+  Car(
+      {this.id,
+      this.creationBlock,
+      this.ownerID,
+      this.licensePlate,
+      this.carType,
+      this.carState,
+      this.itvState,
+      this.lastInspection});
+}
+
+// event classes
+class CarAddedEvent {
+  FixedBytes carId;
+  BigInt date;
+  CarAddedEvent({this.carId, this.date});
+}
+
+class CarStateUpdatedEvent {
+  FixedBytes carId;
+  BigInt date;
+  CarStateUpdatedEvent({this.carId, this.date});
+}
+
+class ITVInspectionEvent {
+  FixedBytes carId;
+  BigInt date;
+  ITVInspectionEvent({this.carId, this.date});
+}
+
 class CarTracker extends ChangeNotifier {
   // initialization variables
   String prefKey = 'privKey';
@@ -24,6 +64,10 @@ class CarTracker extends ChangeNotifier {
   ContractFunction _updateCarState;
   ContractFunction _updateITV;
   ContractFunction _getCar;
+  // events
+  ContractEvent _carAddedEvent;
+  ContractEvent _carStateUpdatedEvent;
+  ContractEvent _iTVInspectionEvent;
 
   // public variables
   List<ContractFunction> contractFunctionsList; // = List<ContractFunction>();
@@ -61,17 +105,17 @@ class CarTracker extends ChangeNotifier {
         await rootBundle.loadString("src/abis/CarTracker.json");
     var jsonAbi = jsonDecode(abiStringFile);
     _abiCode = jsonEncode(jsonAbi["abi"]);
-    // _contractAddress = EthereumAddress.fromHex(
-    //     jsonAbi["networks"][configParams.networkId]["address"]);
-    // print('permissions contract address');
-    // print(_contractAddress);
+    _contractAddress = EthereumAddress.fromHex(
+        jsonAbi["networks"][configParams.networkId]["address"]);
+    print('permissions contract address');
+    print(_contractAddress);
     contractAddress = _contractAddress;
     // gettting contractDeployedBlockNumber
-    // String _deplyTxHash =
-    //     jsonAbi["networks"][configParams.networkId]["transactionHash"];
-    // TransactionInformation txInfo =
-    //     await _client.getTransactionByHash(_deplyTxHash);
-    // contractDeployedBlockNumber = txInfo.blockNumber;
+    String _deplyTxHash =
+        jsonAbi["networks"][configParams.networkId]["transactionHash"];
+    TransactionInformation txInfo =
+        await _client.getTransactionByHash(_deplyTxHash);
+    contractDeployedBlockNumber = txInfo.blockNumber;
   }
 
   Future<void> _getCredentials(String privateKey) async {
@@ -84,18 +128,82 @@ class CarTracker extends ChangeNotifier {
   Future<void> _getDeployedContract() async {
     _contract = DeployedContract(
         ContractAbi.fromJson(_abiCode, "CarTracker"), _contractAddress);
+    // set events
+    _carAddedEvent = _contract.event('CarAdded');
+    _carStateUpdatedEvent = _contract.event('CarStateUpdated');
+    _iTVInspectionEvent = _contract.event('ITVInspection');
     // set functions list
     contractFunctionsList = _contract.functions;
-    // functions
+    // set functions
     _addCar = _contract.function('addCar');
     _updateCarState = _contract.function('updateCarState');
     _updateITV = _contract.function('updateITV');
     _getCar = _contract.function('getCar');
   }
 
+  // Stream Events
+  Stream<List<CarAddedEvent>> get addcarAddedEventListStream {
+    print('addcarAddedEventListStream from block: ' +
+        contractDeployedBlockNumber.blockNum.toString());
+
+    return _client
+        .getLogs(FilterOptions.events(
+            contract: _contract,
+            event: _carAddedEvent,
+            fromBlock: contractDeployedBlockNumber))
+        .asStream()
+        .map((eventList) {
+      return eventList.map((event) {
+        final decoded = _carAddedEvent.decodeResults(event.topics, event.data);
+        return CarAddedEvent(
+            carId: decoded[0] as FixedBytes, date: decoded[1] as BigInt);
+      }).toList();
+    });
+  }
+
+  Stream<List<CarStateUpdatedEvent>> get carStateUpdatedEventListStream {
+    print('carStateUpdatedEventListStream from block: ' +
+        contractDeployedBlockNumber.blockNum.toString());
+
+    return _client
+        .getLogs(FilterOptions.events(
+            contract: _contract,
+            event: _carStateUpdatedEvent,
+            fromBlock: contractDeployedBlockNumber))
+        .asStream()
+        .map((eventList) {
+      return eventList.map((event) {
+        final decoded =
+            _carStateUpdatedEvent.decodeResults(event.topics, event.data);
+        return CarStateUpdatedEvent(
+            carId: decoded[0] as FixedBytes, date: decoded[1] as BigInt);
+      }).toList();
+    });
+  }
+
+  Stream<List<ITVInspectionEvent>> get iTVInspectionEventListStream {
+    print('iTVInspectionEventListStream from block: ' +
+        contractDeployedBlockNumber.blockNum.toString());
+
+    return _client
+        .getLogs(FilterOptions.events(
+            contract: _contract,
+            event: _iTVInspectionEvent,
+            fromBlock: contractDeployedBlockNumber))
+        .asStream()
+        .map((eventList) {
+      return eventList.map((event) {
+        final decoded =
+            _iTVInspectionEvent.decodeResults(event.topics, event.data);
+        return ITVInspectionEvent(
+            carId: decoded[0] as FixedBytes, date: decoded[1] as BigInt);
+      }).toList();
+    });
+  }
+
   // callable functions
   Future<String> addCar(
-      String carID, String licensePlate, int carTypeIndex) async {
+      FixedBytes carID, String licensePlate, int carTypeIndex) async {
     String res = await _client.sendTransaction(
       _credentials,
       Transaction.callContract(
@@ -105,5 +213,44 @@ class CarTracker extends ChangeNotifier {
       fetchChainIdFromNetworkId: true,
     );
     return res;
+  }
+
+  Future<String> updateCarState(FixedBytes carID, int carStateIndex) async {
+    String res = await _client.sendTransaction(
+      _credentials,
+      Transaction.callContract(
+          contract: _contract,
+          function: _updateCarState,
+          parameters: [carID, carStateIndex]),
+      fetchChainIdFromNetworkId: true,
+    );
+    return res;
+  }
+
+  Future<String> updateITV(FixedBytes carID, int itvStateIndex) async {
+    String res = await _client.sendTransaction(
+      _credentials,
+      Transaction.callContract(
+          contract: _contract,
+          function: _updateITV,
+          parameters: [carID, itvStateIndex]),
+      fetchChainIdFromNetworkId: true,
+    );
+    return res;
+  }
+
+  Future<Car> requestAccess(FixedBytes carID) async {
+    List haveAccess = await _client
+        .call(contract: _contract, function: _getCar, params: [carID]);
+
+    return Car(
+        id: haveAccess[0] as FixedBytes,
+        creationBlock: haveAccess[1] as BigInt,
+        ownerID: haveAccess[2] as EthereumAddress,
+        licensePlate: haveAccess[3] as String,
+        carType: haveAccess[4] as BigInt,
+        carState: haveAccess[5] as BigInt,
+        itvState: haveAccess[6] as BigInt,
+        lastInspection: haveAccess[7] as BigInt);
   }
 }
