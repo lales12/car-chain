@@ -31,16 +31,23 @@ class _SettingsState extends State<Settings> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                RaisedButton(
-                    child: Text('Remove wallet'),
-                    onPressed: () async {
-                      setState(() {
-                        isLoading = true;
-                        loadingMessage = '';
-                      });
-                      await walletManager.distroyWallet();
-                      Navigator.pop(context);
-                    }),
+                Expanded(
+                  child: ListTile(
+                    leading: Icon(Icons.remove_circle),
+                    title: Text('Remove Wallet'),
+                    subtitle: Text('Reamove Your Wallet From The App.'),
+                    trailing: IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () async {
+                          setState(() {
+                            isLoading = true;
+                            loadingMessage = '';
+                          });
+                          await walletManager.distroyWallet();
+                          Navigator.pop(context);
+                        }),
+                  ),
+                ),
               ],
             ),
           ],
