@@ -43,6 +43,7 @@ flutter:
   uses-material-design: true
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/
     - src/abis/Permissions.json
     - src/abis/CarTracker.json
     - src/abis/CarManager.json

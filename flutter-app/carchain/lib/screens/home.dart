@@ -1,5 +1,6 @@
 import 'package:carchain/contracts_services/permissions.dart';
 import 'package:carchain/models/AppUserWallet.dart';
+import 'package:carchain/screens/renderqr.dart';
 import 'package:carchain/screens/settings.dart';
 import 'package:carchain/screens/tabs/hometab.dart';
 import 'package:carchain/screens/tabs/permissionstab.dart';
@@ -61,7 +62,21 @@ class _HomeState extends State<Home> {
                   MaterialPageRoute(builder: (context) => Settings()),
                 );
               },
-            )
+            ),
+            IconButton(
+              icon: Icon(Icons.qr_code),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => RenderQr(
+                          'Wallet Address',
+                          "Wallet's public address",
+                          appUserWallet.pubKey.toString(),
+                          appUserWallet.pubKey.toString())),
+                );
+              },
+            ),
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(
