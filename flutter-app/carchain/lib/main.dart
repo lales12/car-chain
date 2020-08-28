@@ -20,7 +20,8 @@ class MyApp extends StatelessWidget {
         StreamProvider<AppUserWallet>.value(
             value: WalletManager().appUserWalletStream()),
       ],
-      child: MaterialApp(home: Wrapper(), theme: lightTheme),
+      child: MaterialApp(
+          debugShowCheckedModeBanner: true, home: Wrapper(), theme: lightTheme),
     );
   }
 }

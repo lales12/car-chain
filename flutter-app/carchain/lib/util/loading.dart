@@ -13,13 +13,13 @@ class _LoadingState extends State<Loading> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).primaryColorLight,
+      color: Theme.of(context).primaryColor,
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SpinKitDoubleBounce(
-              color: Theme.of(context).accentColor,
+              color: Theme.of(context).primaryColorLight,
               size: 50.0,
             ),
             SizedBox(
@@ -28,7 +28,7 @@ class _LoadingState extends State<Loading> {
             Text(
               widget.loadingMessage,
               style: TextStyle(
-                  fontSize: 18.0, color: Theme.of(context).accentColor),
+                  fontSize: 18.0, color: Theme.of(context).primaryColorDark),
             )
           ],
         ),

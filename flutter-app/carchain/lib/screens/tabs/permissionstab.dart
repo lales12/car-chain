@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:barcode_scan/barcode_scan.dart';
 import 'package:carchain/contracts_services/cartracker.dart';
 import 'package:carchain/contracts_services/permissions.dart';
 import 'package:carchain/models/AppUserWallet.dart';
 import 'package:carchain/util/loading.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:web3dart/credentials.dart';
@@ -51,6 +53,34 @@ class _PermissionsTabState extends State<PermissionsTab> {
   String inputContractAddress = '';
   String inputFunctionName = '';
   String inputToAddress = '';
+  String qrScanResult = "...";
+
+  // Future _scanQR() async {
+  //   try {
+  //     String qrResult = await BarcodeScanner.scan();
+  //     setState(() {
+  //       qrScanResult = qrResult;
+  //     });
+  //   } on PlatformException catch (ex) {
+  //     if (ex.code == BarcodeScanner.CameraAccessDenied) {
+  //       setState(() {
+  //         qrScanResult = "Camera permission was denied";
+  //       });
+  //     } else {
+  //       setState(() {
+  //         qrScanResult = "Unknown Error $ex";
+  //       });
+  //     }
+  //   } on FormatException {
+  //     setState(() {
+  //       qrScanResult = "You pressed the back button before scanning anything";
+  //     });
+  //   } catch (ex) {
+  //     setState(() {
+  //       qrScanResult = "Unknown Error $ex";
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -186,22 +216,51 @@ class _PermissionsTabState extends State<PermissionsTab> {
                   //       inputFunctionName = val;
                   //     }),
                   SizedBox(height: 20.0),
-                  new TextFormField(
-                      decoration:
-                          InputDecoration().copyWith(hintText: 'To Address'),
-                      validator: (val) =>
-                          val.isEmpty ? 'Enter a valid To Address' : null,
-                      onChanged: (val) {
-                        inputToAddress = val;
-                      }),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: new TextFormField(
+                            initialValue: inputToAddress,
+                            decoration: InputDecoration()
+                                .copyWith(hintText: 'To Address'),
+                            validator: (val) =>
+                                val.isEmpty ? 'Enter a valid To Address' : null,
+                            onChanged: (val) {
+                              inputToAddress = val;
+                            }),
+                      ),
+                      IconButton(
+                          icon: Icon(Icons.qr_code_scanner),
+                          onPressed: () async {
+                            try {
+                              String qrResult = await BarcodeScanner.scan();
+                              print('qrResult: ' + qrResult);
+                              setState(() {
+                                inputToAddress = qrResult;
+                              });
+                            } on PlatformException catch (ex) {
+                              if (ex.code ==
+                                  BarcodeScanner.CameraAccessDenied) {
+                                inputToAddress = "Camera permission was denied";
+                              } else {
+                                inputToAddress = "Unknown Error $ex";
+                              }
+                            } on FormatException {
+                              inputToAddress =
+                                  "You pressed the back button before scanning anything";
+                            } catch (ex) {
+                              inputToAddress = "Unknown Error $ex";
+                            }
+                          }),
+                    ],
+                  ),
                   SizedBox(height: 20.0),
                   new RoundedLoadingButton(
-                    color: Theme.of(context).primaryColor,
+                    color: Theme.of(context).buttonColor,
                     controller: _btnController,
                     child: Text(
                       item.name,
-                      style:
-                          TextStyle(color: Theme.of(context).primaryColorLight),
+                      style: TextStyle(color: Theme.of(context).primaryColor),
                     ),
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {

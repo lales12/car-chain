@@ -30,9 +30,9 @@ class _HDKey {
     final digest = SHA512Digest();
     final hmac = HMac(digest, 128)..init(KeyParameter(keyParameter));
     final I = hmac.process(data);
-    final IL = I.sublist(0, 32);
-    final IR = I.sublist(32);
-    return KeyData(key: IL, chainCode: IR);
+    final iL = I.sublist(0, 32);
+    final iR = I.sublist(32);
+    return KeyData(key: iL, chainCode: iR);
   }
 
   KeyData _getCKDPriv(KeyData data, int index) {

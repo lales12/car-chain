@@ -82,8 +82,8 @@ class PermissionContract extends ChangeNotifier {
   Future<void> _getCredentials(String privateKey) async {
     _credentials = await _client.credentialsFromPrivateKey(privateKey);
     _userAddress = await _credentials.extractAddress();
-    // print('useraddress from privkey');
-    // print(_userAddress);
+    print('useraddress from privkey');
+    print(_userAddress);
   }
 
   Future<void> _getDeployedContract() async {
