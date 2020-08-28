@@ -1,5 +1,5 @@
 import 'package:carchain/models/AppUserWallet.dart';
-import 'package:carchain/screens/wrapper.dart';
+import 'package:carchain/wrapper.dart';
 import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/util/shared.dart';
 import 'package:flutter/material.dart';
