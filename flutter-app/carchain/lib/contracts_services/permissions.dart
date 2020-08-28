@@ -124,7 +124,8 @@ class PermissionContract extends ChangeNotifier {
       return eventList.map((event) {
         final decoded =
             _permissionAdded.decodeResults(event.topics, event.data);
-        print('from stream listen: ' + decoded[1]);
+        print('from stream listen: addPermissionEventStream');
+        print(decoded.toString());
         return AddPermisionEvent(
           contract: decoded[0] as EthereumAddress,
           method: decoded[1] as String,

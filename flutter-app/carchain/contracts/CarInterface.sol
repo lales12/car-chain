@@ -45,7 +45,7 @@ interface CarInterface {
         ITV itv;
     }
 
-    event CarAdded(bytes32 indexed carID, uint256 date);
+    event CarAdded(bytes32 indexed carID, uint256 date); // probably we need carOwner's address in the event
     event CarStateUpdated(bytes32 indexed carID, uint256 date);
     event ITVInspection(bytes32 indexed carID, uint256 date);
 

@@ -107,8 +107,7 @@ class CarTracker extends ChangeNotifier {
     _abiCode = jsonEncode(jsonAbi["abi"]);
     _contractAddress = EthereumAddress.fromHex(
         jsonAbi["networks"][configParams.networkId]["address"]);
-    print('permissions contract address');
-    print(_contractAddress);
+    print('CarTracker contract address' + _contractAddress.toString());
     contractAddress = _contractAddress;
     // gettting contractDeployedBlockNumber
     String _deplyTxHash =
@@ -133,7 +132,11 @@ class CarTracker extends ChangeNotifier {
     _carStateUpdatedEvent = _contract.event('CarStateUpdated');
     _iTVInspectionEvent = _contract.event('ITVInspection');
     // set functions list
-    contractFunctionsList = _contract.functions;
+    List<ContractFunction> tempFuncList = List.of(_contract.functions);
+    if (tempFuncList != null) {
+      tempFuncList.removeAt(0);
+    }
+    contractFunctionsList = tempFuncList;
     // set functions
     _addCar = _contract.function('addCar');
     _updateCarState = _contract.function('updateCarState');

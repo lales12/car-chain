@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:carchain/contracts_services/cartracker.dart';
 import 'package:carchain/contracts_services/permissions.dart';
+import 'package:carchain/models/AppUserWallet.dart';
 import 'package:carchain/util/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -54,11 +55,15 @@ class _PermissionsTabState extends State<PermissionsTab> {
   @override
   Widget build(BuildContext context) {
     final permissionsContract = Provider.of<PermissionContract>(context);
-    final carTrackerFunctionList =
-        Provider.of<CarTracker>(context).contractFunctionsList;
-    if (permissionsContract.doneLoading) {
+    final carTrackeContract = Provider.of<CarTracker>(context);
+    final appUserWallet = Provider.of<AppUserWallet>(context);
+    if (permissionsContract.doneLoading && carTrackeContract.doneLoading) {
+      // set
+      inputContractAddress = carTrackeContract.contractAddress.toString();
+      //logs
       print('permistion contract address: ' +
           permissionsContract.contractAddress.toString());
+
       return Scaffold(
           body: SingleChildScrollView(
         child: Padding(
@@ -66,7 +71,8 @@ class _PermissionsTabState extends State<PermissionsTab> {
           child: Column(
             // padding: EdgeInsets.all(8.0),
             children: [
-              _buildPanel(_data, permissionsContract, carTrackerFunctionList),
+              _buildPanel(_data, permissionsContract,
+                  carTrackeContract.contractFunctionsList, appUserWallet),
               SizedBox(height: 20.0),
               StreamBuilder(
                   stream: permissionsContract.addPermissionEventStream,
@@ -107,9 +113,17 @@ class _PermissionsTabState extends State<PermissionsTab> {
     );
   }
 
-  Widget _buildPanel(List<Item> _data, PermissionContract permissionsContract,
-      List<ContractFunction> carTrackerFunctionList) {
-    // using set state in builder functions reset the entier widget
+  Widget _buildPanel(
+      List<Item> data,
+      PermissionContract permissionsContract,
+      List<ContractFunction> carTrackerFunctionList,
+      AppUserWallet appUserWallet) {
+    // using set state in builder functions reset the entier widget ** probably not the best structure for this view
+    // don't show add/remove permision if the user is not permission contract owner
+    List<Item> _data = List.of(data);
+    if (permissionsContract.contractOwner != appUserWallet.pubKey) {
+      _data.removeRange(0, 2);
+    }
     return ExpansionPanelList(
       expandedHeaderPadding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0),
       expansionCallback: (int index, bool isExpanded) {
@@ -144,6 +158,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                   ),
                   SizedBox(height: 20.0),
                   new TextFormField(
+                      initialValue: inputContractAddress,
                       decoration: InputDecoration()
                           .copyWith(hintText: 'Contract Address'),
                       validator: (val) =>
@@ -154,8 +169,9 @@ class _PermissionsTabState extends State<PermissionsTab> {
                   SizedBox(height: 20.0),
                   DropdownButtonFormField(
                     items: carTrackerFunctionList.map((func) {
+                      print('func: ' + func.encodeName());
                       return DropdownMenuItem(
-                          value: func.name, child: Text(func.name));
+                          value: func.encodeName(), child: Text(func.name));
                     }).toList(),
                     decoration:
                         InputDecoration().copyWith(hintText: 'Functions'),

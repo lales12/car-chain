@@ -68,6 +68,6 @@ class WalletManager with ChangeNotifier {
 
   Future clearPrefs() async {
     await initPrefs();
-    prefs.clear();
+    prefs.clear(); // i don't think it works properly
   }
 }
