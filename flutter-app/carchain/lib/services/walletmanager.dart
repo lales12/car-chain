@@ -38,14 +38,16 @@ class WalletManager with ChangeNotifier {
       isWalletTypeMnemonic = isMnemonic;
       String mnemonic = _prefs.getString(_prefMnemonicKey) ?? null;
       if (mnemonic != null) {
-        await setupWalletFromMnemonic(mnemonic);
+        await setupWalletFromMnemonic(
+            mnemonic); // probably load wallet from pref func is needed
       } else {
         appUserWallet = null;
       }
     } else {
       String privKey = _prefs.getString(_prefPrivKey) ?? null;
       if (privKey != null) {
-        await setupWalletFromPrivKey(privKey);
+        await setupWalletFromPrivKey(
+            privKey); // probably load wallet from pref func is needed
       } else {
         appUserWallet = null;
       }
@@ -69,8 +71,7 @@ class WalletManager with ChangeNotifier {
   String _getPrivateKeyFromMnemonic(String mnemonic) {
     String seed = bip39.mnemonicToSeedHex(mnemonic);
     final root = bip32.BIP32.fromSeed(HEX.decode(seed));
-
-    final child1 = root.derivePath("m/44'/60'/0'/0/0").deriveHardened(0);
+    final child1 = root.derivePath("m/44'/60'/0'/0/0");
     final privateKey = HEX.encode(child1.privateKey);
     return privateKey;
   }
