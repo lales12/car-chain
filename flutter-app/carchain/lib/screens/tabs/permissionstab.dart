@@ -4,6 +4,7 @@ import 'package:barcode_scan/barcode_scan.dart';
 import 'package:carchain/contracts_services/cartracker.dart';
 import 'package:carchain/contracts_services/permissions.dart';
 import 'package:carchain/models/AppUserWallet.dart';
+import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/util/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -86,7 +87,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
   Widget build(BuildContext context) {
     final permissionsContract = Provider.of<PermissionContract>(context);
     final carTrackeContract = Provider.of<CarTracker>(context);
-    final appUserWallet = Provider.of<AppUserWallet>(context);
+    final appUserWallet = Provider.of<WalletManager>(context).appUserWallet;
     if (permissionsContract.doneLoading && carTrackeContract.doneLoading) {
       // set
       inputContractAddress = carTrackeContract.contractAddress.toString();

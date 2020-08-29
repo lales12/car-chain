@@ -1,6 +1,6 @@
 import 'package:carchain/contracts_services/cartracker.dart';
 import 'package:carchain/contracts_services/permissions.dart';
-import 'package:carchain/models/AppUserWallet.dart';
+import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/util/renderqr.dart';
 import 'package:carchain/screens/settings.dart';
 import 'package:carchain/screens/tabs/hometab.dart';
@@ -35,7 +35,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final appUserWallet = Provider.of<AppUserWallet>(context);
+    final appUserWallet = Provider.of<WalletManager>(context).appUserWallet;
     if (appUserWallet == null) {
       return Loading(
         loadingMessage: '',
@@ -70,11 +70,13 @@ class _HomeState extends State<Home> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => RenderQr(
-                          'Wallet Address',
-                          "Wallet's public address",
-                          appUserWallet.pubKey.toString(),
-                          appUserWallet.pubKey.toString())),
+                    builder: (context) => RenderQr(
+                      title: 'Wallet Address',
+                      qrMessage: "Wallet's public address",
+                      qrData: appUserWallet.pubKey.toString(),
+                      subTitle: appUserWallet.pubKey.toString(),
+                    ),
+                  ),
                 );
               },
             ),

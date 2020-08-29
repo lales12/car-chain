@@ -46,8 +46,6 @@ class PermissionContract extends ChangeNotifier {
   }
 
   Future<void> _initiateSetup(String privateKey) async {
-    // print(configParams.rpcUrl);
-    // print(configParams.wsUrl);
     _client = Web3Client(configParams.rpcUrl, Client(), socketConnector: () {
       return IOWebSocketChannel.connect(configParams.wsUrl).cast<String>();
     });

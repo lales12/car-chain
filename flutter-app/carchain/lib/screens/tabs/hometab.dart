@@ -1,5 +1,5 @@
 import 'package:carchain/contracts_services/cartracker.dart';
-import 'package:carchain/models/AppUserWallet.dart';
+import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/util/cards.dart';
 import 'package:carchain/util/loading.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +14,7 @@ class HomeTab extends StatefulWidget {
 class _HomeTabState extends State<HomeTab> {
   @override
   Widget build(BuildContext context) {
-    final appUserWallet = Provider.of<AppUserWallet>(context);
+    final appUserWallet = Provider.of<WalletManager>(context).appUserWallet;
     final carTracker = Provider.of<CarTracker>(context);
     if (carTracker != null) {
       print('carTracker: ' + carTracker.doneLoading.toString());

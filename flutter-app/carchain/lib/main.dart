@@ -1,4 +1,3 @@
-import 'package:carchain/models/AppUserWallet.dart';
 import 'package:carchain/wrapper.dart';
 import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/util/shared.dart';
@@ -17,8 +16,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<WalletManager>(
           create: (_) => WalletManager(),
         ),
-        StreamProvider<AppUserWallet>.value(
-            value: WalletManager().appUserWalletStream()),
+        // StreamProvider<AppUserWallet>.value(
+        //     value: WalletManager().appUserWalletStream()),
       ],
       child: MaterialApp(
           debugShowCheckedModeBanner: true, home: Wrapper(), theme: lightTheme),

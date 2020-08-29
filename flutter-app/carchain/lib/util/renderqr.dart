@@ -6,7 +6,7 @@ class RenderQr extends StatelessWidget {
   final String qrData;
   final String qrMessage;
   final String subTitle;
-  RenderQr(this.title, this.qrMessage, this.qrData, this.subTitle);
+  RenderQr({this.title, this.qrMessage, this.qrData, this.subTitle});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
