@@ -41,11 +41,11 @@ class PermissionContract extends ChangeNotifier {
   EthereumAddress contractAddress;
   bool doneLoading = false;
 
-  PermissionContract(String userPrivKey) {
+  PermissionContract(EthPrivateKey userPrivKey) {
     _initiateSetup(userPrivKey);
   }
 
-  Future<void> _initiateSetup(String privateKey) async {
+  Future<void> _initiateSetup(EthPrivateKey privateKey) async {
     _client = Web3Client(configParams.rpcUrl, Client(), socketConnector: () {
       return IOWebSocketChannel.connect(configParams.wsUrl).cast<String>();
     });
@@ -77,8 +77,9 @@ class PermissionContract extends ChangeNotifier {
     contractDeployedBlockNumber = txInfo.blockNumber;
   }
 
-  Future<void> _getCredentials(String privateKey) async {
-    _credentials = await _client.credentialsFromPrivateKey(privateKey);
+  Future<void> _getCredentials(EthPrivateKey privateKey) async {
+    _credentials = privateKey;
+    //await _client.credentialsFromPrivateKey(privateKey);
     _userAddress = await _credentials.extractAddress();
     print('useraddress from privkey');
     print(_userAddress);

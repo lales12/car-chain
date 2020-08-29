@@ -19,6 +19,9 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
   cardColor: light_contrastColor,
   buttonColor: light_primaryMiddleColor,
   scaffoldBackgroundColor: light_primaryLightColor,
+  floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: light_primaryMiddleColor,
+      splashColor: light_primaryDarkColor),
   appBarTheme: AppBarTheme(
     color: light_primaryDarkColor,
     iconTheme: IconThemeData(

@@ -1,5 +1,6 @@
 import 'package:carchain/contracts_services/cartracker.dart';
 import 'package:carchain/contracts_services/permissions.dart';
+import 'package:carchain/screens/accountprofile.dart';
 import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/util/renderqr.dart';
 import 'package:carchain/screens/settings.dart';
@@ -56,27 +57,28 @@ class _HomeState extends State<Home> {
           title: Text('Car Chain'),
           actions: [
             IconButton(
+              icon: Icon(Icons.person),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    // builder: (context) => RenderQr(
+                    //   title: 'Wallet Address',
+                    //   qrMessage: "Wallet's public address",
+                    //   qrData: appUserWallet.pubKey.toString(),
+                    //   subTitle: appUserWallet.pubKey.toString(),
+                    // ),
+                    builder: (context) => AccountProfile(),
+                  ),
+                );
+              },
+            ),
+            IconButton(
               icon: Icon(Icons.settings),
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => Settings()),
-                );
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.qr_code),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => RenderQr(
-                      title: 'Wallet Address',
-                      qrMessage: "Wallet's public address",
-                      qrData: appUserWallet.pubKey.toString(),
-                      subTitle: appUserWallet.pubKey.toString(),
-                    ),
-                  ),
                 );
               },
             ),
