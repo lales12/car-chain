@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bip32/bip32.dart' as bip32;
+// import 'package:ethereum_util/ethereum_util.dart' as EthUtil;
 
 class WalletManager with ChangeNotifier {
   String _prefPrivKey = 'privKey';
@@ -45,6 +46,7 @@ class WalletManager with ChangeNotifier {
         await setupWalletFromMnemonic(mnemonic, false);
       } else {
         appUserWallet = null;
+        isWalletLoading = false;
       }
     } else {
       String privKey = _prefs.getString(_prefPrivKey) ?? null;
@@ -52,6 +54,7 @@ class WalletManager with ChangeNotifier {
         await setupWalletFromPrivKey(privKey, false);
       } else {
         appUserWallet = null;
+        isWalletLoading = false;
       }
     }
     notifyListeners();
@@ -93,8 +96,9 @@ class WalletManager with ChangeNotifier {
   }
 
   String _getPrivateKeyFromMnemonic(String mnemonic) {
-    String seed = bip39.mnemonicToSeedHex(mnemonic);
-    final root = bip32.BIP32.fromSeed(HEX.decode(seed));
+    // using bip32
+    var seed = bip39.mnemonicToSeed(mnemonic);
+    final root = bip32.BIP32.fromSeed(seed);
     final child =
         root.derivePath("m/44'/60'/0'/0/" + walletAccountIndex.toString());
     final privateKey = HEX.encode(child.privateKey);
@@ -103,8 +107,9 @@ class WalletManager with ChangeNotifier {
 
   Future<void> setupWalletFromMnemonic(String mnemonic,
       [bool setup = true]) async {
-    final cryptMnemonic = bip39.mnemonicToEntropy(mnemonic);
-    final privateKey = _getPrivateKeyFromMnemonic(cryptMnemonic);
+    // final cryptMnemonic = bip39.mnemonicToEntropy(mnemonic); // damm u entropy
+    final privateKey = _getPrivateKeyFromMnemonic(
+        mnemonic); // _getPrivateKeyFromMnemonic(cryptMnemonic);
     appUserWallet = AppUserWallet(accountIndex: walletAccountIndex);
     appUserWallet.isMnemonic = true;
     final private = EthPrivateKey.fromHex(privateKey);

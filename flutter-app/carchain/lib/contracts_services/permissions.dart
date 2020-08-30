@@ -81,7 +81,7 @@ class PermissionContract extends ChangeNotifier {
     _credentials = privateKey;
     //await _client.credentialsFromPrivateKey(privateKey);
     _userAddress = await _credentials.extractAddress();
-    print('useraddress from privkey');
+    print('Permisions: useraddress from privkey');
     print(_userAddress);
   }
 

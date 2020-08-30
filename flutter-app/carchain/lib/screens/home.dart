@@ -2,7 +2,6 @@ import 'package:carchain/contracts_services/cartracker.dart';
 import 'package:carchain/contracts_services/permissions.dart';
 import 'package:carchain/screens/accountprofile.dart';
 import 'package:carchain/services/walletmanager.dart';
-import 'package:carchain/util/renderqr.dart';
 import 'package:carchain/screens/settings.dart';
 import 'package:carchain/screens/tabs/hometab.dart';
 import 'package:carchain/screens/tabs/permissionstab.dart';
