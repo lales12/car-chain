@@ -89,7 +89,8 @@ class _PermissionsTabState extends State<PermissionsTab> {
                       return Text('AddPermisionEvent waiting...');
                     } else {
                       return Text(
-                          'added data: ' + snapShot.data.length.toString());
+                        'added data: ' + snapShot.data.toString(),
+                      );
                     }
                   }),
               SizedBox(height: 20.0),

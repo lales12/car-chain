@@ -41,20 +41,17 @@ class PermissionContract extends ChangeNotifier {
   ContractFunction _requestAccess;
   ContractEvent _permissionAdded;
   ContractEvent _permissionRemoved;
-  BuildContext _context;
   // public variables
   BlockNum contractDeployedBlockNumber;
   EthereumAddress contractOwner;
   EthereumAddress contractAddress;
   bool doneLoading = false;
 
-  PermissionContract(EthPrivateKey userPrivKey, BuildContext context) {
-    _initiateSetup(userPrivKey, context);
+  PermissionContract(EthPrivateKey userPrivKey) {
+    _initiateSetup(userPrivKey);
   }
 
-  Future<void> _initiateSetup(
-      EthPrivateKey privateKey, BuildContext context) async {
-    _context = context;
+  Future<void> _initiateSetup(EthPrivateKey privateKey) async {
     _client = Web3Client(configParams.rpcUrl, Client(), socketConnector: () {
       return IOWebSocketChannel.connect(configParams.wsUrl).cast<String>();
     });
@@ -117,10 +114,12 @@ class PermissionContract extends ChangeNotifier {
   //events
   Stream<List<AddPermisionEvent>> get addPermissionEventStream {
     return _client
-        .events(FilterOptions.events(
-            contract: _contract,
-            event: _permissionAdded,
-            fromBlock: contractDeployedBlockNumber))
+        .events(
+          FilterOptions.events(
+              contract: _contract,
+              event: _permissionAdded,
+              fromBlock: contractDeployedBlockNumber),
+        )
         .map((event) {
           final decoded =
               _permissionAdded.decodeResults(event.topics, event.data);
