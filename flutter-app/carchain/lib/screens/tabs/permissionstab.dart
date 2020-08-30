@@ -56,33 +56,6 @@ class _PermissionsTabState extends State<PermissionsTab> {
   String inputToAddress = '';
   String qrScanResult = "...";
 
-  // Future _scanQR() async {
-  //   try {
-  //     String qrResult = await BarcodeScanner.scan();
-  //     setState(() {
-  //       qrScanResult = qrResult;
-  //     });
-  //   } on PlatformException catch (ex) {
-  //     if (ex.code == BarcodeScanner.CameraAccessDenied) {
-  //       setState(() {
-  //         qrScanResult = "Camera permission was denied";
-  //       });
-  //     } else {
-  //       setState(() {
-  //         qrScanResult = "Unknown Error $ex";
-  //       });
-  //     }
-  //   } on FormatException {
-  //     setState(() {
-  //       qrScanResult = "You pressed the back button before scanning anything";
-  //     });
-  //   } catch (ex) {
-  //     setState(() {
-  //       qrScanResult = "Unknown Error $ex";
-  //     });
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     final permissionsContract = Provider.of<PermissionContract>(context);
@@ -158,11 +131,11 @@ class _PermissionsTabState extends State<PermissionsTab> {
     return ExpansionPanelList(
       expandedHeaderPadding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0),
       expansionCallback: (int index, bool isExpanded) {
-        // _data.forEach((item) {
-        //   setState(() {
-        //     item.isExpanded = false;
-        //   });
-        // });
+        _data.forEach((item) {
+          setState(() {
+            item.isExpanded = false;
+          });
+        });
         setState(() {
           _data[index].isExpanded = !isExpanded;
         });
@@ -208,14 +181,6 @@ class _PermissionsTabState extends State<PermissionsTab> {
                         InputDecoration().copyWith(hintText: 'Functions'),
                     onChanged: (val) => inputFunctionName = val,
                   ),
-                  // new TextFormField(
-                  //     decoration:
-                  //         InputDecoration().copyWith(hintText: 'Function Name'),
-                  //     validator: (val) =>
-                  //         val.isEmpty ? 'Enter a valid Function Name' : null,
-                  //     onChanged: (val) {
-                  //       inputFunctionName = val;
-                  //     }),
                   SizedBox(height: 20.0),
                   Row(
                     children: [
@@ -335,7 +300,6 @@ class _PermissionsTabState extends State<PermissionsTab> {
                                       },
                                     ),
                                   );
-
                                   // Find the Scaffold in the widget tree and use
                                   // it to show a SnackBar.
                                   Scaffold.of(context).showSnackBar(snackBar);
@@ -351,8 +315,6 @@ class _PermissionsTabState extends State<PermissionsTab> {
                             default:
                           }
                         } catch (e) {
-                          // print('error: ' + e.toString());
-
                           final snackBar = SnackBar(
                             duration: Duration(seconds: 10),
                             content: Text('error: ' + e.toString()),
@@ -363,11 +325,9 @@ class _PermissionsTabState extends State<PermissionsTab> {
                               },
                             ),
                           );
-
                           // Find the Scaffold in the widget tree and use
                           // it to show a SnackBar.
                           Scaffold.of(context).showSnackBar(snackBar);
-
                           _btnController.error();
                           Timer(Duration(seconds: 3), () {
                             _btnController.stop();

@@ -1,13 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:carchain/app_config.dart';
+import 'package:carchain/contracts_services/cartracker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart';
+import 'package:provider/provider.dart';
+import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
 
+// events models
 class AddPermisionEvent {
   EthereumAddress contract;
   String method;
@@ -22,6 +27,7 @@ class RemovePermisionEvent {
   RemovePermisionEvent({this.contract, this.method, this.to});
 }
 
+// contract class
 class PermissionContract extends ChangeNotifier {
   Web3Client _client;
   String _abiCode;
@@ -35,17 +41,20 @@ class PermissionContract extends ChangeNotifier {
   ContractFunction _requestAccess;
   ContractEvent _permissionAdded;
   ContractEvent _permissionRemoved;
+  BuildContext _context;
   // public variables
   BlockNum contractDeployedBlockNumber;
   EthereumAddress contractOwner;
   EthereumAddress contractAddress;
   bool doneLoading = false;
 
-  PermissionContract(EthPrivateKey userPrivKey) {
-    _initiateSetup(userPrivKey);
+  PermissionContract(EthPrivateKey userPrivKey, BuildContext context) {
+    _initiateSetup(userPrivKey, context);
   }
 
-  Future<void> _initiateSetup(EthPrivateKey privateKey) async {
+  Future<void> _initiateSetup(
+      EthPrivateKey privateKey, BuildContext context) async {
+    _context = context;
     _client = Web3Client(configParams.rpcUrl, Client(), socketConnector: () {
       return IOWebSocketChannel.connect(configParams.wsUrl).cast<String>();
     });
@@ -66,9 +75,8 @@ class PermissionContract extends ChangeNotifier {
     _abiCode = jsonEncode(jsonAbi["abi"]);
     _contractAddress = EthereumAddress.fromHex(
         jsonAbi["networks"][configParams.networkId]["address"]);
-    // print('permissions contract address');
-    // print(_contractAddress);
     contractAddress = _contractAddress;
+    log('permissions contract address: ' + contractAddress.toString());
     // gettting contractDeployedBlockNumber
     String _deplyTxHash =
         jsonAbi["networks"][configParams.networkId]["transactionHash"];
@@ -81,8 +89,7 @@ class PermissionContract extends ChangeNotifier {
     _credentials = privateKey;
     //await _client.credentialsFromPrivateKey(privateKey);
     _userAddress = await _credentials.extractAddress();
-    print('Permisions: useraddress from privkey');
-    print(_userAddress);
+    log('Permisions: useraddress from privkey: ' + _userAddress.toString());
   }
 
   Future<void> _getDeployedContract() async {
@@ -104,15 +111,65 @@ class PermissionContract extends ChangeNotifier {
     List response =
         await _client.call(contract: _contract, function: _owner, params: []);
     contractOwner = response[0];
-    print('contract owner: ' + contractOwner.toString());
+    log('Permissions: contract owner: ' + contractOwner.toString());
     notifyListeners();
   }
 
   //events
   Stream<List<AddPermisionEvent>> get addPermissionEventStream {
-    print('addPermissionEventStream from block: ' +
+    // example of filtering
+    // final carTrackerContract = Provider.of<CarTracker>(_context);
+    // FilterOptions(
+    //   address: _contractAddress,
+    //   topics: [
+    //     //The first index declares the event type
+    //     [
+    //       bytesToHex(_permissionAdded.signature,
+    //           padToEvenLength: true, include0x: true)
+    //     ],
+    //     [
+    //       bytesToHex(carTrackerContract.contractAddress.addressBytes,
+    //           padToEvenLength: true, include0x: true)
+    //     ],
+    //     [
+    //       bytesToHex(
+    //           carTrackerContract.contractFunctionsList[0]
+    //               .encodeName()
+    //               .codeUnits, // not sure about codeUnits
+    //           padToEvenLength: true,
+    //           include0x: true)
+    //     ],
+    //     [
+    //       bytesToHex(_userAddress.addressBytes,
+    //           padToEvenLength: true, include0x: true)
+    //     ]
+    //   ],
+    // );
+
+    log('addPermissionEventStream from block: ' +
         contractDeployedBlockNumber.blockNum.toString());
 
+    return _client
+        .events(FilterOptions.events(
+            contract: _contract,
+            event: _permissionAdded,
+            fromBlock: contractDeployedBlockNumber))
+        .map((event) {
+          final decoded =
+              _permissionAdded.decodeResults(event.topics, event.data);
+          print('from stream listen: addPermissionEventStream');
+          print(decoded.toString());
+          return AddPermisionEvent(
+            contract: decoded[0] as EthereumAddress,
+            method: decoded[1] as String,
+            to: decoded[2] as EthereumAddress,
+          );
+        })
+        .toList()
+        .asStream();
+  }
+
+  Stream<List<AddPermisionEvent>> get addPermissionEventHistoryStream {
     return _client
         .getLogs(FilterOptions.events(
             contract: _contract,
@@ -135,9 +192,29 @@ class PermissionContract extends ChangeNotifier {
   }
 
   Stream<List<RemovePermisionEvent>> get removePermissionEventStream {
-    print('removePermissionEventStream from block: ' +
+    log('removePermissionEventStream from block: ' +
         contractDeployedBlockNumber.blockNum.toString());
 
+    return _client
+        .events(FilterOptions.events(
+            contract: _contract,
+            event: _permissionRemoved,
+            fromBlock: contractDeployedBlockNumber))
+        .map((event) {
+          final decoded =
+              _permissionRemoved.decodeResults(event.topics, event.data);
+
+          return RemovePermisionEvent(
+            contract: decoded[0] as EthereumAddress,
+            method: decoded[1] as String,
+            to: decoded[2] as EthereumAddress,
+          );
+        })
+        .toList()
+        .asStream();
+  }
+
+  Stream<List<RemovePermisionEvent>> get removePermissionEventHistoryStream {
     return _client
         .getLogs(FilterOptions.events(
             contract: _contract,
@@ -148,7 +225,6 @@ class PermissionContract extends ChangeNotifier {
       return eventList.map((event) {
         final decoded =
             _permissionRemoved.decodeResults(event.topics, event.data);
-
         return RemovePermisionEvent(
           contract: decoded[0] as EthereumAddress,
           method: decoded[1] as String,

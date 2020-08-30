@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
 
-// object classes
+// object classes (model)
 class Car {
   FixedBytes id;
   BigInt creationBlock;
@@ -29,7 +29,7 @@ class Car {
       this.lastInspection});
 }
 
-// event classes
+// event classes (model)
 class CarAddedEvent {
   FixedBytes carId;
   BigInt date;
@@ -48,6 +48,7 @@ class ITVInspectionEvent {
   ITVInspectionEvent({this.carId, this.date});
 }
 
+// contract class
 class CarTracker extends ChangeNotifier {
   // initialization variables
   String prefKey = 'privKey';
@@ -134,6 +135,7 @@ class CarTracker extends ChangeNotifier {
     // set functions list
     List<ContractFunction> tempFuncList = List.of(_contract.functions);
     if (tempFuncList != null) {
+      // ** the first function is a (address), i am not sure what is it, probably a default fallback or somthing
       tempFuncList.removeAt(0);
     }
     contractFunctionsList = tempFuncList;

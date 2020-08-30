@@ -45,7 +45,7 @@ class _HomeState extends State<Home> {
       // we use this multi provider to provide smart contracts to all child widgets
       providers: [
         ChangeNotifierProvider<PermissionContract>(
-          create: (_) => PermissionContract(appUserWallet.privkey),
+          create: (_) => PermissionContract(appUserWallet.privkey, context),
         ),
         ChangeNotifierProvider<CarTracker>(
           create: (_) => CarTracker(),

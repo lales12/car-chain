@@ -82,9 +82,9 @@ class WalletManager with ChangeNotifier {
       [bool setup = true]) async {
     appUserWallet = AppUserWallet(accountIndex: walletAccountIndex);
     appUserWallet.isMnemonic = false;
-    final private = EthPrivateKey.fromHex(privKey);
-    final address = await private.extractAddress();
-    appUserWallet.privkey = private;
+    final privateKey = EthPrivateKey.fromHex(privKey);
+    final address = await privateKey.extractAddress();
+    appUserWallet.privkey = privateKey;
     appUserWallet.pubKey = address;
     appUserWallet.balance = await client.getBalance(address);
     if (setup) {
