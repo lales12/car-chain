@@ -16,7 +16,7 @@ class ImportWallet extends StatefulWidget {
 class _ImportWalletState extends State<ImportWallet> {
   WalletTypeEnum _walletTypeEnum = WalletTypeEnum.privateKey;
   final _formKey = GlobalKey<FormState>();
-  String privateKey = 'Private Key';
+  String formFieldInputTex = '';
   TextEditingController _qrTextEditingController = TextEditingController();
 
   @override
@@ -78,6 +78,7 @@ class _ImportWalletState extends State<ImportWallet> {
                 children: [
                   Expanded(
                     child: TextFormField(
+                        textAlignVertical: TextAlignVertical.center,
                         controller: _qrTextEditingController,
                         // initialValue: _qrTextEditingController.text,
                         decoration: InputDecoration().copyWith(
@@ -87,8 +88,10 @@ class _ImportWalletState extends State<ImportWallet> {
                                     : 'Mnemonic Words'),
                         validator: (val) =>
                             val.isEmpty ? 'Enter a valid Private Key' : null,
+                        minLines: 2,
+                        maxLines: 5,
                         onChanged: (val) {
-                          setState(() => privateKey = val);
+                          setState(() => formFieldInputTex = val);
                         }),
                   ),
                   if (_walletTypeEnum == WalletTypeEnum.privateKey) ...[
@@ -99,20 +102,19 @@ class _ImportWalletState extends State<ImportWallet> {
                             String qrResult = await BarcodeScanner.scan();
                             log('qrResult: ' + qrResult);
                             setState(() {
-                              privateKey = qrResult;
+                              formFieldInputTex = qrResult;
                             });
                             _qrTextEditingController.text = qrResult;
                           } on PlatformException catch (ex) {
                             if (ex.code == BarcodeScanner.CameraAccessDenied) {
-                              privateKey = "Camera permission was denied";
+                              log("Camera permission was denied");
                             } else {
-                              privateKey = "Unknown Error $ex";
+                              log("Unknown Error $ex");
                             }
                           } on FormatException {
-                            privateKey =
-                                "You pressed the back button before scanning anything";
+                            log("You pressed the back button before scanning anything");
                           } catch (ex) {
-                            privateKey = "Unknown Error $ex";
+                            log("Unknown Error $ex");
                           }
                         }),
                   ],
@@ -126,11 +128,11 @@ class _ImportWalletState extends State<ImportWallet> {
                 onPressed: () async {
                   if (_formKey.currentState.validate()) {
                     if (_walletTypeEnum == WalletTypeEnum.privateKey) {
-                      log('importing private key: ' + privateKey);
-                      walletManager.setupWalletFromPrivKey(privateKey);
+                      log('importing private key: ' + formFieldInputTex);
+                      walletManager.setupWalletFromPrivKey(formFieldInputTex);
                     } else {
-                      log('importing mnemonic words: ' + privateKey);
-                      walletManager.setupWalletFromMnemonic(privateKey);
+                      log('importing mnemonic words: ' + formFieldInputTex);
+                      walletManager.setupWalletFromMnemonic(formFieldInputTex);
                     }
                   }
                 },
