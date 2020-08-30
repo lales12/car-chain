@@ -15,9 +15,9 @@ import 'package:web_socket_channel/io.dart';
 // events models
 class AddPermisionEvent {
   EthereumAddress contract;
-  String method;
   EthereumAddress to;
-  AddPermisionEvent({this.contract, this.method, this.to});
+  String method;
+  AddPermisionEvent({this.contract, this.to, this.method});
 }
 
 class RemovePermisionEvent {
@@ -69,8 +69,7 @@ class PermissionContract extends ChangeNotifier {
   }
 
   Future<void> _getAbi() async {
-    String abiStringFile =
-        await rootBundle.loadString("src/abis/Permissions.json");
+    String abiStringFile = await rootBundle.loadString("abis/Permissions.json");
     var jsonAbi = jsonDecode(abiStringFile);
     _abiCode = jsonEncode(jsonAbi["abi"]);
     _contractAddress = EthereumAddress.fromHex(
@@ -117,38 +116,6 @@ class PermissionContract extends ChangeNotifier {
 
   //events
   Stream<List<AddPermisionEvent>> get addPermissionEventStream {
-    // example of filtering
-    // final carTrackerContract = Provider.of<CarTracker>(_context);
-    // FilterOptions(
-    //   address: _contractAddress,
-    //   topics: [
-    //     //The first index declares the event type
-    //     [
-    //       bytesToHex(_permissionAdded.signature,
-    //           padToEvenLength: true, include0x: true)
-    //     ],
-    //     [
-    //       bytesToHex(carTrackerContract.contractAddress.addressBytes,
-    //           padToEvenLength: true, include0x: true)
-    //     ],
-    //     [
-    //       bytesToHex(
-    //           carTrackerContract.contractFunctionsList[0]
-    //               .encodeName()
-    //               .codeUnits, // not sure about codeUnits
-    //           padToEvenLength: true,
-    //           include0x: true)
-    //     ],
-    //     [
-    //       bytesToHex(_userAddress.addressBytes,
-    //           padToEvenLength: true, include0x: true)
-    //     ]
-    //   ],
-    // );
-
-    log('addPermissionEventStream from block: ' +
-        contractDeployedBlockNumber.blockNum.toString());
-
     return _client
         .events(FilterOptions.events(
             contract: _contract,
@@ -170,31 +137,34 @@ class PermissionContract extends ChangeNotifier {
   }
 
   Stream<List<AddPermisionEvent>> get addPermissionEventHistoryStream {
+    log('addPermissionEventHistoryStream from block: ' +
+        contractDeployedBlockNumber.blockNum.toString());
+
     return _client
-        .getLogs(FilterOptions.events(
-            contract: _contract,
-            event: _permissionAdded,
-            fromBlock: contractDeployedBlockNumber))
+        .getLogs(
+          // filter,
+          FilterOptions.events(
+              contract: _contract,
+              event: _permissionAdded,
+              fromBlock: contractDeployedBlockNumber),
+        )
         .asStream()
         .map((eventList) {
       return eventList.map((event) {
         final decoded =
             _permissionAdded.decodeResults(event.topics, event.data);
-        print('from stream listen: addPermissionEventStream');
+        print('from stream listen: addPermissionEventHistoryStream');
         print(decoded.toString());
         return AddPermisionEvent(
           contract: decoded[0] as EthereumAddress,
-          method: decoded[1] as String,
-          to: decoded[2] as EthereumAddress,
+          to: decoded[1] as EthereumAddress,
+          method: decoded[2] as String,
         );
       }).toList();
     });
   }
 
   Stream<List<RemovePermisionEvent>> get removePermissionEventStream {
-    log('removePermissionEventStream from block: ' +
-        contractDeployedBlockNumber.blockNum.toString());
-
     return _client
         .events(FilterOptions.events(
             contract: _contract,
@@ -215,6 +185,8 @@ class PermissionContract extends ChangeNotifier {
   }
 
   Stream<List<RemovePermisionEvent>> get removePermissionEventHistoryStream {
+    log('removePermissionEventHistoryStream from block: ' +
+        contractDeployedBlockNumber.blockNum.toString());
     return _client
         .getLogs(FilterOptions.events(
             contract: _contract,
@@ -271,3 +243,70 @@ class PermissionContract extends ChangeNotifier {
     return haveAccess[0];
   }
 }
+
+// notes
+
+// example of filtering
+// https://github.com/simolus3/web3dart/issues/56
+// if not all topics is needed just send null
+// final carTrackerContract = Provider.of<CarTracker>(_context);
+// FilterOptions(
+//   address: _contractAddress,
+//   topics: [
+//     //The first index declares the event type
+//     [
+//       bytesToHex(_permissionAdded.signature,
+//           padToEvenLength: true, include0x: true)
+//     ],
+//     [
+//       bytesToHex(carTrackerContract.contractAddress.addressBytes,
+//           padToEvenLength: true, include0x: true)
+//     ],
+//     [
+//       bytesToHex(
+//           carTrackerContract.contractFunctionsList[0]
+//               .encodeName()
+//               .codeUnits, // not sure about codeUnits
+//           padToEvenLength: true,
+//           include0x: true)
+//     ],
+//     [
+//       bytesToHex(_userAddress.addressBytes,
+//           padToEvenLength: true, include0x: true)
+//     ]
+//   ],
+// );
+
+// my failed attempt on getLogs
+// log('setting fliter for event history for address: ' +
+//     _userAddress.toString());
+// final filter = FilterOptions(
+//     address: _contractAddress,
+//     topics: [
+//       //The first index declares the event type
+//       [
+//         bytesToHex(_permissionAdded.signature,
+//             padToEvenLength: true, include0x: true),
+//         // null,
+//         // null,
+//         // '0xac700cfea5d84656a09918bd478cb95d43ad7e0a',
+//         // null,
+//         // 'addCar(bytes,string,uint256)',
+//         // bytesToHex(_userAddress.addressBytes,
+//         //     padToEvenLength: true, include0x: true)
+//       ],
+//       // null,
+//       // null,
+//       // [
+//       //   '0x7f7483ceaaaf272c89fca70871045a48950747a4',
+//       // ],
+//       // null
+
+//       // ['addCar(bytes,string,uint256)'],
+//       // [_userAddress.toString()]
+//       // [
+//       //   bytesToHex(_userAddress.addressBytes,
+//       //       padToEvenLength: true, include0x: true)
+//       // ]
+//     ],
+//     fromBlock: contractDeployedBlockNumber);

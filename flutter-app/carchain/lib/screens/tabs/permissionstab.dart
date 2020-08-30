@@ -79,7 +79,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                   carTrackeContract.contractFunctionsList, appUserWallet),
               SizedBox(height: 20.0),
               StreamBuilder(
-                  stream: permissionsContract.addPermissionEventStream,
+                  stream: permissionsContract.addPermissionEventHistoryStream,
                   builder: (context,
                       AsyncSnapshot<List<AddPermisionEvent>> snapShot) {
                     if (snapShot.hasError) {

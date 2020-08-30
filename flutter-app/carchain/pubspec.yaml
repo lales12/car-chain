@@ -46,10 +46,10 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
-    - src/abis/Permissions.json
-    - src/abis/CarTracker.json
-    - src/abis/CarManager.json
-    - src/abis/CarInterface.json
+    - abis/Permissions.json
+    - abis/CarTracker.json
+    - abis/CarManager.json
+    - abis/CarInterface.json
   #   - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

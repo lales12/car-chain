@@ -102,8 +102,7 @@ class CarTracker extends ChangeNotifier {
   }
 
   Future<void> _getAbi() async {
-    String abiStringFile =
-        await rootBundle.loadString("src/abis/CarTracker.json");
+    String abiStringFile = await rootBundle.loadString("abis/CarTracker.json");
     var jsonAbi = jsonDecode(abiStringFile);
     _abiCode = jsonEncode(jsonAbi["abi"]);
     _contractAddress = EthereumAddress.fromHex(

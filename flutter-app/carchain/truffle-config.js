@@ -20,7 +20,7 @@ module.exports = {
 			websockets: true, // Enable EventEmitter interface for web3 (default: false)
 		},
 	},
-	contracts_build_directory: "./src/abis/",
+	contracts_build_directory: "./abis/",
 	compilers: {
 		solc: {
 			version: "0.5.16",

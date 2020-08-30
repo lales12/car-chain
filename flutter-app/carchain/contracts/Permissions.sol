@@ -13,8 +13,8 @@ contract Permissions {
 
     event PermissionAdded(
         address indexed _contract,
-        string _method,
-        address _to
+        address indexed _to,
+        string _method
     );
 
     event PermissionRemoved(
@@ -39,7 +39,7 @@ contract Permissions {
     ) public onlyOwner {
         bytes32 methodHash = keccak256(abi.encodePacked(_method));
         permissions[_contract][methodHash][_to] = true;
-        emit PermissionAdded(_contract, _method, _to);
+        emit PermissionAdded(_contract, _to, _method);
     }
 
     function removePermission(
