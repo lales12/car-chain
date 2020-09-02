@@ -51,17 +51,19 @@ contract CarManager is CarInterface, BaseManager {
     ) BaseManager(authorizerContractAddress) public {}
 
     function addCar(
-        uint256 carId,
+        string memory carId,
         string calldata licensePlate,
         uint256 carTypeIndex
-    ) external onlyAuthorized(ADD_CAR_METHOD, msg.sender) {        
-        trackedCars[carId] = Car({
+    ) external onlyAuthorized(ADD_CAR_METHOD, msg.sender) {      
+        uint256 id = uint256(keccak256(abi.encode(carId)));
+
+        trackedCars[id] = Car({
             licensePlate: licensePlate,
             carType: CarType(carTypeIndex),
             carState: CarState.FOR_SALE
         });
 
-        emit CarAdded(carId);
+        emit CarAdded(id);
     }
 
     function updateCarState(uint256 id, uint256 carStateIndex)
