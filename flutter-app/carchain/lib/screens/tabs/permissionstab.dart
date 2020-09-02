@@ -8,8 +8,10 @@ import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/util/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:progress_state_button/iconed_button.dart';
+import 'package:progress_state_button/progress_button.dart';
 import 'package:provider/provider.dart';
-import 'package:rounded_loading_button/rounded_loading_button.dart';
+// import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:web3dart/credentials.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -28,14 +30,12 @@ class Item {
 List<Item> _data = [
   Item(
     name: 'Add Permission',
-    shortDiscribe:
-        'Add permistion to a user to use a function in a smart contract.',
+    shortDiscribe: 'Add permistion to a user to use a function in a smart contract.',
     isExpanded: false,
   ),
   Item(
     name: 'Remove Permission',
-    shortDiscribe:
-        'Remove permistion to a user to use a function in a smart contract.',
+    shortDiscribe: 'Remove permistion to a user to use a function in a smart contract.',
     isExpanded: false,
   ),
   Item(
@@ -65,8 +65,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
       // set
       inputContractAddress = carTrackeContract.contractAddress.toString();
       //logs
-      print('permistion contract address: ' +
-          permissionsContract.contractAddress.toString());
+      print('permistion contract address: ' + permissionsContract.contractAddress.toString());
 
       return Scaffold(
           body: SingleChildScrollView(
@@ -75,17 +74,14 @@ class _PermissionsTabState extends State<PermissionsTab> {
           child: Column(
             // padding: EdgeInsets.all(8.0),
             children: [
-              _buildPanel(_data, permissionsContract,
-                  carTrackeContract.contractFunctionsList, appUserWallet),
+              _buildPanel(_data, permissionsContract, carTrackeContract.contractFunctionsList, appUserWallet),
               SizedBox(height: 20.0),
               StreamBuilder(
                   stream: permissionsContract.addPermissionEventHistoryStream,
-                  builder: (context,
-                      AsyncSnapshot<List<AddPermisionEvent>> snapShot) {
+                  builder: (context, AsyncSnapshot<List<AddPermisionEvent>> snapShot) {
                     if (snapShot.hasError) {
                       return Text('error: ' + snapShot.toString());
-                    } else if (snapShot.connectionState ==
-                        ConnectionState.waiting) {
+                    } else if (snapShot.connectionState == ConnectionState.waiting) {
                       return Text('AddPermisionEvent waiting...');
                     } else {
                       return Text(
@@ -96,16 +92,13 @@ class _PermissionsTabState extends State<PermissionsTab> {
               SizedBox(height: 20.0),
               StreamBuilder(
                   stream: permissionsContract.removePermissionEventStream,
-                  builder: (context,
-                      AsyncSnapshot<List<RemovePermisionEvent>> snapShot) {
+                  builder: (context, AsyncSnapshot<List<RemovePermisionEvent>> snapShot) {
                     if (snapShot.hasError) {
                       return Text('error: ' + snapShot.toString());
-                    } else if (snapShot.connectionState ==
-                        ConnectionState.waiting) {
+                    } else if (snapShot.connectionState == ConnectionState.waiting) {
                       return Text('RemovePermisionEvent waiting...');
                     } else {
-                      return Text(
-                          'removed data: ' + snapShot.data.length.toString());
+                      return Text('removed data: ' + snapShot.data.length.toString());
                     }
                   }),
             ],
@@ -118,11 +111,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
     );
   }
 
-  Widget _buildPanel(
-      List<Item> data,
-      PermissionContract permissionsContract,
-      List<ContractFunction> carTrackerFunctionList,
-      AppUserWallet appUserWallet) {
+  Widget _buildPanel(List<Item> data, PermissionContract permissionsContract, List<ContractFunction> carTrackerFunctionList, AppUserWallet appUserWallet) {
     // using set state in builder functions reset the entier widget ** probably not the best structure for this view
     // don't show add/remove permision if the user is not permission contract owner
     List<Item> _data = List.of(data);
@@ -143,8 +132,9 @@ class _PermissionsTabState extends State<PermissionsTab> {
       },
       children: _data.map<ExpansionPanel>((Item item) {
         GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-        final RoundedLoadingButtonController _btnController =
-            new RoundedLoadingButtonController();
+        // final RoundedLoadingButtonController _btnController =
+        //     new RoundedLoadingButtonController();
+        ButtonState stateCallSmartContractFunctionButton = ButtonState.idle;
         return ExpansionPanel(
           headerBuilder: (BuildContext context, bool isExpanded) {
             return ListTile(
@@ -164,10 +154,8 @@ class _PermissionsTabState extends State<PermissionsTab> {
                   SizedBox(height: 20.0),
                   new TextFormField(
                       initialValue: inputContractAddress,
-                      decoration: InputDecoration()
-                          .copyWith(hintText: 'Contract Address'),
-                      validator: (val) =>
-                          val.isEmpty ? 'Enter a valid Contract Address' : null,
+                      decoration: InputDecoration().copyWith(hintText: 'Contract Address'),
+                      validator: (val) => val.isEmpty ? 'Enter a valid Contract Address' : null,
                       onChanged: (val) {
                         inputContractAddress = val;
                       }),
@@ -175,11 +163,9 @@ class _PermissionsTabState extends State<PermissionsTab> {
                   DropdownButtonFormField(
                     items: carTrackerFunctionList.map((func) {
                       print('func: ' + func.encodeName());
-                      return DropdownMenuItem(
-                          value: func.encodeName(), child: Text(func.name));
+                      return DropdownMenuItem(value: func.encodeName(), child: Text(func.name));
                     }).toList(),
-                    decoration:
-                        InputDecoration().copyWith(hintText: 'Functions'),
+                    decoration: InputDecoration().copyWith(hintText: 'Functions'),
                     onChanged: (val) => inputFunctionName = val,
                   ),
                   SizedBox(height: 20.0),
@@ -188,10 +174,8 @@ class _PermissionsTabState extends State<PermissionsTab> {
                       Expanded(
                         child: new TextFormField(
                             initialValue: inputToAddress,
-                            decoration: InputDecoration()
-                                .copyWith(hintText: 'To Address'),
-                            validator: (val) =>
-                                val.isEmpty ? 'Enter a valid To Address' : null,
+                            decoration: InputDecoration().copyWith(hintText: 'To Address'),
+                            validator: (val) => val.isEmpty ? 'Enter a valid To Address' : null,
                             onChanged: (val) {
                               inputToAddress = val;
                             }),
@@ -206,15 +190,13 @@ class _PermissionsTabState extends State<PermissionsTab> {
                                 inputToAddress = qrResult;
                               });
                             } on PlatformException catch (ex) {
-                              if (ex.code ==
-                                  BarcodeScanner.CameraAccessDenied) {
+                              if (ex.code == BarcodeScanner.CameraAccessDenied) {
                                 inputToAddress = "Camera permission was denied";
                               } else {
                                 inputToAddress = "Unknown Error $ex";
                               }
                             } on FormatException {
-                              inputToAddress =
-                                  "You pressed the back button before scanning anything";
+                              inputToAddress = "You pressed the back button before scanning anything";
                             } catch (ex) {
                               inputToAddress = "Unknown Error $ex";
                             }
@@ -222,58 +204,66 @@ class _PermissionsTabState extends State<PermissionsTab> {
                     ],
                   ),
                   SizedBox(height: 20.0),
-                  new RoundedLoadingButton(
-                    color: Theme.of(context).buttonColor,
-                    controller: _btnController,
-                    child: Text(
-                      item.name,
-                      style: TextStyle(color: Theme.of(context).primaryColor),
-                    ),
+                  new ProgressButton.icon(
+                    iconedButtons: {
+                      ButtonState.idle: IconedButton(text: item.name, icon: Icon(Icons.privacy_tip, color: Colors.white), color: Theme.of(context).buttonColor),
+                      ButtonState.loading: IconedButton(text: "Changing", color: Theme.of(context).buttonColor),
+                      ButtonState.fail: IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
+                      ButtonState.success: IconedButton(
+                          text: "Success",
+                          icon: Icon(
+                            Icons.check_circle,
+                            color: Colors.white,
+                          ),
+                          color: Theme.of(context).buttonColor)
+                    },
+                    state: stateCallSmartContractFunctionButton,
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
                         print('button pressed: ' + item.name);
                         print(inputContractAddress);
                         print(inputFunctionName);
                         print(inputToAddress);
+                        stateCallSmartContractFunctionButton = ButtonState.loading;
                         try {
                           switch (item.name) {
                             case 'Add Permission':
-                              String result =
-                                  await permissionsContract.addPermission(
-                                      EthereumAddress.fromHex(
-                                          inputContractAddress),
-                                      inputFunctionName,
-                                      EthereumAddress.fromHex(inputToAddress));
+                              String result = await permissionsContract.addPermission(
+                                  EthereumAddress.fromHex(inputContractAddress), inputFunctionName, EthereumAddress.fromHex(inputToAddress));
                               if (result != null) {
-                                _btnController.success();
+                                // _btnController.success();
+                                setState(() {
+                                  stateCallSmartContractFunctionButton = ButtonState.success;
+                                });
                                 Timer(Duration(seconds: 3), () {
-                                  _btnController.stop();
+                                  // _btnController.stop();
+                                  setState(() {
+                                    stateCallSmartContractFunctionButton = ButtonState.idle;
+                                  });
                                 });
                               }
                               print('done call tx: ' + result);
                               break;
                             case 'Remove Permission':
-                              String result =
-                                  await permissionsContract.removePermission(
-                                      EthereumAddress.fromHex(
-                                          inputContractAddress),
-                                      inputFunctionName,
-                                      EthereumAddress.fromHex(inputToAddress));
+                              String result = await permissionsContract.removePermission(
+                                  EthereumAddress.fromHex(inputContractAddress), inputFunctionName, EthereumAddress.fromHex(inputToAddress));
                               if (result != null) {
-                                _btnController.success();
+                                // _btnController.success();
+                                setState(() {
+                                  stateCallSmartContractFunctionButton = ButtonState.success;
+                                });
                                 Timer(Duration(seconds: 3), () {
-                                  _btnController.stop();
+                                  // _btnController.stop();
+                                  setState(() {
+                                    stateCallSmartContractFunctionButton = ButtonState.idle;
+                                  });
                                 });
                               }
                               print('done call tx: ' + result);
                               break;
                             case 'Access Status':
-                              bool result =
-                                  await permissionsContract.requestAccess(
-                                      EthereumAddress.fromHex(
-                                          inputContractAddress),
-                                      inputFunctionName,
-                                      EthereumAddress.fromHex(inputToAddress));
+                              bool result = await permissionsContract.requestAccess(
+                                  EthereumAddress.fromHex(inputContractAddress), inputFunctionName, EthereumAddress.fromHex(inputToAddress));
                               if (result != null) {
                                 if (result) {
                                   final snackBar = SnackBar(
@@ -305,13 +295,18 @@ class _PermissionsTabState extends State<PermissionsTab> {
                                   // it to show a SnackBar.
                                   Scaffold.of(context).showSnackBar(snackBar);
                                 }
-                                _btnController.success();
+                                // _btnController.success();
+                                setState(() {
+                                  stateCallSmartContractFunctionButton = ButtonState.success;
+                                });
                                 Timer(Duration(seconds: 3), () {
-                                  _btnController.stop();
+                                  // _btnController.stop();
+                                  setState(() {
+                                    stateCallSmartContractFunctionButton = ButtonState.idle;
+                                  });
                                 });
                               }
-                              print('done call have access: ' +
-                                  result.toString());
+                              print('done call have access: ' + result.toString());
                               break;
                             default:
                           }
@@ -329,13 +324,22 @@ class _PermissionsTabState extends State<PermissionsTab> {
                           // Find the Scaffold in the widget tree and use
                           // it to show a SnackBar.
                           Scaffold.of(context).showSnackBar(snackBar);
-                          _btnController.error();
+                          // _btnController.error();
+                          setState(() {
+                            stateCallSmartContractFunctionButton = ButtonState.fail;
+                          });
                           Timer(Duration(seconds: 3), () {
-                            _btnController.stop();
+                            // _btnController.stop();
+                            setState(() {
+                              stateCallSmartContractFunctionButton = ButtonState.success;
+                            });
                           });
                         }
                       } else {
-                        _btnController.reset();
+                        // _btnController.reset();
+                        setState(() {
+                          stateCallSmartContractFunctionButton = ButtonState.idle;
+                        });
                       }
                     },
                   ),
