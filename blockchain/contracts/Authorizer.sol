@@ -19,8 +19,8 @@ contract Authorizer {
 
     event PermissionRemoved(
         address indexed _contract,
-        string _method,
-        address _to
+        address indexed _to,
+        string _method
     );
 
     modifier onlyOwner() {
@@ -49,7 +49,7 @@ contract Authorizer {
     ) public onlyOwner {
         bytes32 methodHash = keccak256(abi.encodePacked(_method));
         permissions[_contract][methodHash][_to] = false;
-        emit PermissionRemoved(_contract, _method, _to);
+        emit PermissionRemoved(_contract, _to, _method);
     }
 
     function requestAccess(
