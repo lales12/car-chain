@@ -48,6 +48,10 @@ contract Authorizer {
         address _to
     ) public onlyOwner {
         bytes32 methodHash = keccak256(abi.encodePacked(_method));
+        require(
+            permissions[_contract][methodHash][_to] == true,
+            "Permision do not exist"
+        );
         permissions[_contract][methodHash][_to] = false;
         emit PermissionRemoved(_contract, _to, _method);
     }
@@ -56,7 +60,7 @@ contract Authorizer {
         // shouldn't be named hasAccess ??
         address _contract,
         string memory _method,
-        address _to // this could be message.sender
+        address _to
     ) public view returns (bool) {
         bytes32 methodHash = keccak256(abi.encodePacked(_method));
         return permissions[_contract][methodHash][_to];
