@@ -1,6 +1,7 @@
 import 'package:carchain/contracts_services/cartracker.dart';
 import 'package:carchain/contracts_services/permissions.dart';
 import 'package:carchain/screens/accountprofile.dart';
+import 'package:carchain/screens/bluetoothmanager.dart';
 import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/screens/settings.dart';
 import 'package:carchain/screens/tabs/hometab.dart';
@@ -56,17 +57,22 @@ class _HomeState extends State<Home> {
           title: Text('Car Chain'),
           actions: [
             IconButton(
+              icon: Icon(Icons.bluetooth),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BlueToothManager(),
+                  ),
+                );
+              },
+            ),
+            IconButton(
               icon: Icon(Icons.person),
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    // builder: (context) => RenderQr(
-                    //   title: 'Wallet Address',
-                    //   qrMessage: "Wallet's public address",
-                    //   qrData: appUserWallet.pubKey.toString(),
-                    //   subTitle: appUserWallet.pubKey.toString(),
-                    // ),
                     builder: (context) => AccountProfile(),
                   ),
                 );
