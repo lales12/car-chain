@@ -1,6 +1,7 @@
 import 'package:carchain/contracts_services/cartracker.dart';
 import 'package:carchain/contracts_services/permissions.dart';
 import 'package:carchain/screens/accountprofile.dart';
+import 'package:carchain/screens/tabs/authorizetab.dart';
 import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/screens/settings.dart';
 import 'package:carchain/screens/tabs/hometab.dart';
@@ -28,7 +29,7 @@ class _HomeState extends State<Home> {
       icon: Icon(Icons.home),
     ),
     BottomNavigationBarItem(
-      label: 'Permisions',
+      label: 'Authorize',
       icon: Icon(Icons.privacy_tip),
     ),
   ];

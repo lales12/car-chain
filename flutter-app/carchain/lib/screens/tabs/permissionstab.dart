@@ -11,7 +11,6 @@ import 'package:flutter/services.dart';
 import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
 import 'package:provider/provider.dart';
-// import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:web3dart/credentials.dart';
 import 'package:web3dart/web3dart.dart';
 
@@ -51,305 +50,554 @@ class PermissionsTab extends StatefulWidget {
 }
 
 class _PermissionsTabState extends State<PermissionsTab> {
+  final _formKeyAdd = GlobalKey<FormState>();
+  final _formKeyRemove = GlobalKey<FormState>();
+  final _formKeyRequest = GlobalKey<FormState>();
   String inputContractAddress = '';
   String inputFunctionName = '';
+  ButtonState stateCallSmartContractFunctionButton = ButtonState.idle;
   String inputToAddress = '';
-  String qrScanResult = "...";
 
   @override
   Widget build(BuildContext context) {
     final permissionsContract = Provider.of<PermissionContract>(context);
     final carTrackeContract = Provider.of<CarTracker>(context);
     final appUserWallet = Provider.of<WalletManager>(context).appUserWallet;
-    if (permissionsContract.doneLoading && carTrackeContract.doneLoading) {
+    if (appUserWallet != null && permissionsContract.doneLoading && carTrackeContract.doneLoading) {
       // set
+      List<ContractFunction> carTrackerFunctionList = carTrackeContract.contractFunctionsList;
       inputContractAddress = carTrackeContract.contractAddress.toString();
       //logs
       print('permistion contract address: ' + permissionsContract.contractAddress.toString());
 
       return Scaffold(
-          body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            // padding: EdgeInsets.all(8.0),
-            children: [
-              _buildPanel(_data, permissionsContract, carTrackeContract.contractFunctionsList, appUserWallet),
-              SizedBox(height: 20.0),
-              StreamBuilder(
-                  stream: permissionsContract.addPermissionEventHistoryStream,
-                  builder: (context, AsyncSnapshot<List<AddPermisionEvent>> snapShot) {
-                    if (snapShot.hasError) {
-                      return Text('error: ' + snapShot.toString());
-                    } else if (snapShot.connectionState == ConnectionState.waiting) {
-                      return Text('AddPermisionEvent waiting...');
-                    } else {
-                      return Text(
-                        'added data: ' + snapShot.data.toString(),
-                      );
-                    }
-                  }),
-              SizedBox(height: 20.0),
-              StreamBuilder(
-                  stream: permissionsContract.removePermissionEventStream,
-                  builder: (context, AsyncSnapshot<List<RemovePermisionEvent>> snapShot) {
-                    if (snapShot.hasError) {
-                      return Text('error: ' + snapShot.toString());
-                    } else if (snapShot.connectionState == ConnectionState.waiting) {
-                      return Text('RemovePermisionEvent waiting...');
-                    } else {
-                      return Text('removed data: ' + snapShot.data.length.toString());
-                    }
-                  }),
-            ],
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Container(
+                  child: ExpansionPanelList(
+                    expandedHeaderPadding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0),
+                    expansionCallback: (int index, bool isExpanded) {
+                      _data.forEach((item) {
+                        setState(() {
+                          item.isExpanded = false;
+                        });
+                      });
+                      if (permissionsContract.contractOwner != appUserWallet.pubKey) {
+                        // i don't like that, well ...
+                        index = 2;
+                      }
+                      setState(() {
+                        _data[index].isExpanded = !isExpanded;
+                      });
+                    },
+                    children: [
+                      if (permissionsContract.contractOwner == appUserWallet.pubKey) ...[
+                        ExpansionPanel(
+                          isExpanded: _data[0].isExpanded,
+                          canTapOnHeader: true,
+                          headerBuilder: (BuildContext context, bool isExpanded) {
+                            return ListTile(
+                              title: Text(_data[0].name),
+                            );
+                          },
+                          body: Form(
+                            key: _formKeyAdd,
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(
+                                children: [
+                                  SizedBox(height: 20.0),
+                                  Text(
+                                    _data[0].shortDiscribe,
+                                  ),
+                                  SizedBox(height: 20.0),
+                                  new TextFormField(
+                                      initialValue: inputContractAddress,
+                                      decoration: InputDecoration().copyWith(hintText: 'Contract Address'),
+                                      validator: (val) => val.isEmpty ? 'Enter a valid Contract Address' : null,
+                                      onChanged: (val) {
+                                        inputContractAddress = val;
+                                      }),
+                                  SizedBox(height: 20.0),
+                                  DropdownButtonFormField(
+                                    items: carTrackerFunctionList.map((func) {
+                                      print('func: ' + func.encodeName());
+                                      return DropdownMenuItem(value: func.encodeName(), child: Text(func.name));
+                                    }).toList(),
+                                    decoration: InputDecoration().copyWith(hintText: 'Functions'),
+                                    onChanged: (val) => inputFunctionName = val,
+                                  ),
+                                  SizedBox(height: 20.0),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: new TextFormField(
+                                            initialValue: inputToAddress,
+                                            decoration: InputDecoration().copyWith(hintText: 'To Address'),
+                                            validator: (val) => val.isEmpty ? 'Enter a valid To Address' : null,
+                                            onChanged: (val) {
+                                              inputToAddress = val;
+                                            }),
+                                      ),
+                                      IconButton(
+                                          icon: Icon(Icons.qr_code_scanner),
+                                          onPressed: () async {
+                                            try {
+                                              String qrResult = await BarcodeScanner.scan();
+                                              print('qrResult: ' + qrResult);
+                                              setState(() {
+                                                inputToAddress = qrResult;
+                                              });
+                                            } on PlatformException catch (ex) {
+                                              if (ex.code == BarcodeScanner.CameraAccessDenied) {
+                                                inputToAddress = "Camera permission was denied";
+                                              } else {
+                                                inputToAddress = "Unknown Error $ex";
+                                              }
+                                            } on FormatException {
+                                              inputToAddress = "You pressed the back button before scanning anything";
+                                            } catch (ex) {
+                                              inputToAddress = "Unknown Error $ex";
+                                            }
+                                          }),
+                                    ],
+                                  ),
+                                  SizedBox(height: 20.0),
+                                  new ProgressButton.icon(
+                                    iconedButtons: {
+                                      ButtonState.idle: IconedButton(
+                                          text: _data[0].name, icon: Icon(Icons.privacy_tip, color: Colors.white), color: Theme.of(context).buttonColor),
+                                      ButtonState.loading: IconedButton(text: "Changing", color: Theme.of(context).buttonColor),
+                                      ButtonState.fail:
+                                          IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
+                                      ButtonState.success: IconedButton(
+                                          text: "Success",
+                                          icon: Icon(
+                                            Icons.check_circle,
+                                            color: Colors.white,
+                                          ),
+                                          color: Theme.of(context).buttonColor)
+                                    },
+                                    state: stateCallSmartContractFunctionButton,
+                                    onPressed: () async {
+                                      if (_formKeyAdd.currentState.validate()) {
+                                        print('button pressed: ' + _data[0].name);
+                                        print(inputContractAddress);
+                                        print(inputFunctionName);
+                                        print(inputToAddress);
+                                        setState(() {
+                                          stateCallSmartContractFunctionButton = ButtonState.loading;
+                                        });
+                                        try {
+                                          String result = await permissionsContract.addPermission(
+                                              EthereumAddress.fromHex(inputContractAddress), inputFunctionName, EthereumAddress.fromHex(inputToAddress));
+                                          if (result != null) {
+                                            Timer(Duration(seconds: 2), () {
+                                              setState(() {
+                                                stateCallSmartContractFunctionButton = ButtonState.success;
+                                              });
+                                              Timer(Duration(seconds: 2), () {
+                                                setState(() {
+                                                  stateCallSmartContractFunctionButton = ButtonState.idle;
+                                                });
+                                              });
+                                            });
+                                          }
+                                          print('done call tx: ' + result);
+                                        } catch (e) {
+                                          final snackBar = SnackBar(
+                                            duration: Duration(seconds: 10),
+                                            content: Text('error: ' + e.toString()),
+                                            action: SnackBarAction(
+                                              label: 'OK',
+                                              onPressed: () {
+                                                // Some code to undo the change.
+                                              },
+                                            ),
+                                          );
+                                          Scaffold.of(context).showSnackBar(snackBar);
+                                          setState(() {
+                                            stateCallSmartContractFunctionButton = ButtonState.fail;
+                                          });
+                                          Timer(Duration(seconds: 3), () {
+                                            setState(() {
+                                              stateCallSmartContractFunctionButton = ButtonState.idle;
+                                            });
+                                          });
+                                        }
+                                      } else {
+                                        setState(() {
+                                          stateCallSmartContractFunctionButton = ButtonState.idle;
+                                        });
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        ExpansionPanel(
+                          isExpanded: _data[1].isExpanded,
+                          canTapOnHeader: true,
+                          headerBuilder: (BuildContext context, bool isExpanded) {
+                            return ListTile(
+                              title: Text(_data[1].name),
+                            );
+                          },
+                          body: Form(
+                            key: _formKeyRemove,
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(
+                                children: [
+                                  SizedBox(height: 20.0),
+                                  Text(
+                                    _data[1].shortDiscribe,
+                                  ),
+                                  SizedBox(height: 20.0),
+                                  new TextFormField(
+                                      initialValue: inputContractAddress,
+                                      decoration: InputDecoration().copyWith(hintText: 'Contract Address'),
+                                      validator: (val) => val.isEmpty ? 'Enter a valid Contract Address' : null,
+                                      onChanged: (val) {
+                                        inputContractAddress = val;
+                                      }),
+                                  SizedBox(height: 20.0),
+                                  DropdownButtonFormField(
+                                    items: carTrackerFunctionList.map((func) {
+                                      print('func: ' + func.encodeName());
+                                      return DropdownMenuItem(value: func.encodeName(), child: Text(func.name));
+                                    }).toList(),
+                                    decoration: InputDecoration().copyWith(hintText: 'Functions'),
+                                    onChanged: (val) => inputFunctionName = val,
+                                  ),
+                                  SizedBox(height: 20.0),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: new TextFormField(
+                                            initialValue: inputToAddress,
+                                            decoration: InputDecoration().copyWith(hintText: 'To Address'),
+                                            validator: (val) => val.isEmpty ? 'Enter a valid To Address' : null,
+                                            onChanged: (val) {
+                                              inputToAddress = val;
+                                            }),
+                                      ),
+                                      IconButton(
+                                          icon: Icon(Icons.qr_code_scanner),
+                                          onPressed: () async {
+                                            try {
+                                              String qrResult = await BarcodeScanner.scan();
+                                              print('qrResult: ' + qrResult);
+                                              setState(() {
+                                                inputToAddress = qrResult;
+                                              });
+                                            } on PlatformException catch (ex) {
+                                              if (ex.code == BarcodeScanner.CameraAccessDenied) {
+                                                inputToAddress = "Camera permission was denied";
+                                              } else {
+                                                inputToAddress = "Unknown Error $ex";
+                                              }
+                                            } on FormatException {
+                                              inputToAddress = "You pressed the back button before scanning anything";
+                                            } catch (ex) {
+                                              inputToAddress = "Unknown Error $ex";
+                                            }
+                                          }),
+                                    ],
+                                  ),
+                                  SizedBox(height: 20.0),
+                                  new ProgressButton.icon(
+                                    iconedButtons: {
+                                      ButtonState.idle: IconedButton(
+                                          text: _data[1].name, icon: Icon(Icons.privacy_tip, color: Colors.white), color: Theme.of(context).buttonColor),
+                                      ButtonState.loading: IconedButton(text: "Changing", color: Theme.of(context).buttonColor),
+                                      ButtonState.fail:
+                                          IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
+                                      ButtonState.success: IconedButton(
+                                          text: "Success",
+                                          icon: Icon(
+                                            Icons.check_circle,
+                                            color: Colors.white,
+                                          ),
+                                          color: Theme.of(context).buttonColor)
+                                    },
+                                    state: stateCallSmartContractFunctionButton,
+                                    onPressed: () async {
+                                      if (_formKeyRemove.currentState.validate()) {
+                                        print('button pressed: ' + _data[1].name);
+                                        print(inputContractAddress);
+                                        print(inputFunctionName);
+                                        print(inputToAddress);
+                                        setState(() {
+                                          stateCallSmartContractFunctionButton = ButtonState.loading;
+                                        });
+                                        try {
+                                          String result = await permissionsContract.removePermission(
+                                              EthereumAddress.fromHex(inputContractAddress), inputFunctionName, EthereumAddress.fromHex(inputToAddress));
+                                          if (result != null) {
+                                            Timer(Duration(seconds: 2), () {
+                                              setState(() {
+                                                stateCallSmartContractFunctionButton = ButtonState.success;
+                                              });
+                                              Timer(Duration(seconds: 2), () {
+                                                setState(() {
+                                                  stateCallSmartContractFunctionButton = ButtonState.idle;
+                                                });
+                                              });
+                                            });
+                                          }
+                                          print('done call tx: ' + result);
+                                        } catch (e) {
+                                          final snackBar = SnackBar(
+                                            duration: Duration(seconds: 10),
+                                            content: Text('error: ' + e.toString()),
+                                            action: SnackBarAction(
+                                              label: 'OK',
+                                              onPressed: () {
+                                                // Some code to undo the change.
+                                              },
+                                            ),
+                                          );
+                                          Scaffold.of(context).showSnackBar(snackBar);
+                                          setState(() {
+                                            stateCallSmartContractFunctionButton = ButtonState.fail;
+                                          });
+                                          Timer(Duration(seconds: 3), () {
+                                            setState(() {
+                                              stateCallSmartContractFunctionButton = ButtonState.idle;
+                                            });
+                                          });
+                                        }
+                                      } else {
+                                        setState(() {
+                                          stateCallSmartContractFunctionButton = ButtonState.idle;
+                                        });
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                      ExpansionPanel(
+                        isExpanded: _data[2].isExpanded,
+                        canTapOnHeader: true,
+                        headerBuilder: (BuildContext context, bool isExpanded) {
+                          return ListTile(
+                            title: Text(_data[2].name),
+                          );
+                        },
+                        body: Form(
+                          key: _formKeyRequest,
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              children: [
+                                SizedBox(height: 20.0),
+                                Text(
+                                  _data[2].shortDiscribe,
+                                ),
+                                SizedBox(height: 20.0),
+                                new TextFormField(
+                                    initialValue: inputContractAddress,
+                                    decoration: InputDecoration().copyWith(hintText: 'Contract Address'),
+                                    validator: (val) => val.isEmpty ? 'Enter a valid Contract Address' : null,
+                                    onChanged: (val) {
+                                      inputContractAddress = val;
+                                    }),
+                                SizedBox(height: 20.0),
+                                DropdownButtonFormField(
+                                  items: carTrackerFunctionList.map((func) {
+                                    print('func: ' + func.encodeName());
+                                    return DropdownMenuItem(value: func.encodeName(), child: Text(func.name));
+                                  }).toList(),
+                                  decoration: InputDecoration().copyWith(hintText: 'Functions'),
+                                  onChanged: (val) => inputFunctionName = val,
+                                ),
+                                SizedBox(height: 20.0),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: new TextFormField(
+                                          initialValue: inputToAddress,
+                                          decoration: InputDecoration().copyWith(hintText: 'To Address'),
+                                          validator: (val) => val.isEmpty ? 'Enter a valid To Address' : null,
+                                          onChanged: (val) {
+                                            inputToAddress = val;
+                                          }),
+                                    ),
+                                    IconButton(
+                                        icon: Icon(Icons.qr_code_scanner),
+                                        onPressed: () async {
+                                          try {
+                                            String qrResult = await BarcodeScanner.scan();
+                                            print('qrResult: ' + qrResult);
+                                            setState(() {
+                                              inputToAddress = qrResult;
+                                            });
+                                          } on PlatformException catch (ex) {
+                                            if (ex.code == BarcodeScanner.CameraAccessDenied) {
+                                              inputToAddress = "Camera permission was denied";
+                                            } else {
+                                              inputToAddress = "Unknown Error $ex";
+                                            }
+                                          } on FormatException {
+                                            inputToAddress = "You pressed the back button before scanning anything";
+                                          } catch (ex) {
+                                            inputToAddress = "Unknown Error $ex";
+                                          }
+                                        }),
+                                  ],
+                                ),
+                                SizedBox(height: 20.0),
+                                new ProgressButton.icon(
+                                  iconedButtons: {
+                                    ButtonState.idle: IconedButton(
+                                        text: _data[2].name, icon: Icon(Icons.privacy_tip, color: Colors.white), color: Theme.of(context).buttonColor),
+                                    ButtonState.loading: IconedButton(text: "Loading", color: Theme.of(context).buttonColor),
+                                    ButtonState.fail:
+                                        IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
+                                    ButtonState.success: IconedButton(
+                                        text: "Success",
+                                        icon: Icon(
+                                          Icons.check_circle,
+                                          color: Colors.white,
+                                        ),
+                                        color: Theme.of(context).buttonColor)
+                                  },
+                                  state: stateCallSmartContractFunctionButton,
+                                  onPressed: () async {
+                                    if (_formKeyRequest.currentState.validate()) {
+                                      print('button pressed: ' + _data[2].name);
+                                      print(inputContractAddress);
+                                      print(inputFunctionName);
+                                      print(inputToAddress);
+                                      setState(() {
+                                        stateCallSmartContractFunctionButton = ButtonState.loading;
+                                      });
+                                      try {
+                                        bool result = await permissionsContract.requestAccess(
+                                            EthereumAddress.fromHex(inputContractAddress), inputFunctionName, EthereumAddress.fromHex(inputToAddress));
+                                        if (result != null) {
+                                          if (result) {
+                                            final snackBar = SnackBar(
+                                              duration: Duration(seconds: 10),
+                                              content: Text('Access is granted.'),
+                                              action: SnackBarAction(
+                                                label: 'OK',
+                                                onPressed: () {
+                                                  // Some code to undo the change.
+                                                },
+                                              ),
+                                            );
+                                            // Find the Scaffold in the widget tree and use
+                                            // it to show a SnackBar.
+                                            Scaffold.of(context).showSnackBar(snackBar);
+                                          } else {
+                                            final snackBar = SnackBar(
+                                              duration: Duration(seconds: 10),
+                                              content: Text('Access is not granted.'),
+                                              action: SnackBarAction(
+                                                label: 'OK',
+                                                onPressed: () {
+                                                  // Some code to undo the change.
+                                                },
+                                              ),
+                                            );
+                                            // Find the Scaffold in the widget tree and use
+                                            // it to show a SnackBar.
+                                            Scaffold.of(context).showSnackBar(snackBar);
+                                          }
+                                          setState(() {
+                                            stateCallSmartContractFunctionButton = ButtonState.success;
+                                          });
+                                          Timer(Duration(seconds: 3), () {
+                                            setState(() {
+                                              stateCallSmartContractFunctionButton = ButtonState.idle;
+                                            });
+                                          });
+                                        }
+                                        print('done call have access: ' + result.toString());
+                                      } catch (e) {
+                                        final snackBar = SnackBar(
+                                          duration: Duration(seconds: 10),
+                                          content: Text('error: ' + e.toString()),
+                                          action: SnackBarAction(
+                                            label: 'OK',
+                                            onPressed: () {
+                                              // Some code to undo the change.
+                                            },
+                                          ),
+                                        );
+                                        Scaffold.of(context).showSnackBar(snackBar);
+                                        setState(() {
+                                          stateCallSmartContractFunctionButton = ButtonState.fail;
+                                        });
+                                        Timer(Duration(seconds: 3), () {
+                                          setState(() {
+                                            stateCallSmartContractFunctionButton = ButtonState.idle;
+                                          });
+                                        });
+                                      }
+                                    } else {
+                                      setState(() {
+                                        stateCallSmartContractFunctionButton = ButtonState.idle;
+                                      });
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+                // _buildPanel(_data, permissionsContract, carTrackeContract.contractFunctionsList, appUserWallet),
+                // SizedBox(height: 20.0),
+                // StreamBuilder(
+                //   stream: permissionsContract.addPermissionEventHistoryStream,
+                //   builder: (context, AsyncSnapshot<List<AddPermisionEvent>> snapShot) {
+                //     if (snapShot.hasError) {
+                //       return Text('error: ' + snapShot.toString());
+                //     } else if (snapShot.connectionState == ConnectionState.waiting) {
+                //       return Text('AddPermisionEvent waiting...');
+                //     } else {
+                //       return Text(
+                //         'added data: ' + snapShot.data.toString(),
+                //       );
+                //     }
+                //   },
+                // ),
+                // SizedBox(height: 20.0),
+                // StreamBuilder(
+                //   stream: permissionsContract.removePermissionEventStream,
+                //   builder: (context, AsyncSnapshot<List<RemovePermisionEvent>> snapShot) {
+                //     if (snapShot.hasError) {
+                //       return Text('error: ' + snapShot.toString());
+                //     } else if (snapShot.connectionState == ConnectionState.waiting) {
+                //       return Text('RemovePermisionEvent waiting...');
+                //     } else {
+                //       return Text('removed data: ' + snapShot.data.length.toString());
+                //     }
+                //   },
+                // ),
+              ],
+            ),
           ),
         ),
-      ));
+      );
     }
     return Loading(
       loadingMessage: 'Loading Contract...',
-    );
-  }
-
-  Widget _buildPanel(List<Item> data, PermissionContract permissionsContract, List<ContractFunction> carTrackerFunctionList, AppUserWallet appUserWallet) {
-    // using set state in builder functions reset the entier widget ** probably not the best structure for this view
-    // don't show add/remove permision if the user is not permission contract owner
-    List<Item> _data = List.of(data);
-    if (permissionsContract.contractOwner != appUserWallet.pubKey) {
-      _data.removeRange(0, 2);
-    }
-    return ExpansionPanelList(
-      expandedHeaderPadding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0),
-      expansionCallback: (int index, bool isExpanded) {
-        _data.forEach((item) {
-          setState(() {
-            item.isExpanded = false;
-          });
-        });
-        setState(() {
-          _data[index].isExpanded = !isExpanded;
-        });
-      },
-      children: _data.map<ExpansionPanel>((Item item) {
-        GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-        // final RoundedLoadingButtonController _btnController =
-        //     new RoundedLoadingButtonController();
-        ButtonState stateCallSmartContractFunctionButton = ButtonState.idle;
-        return ExpansionPanel(
-          headerBuilder: (BuildContext context, bool isExpanded) {
-            return ListTile(
-              title: Text(item.name),
-            );
-          },
-          body: Form(
-            key: _formKey,
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  SizedBox(height: 20.0),
-                  Text(
-                    item.shortDiscribe,
-                  ),
-                  SizedBox(height: 20.0),
-                  new TextFormField(
-                      initialValue: inputContractAddress,
-                      decoration: InputDecoration().copyWith(hintText: 'Contract Address'),
-                      validator: (val) => val.isEmpty ? 'Enter a valid Contract Address' : null,
-                      onChanged: (val) {
-                        inputContractAddress = val;
-                      }),
-                  SizedBox(height: 20.0),
-                  DropdownButtonFormField(
-                    items: carTrackerFunctionList.map((func) {
-                      print('func: ' + func.encodeName());
-                      return DropdownMenuItem(value: func.encodeName(), child: Text(func.name));
-                    }).toList(),
-                    decoration: InputDecoration().copyWith(hintText: 'Functions'),
-                    onChanged: (val) => inputFunctionName = val,
-                  ),
-                  SizedBox(height: 20.0),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: new TextFormField(
-                            initialValue: inputToAddress,
-                            decoration: InputDecoration().copyWith(hintText: 'To Address'),
-                            validator: (val) => val.isEmpty ? 'Enter a valid To Address' : null,
-                            onChanged: (val) {
-                              inputToAddress = val;
-                            }),
-                      ),
-                      IconButton(
-                          icon: Icon(Icons.qr_code_scanner),
-                          onPressed: () async {
-                            try {
-                              String qrResult = await BarcodeScanner.scan();
-                              print('qrResult: ' + qrResult);
-                              setState(() {
-                                inputToAddress = qrResult;
-                              });
-                            } on PlatformException catch (ex) {
-                              if (ex.code == BarcodeScanner.CameraAccessDenied) {
-                                inputToAddress = "Camera permission was denied";
-                              } else {
-                                inputToAddress = "Unknown Error $ex";
-                              }
-                            } on FormatException {
-                              inputToAddress = "You pressed the back button before scanning anything";
-                            } catch (ex) {
-                              inputToAddress = "Unknown Error $ex";
-                            }
-                          }),
-                    ],
-                  ),
-                  SizedBox(height: 20.0),
-                  new ProgressButton.icon(
-                    iconedButtons: {
-                      ButtonState.idle: IconedButton(text: item.name, icon: Icon(Icons.privacy_tip, color: Colors.white), color: Theme.of(context).buttonColor),
-                      ButtonState.loading: IconedButton(text: "Changing", color: Theme.of(context).buttonColor),
-                      ButtonState.fail: IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
-                      ButtonState.success: IconedButton(
-                          text: "Success",
-                          icon: Icon(
-                            Icons.check_circle,
-                            color: Colors.white,
-                          ),
-                          color: Theme.of(context).buttonColor)
-                    },
-                    state: stateCallSmartContractFunctionButton,
-                    onPressed: () async {
-                      if (_formKey.currentState.validate()) {
-                        print('button pressed: ' + item.name);
-                        print(inputContractAddress);
-                        print(inputFunctionName);
-                        print(inputToAddress);
-                        stateCallSmartContractFunctionButton = ButtonState.loading;
-                        try {
-                          switch (item.name) {
-                            case 'Add Permission':
-                              String result = await permissionsContract.addPermission(
-                                  EthereumAddress.fromHex(inputContractAddress), inputFunctionName, EthereumAddress.fromHex(inputToAddress));
-                              if (result != null) {
-                                // _btnController.success();
-                                setState(() {
-                                  stateCallSmartContractFunctionButton = ButtonState.success;
-                                });
-                                Timer(Duration(seconds: 3), () {
-                                  // _btnController.stop();
-                                  setState(() {
-                                    stateCallSmartContractFunctionButton = ButtonState.idle;
-                                  });
-                                });
-                              }
-                              print('done call tx: ' + result);
-                              break;
-                            case 'Remove Permission':
-                              String result = await permissionsContract.removePermission(
-                                  EthereumAddress.fromHex(inputContractAddress), inputFunctionName, EthereumAddress.fromHex(inputToAddress));
-                              if (result != null) {
-                                // _btnController.success();
-                                setState(() {
-                                  stateCallSmartContractFunctionButton = ButtonState.success;
-                                });
-                                Timer(Duration(seconds: 3), () {
-                                  // _btnController.stop();
-                                  setState(() {
-                                    stateCallSmartContractFunctionButton = ButtonState.idle;
-                                  });
-                                });
-                              }
-                              print('done call tx: ' + result);
-                              break;
-                            case 'Access Status':
-                              bool result = await permissionsContract.requestAccess(
-                                  EthereumAddress.fromHex(inputContractAddress), inputFunctionName, EthereumAddress.fromHex(inputToAddress));
-                              if (result != null) {
-                                if (result) {
-                                  final snackBar = SnackBar(
-                                    duration: Duration(seconds: 10),
-                                    content: Text('Access is granted.'),
-                                    action: SnackBarAction(
-                                      label: 'OK',
-                                      onPressed: () {
-                                        // Some code to undo the change.
-                                      },
-                                    ),
-                                  );
-
-                                  // Find the Scaffold in the widget tree and use
-                                  // it to show a SnackBar.
-                                  Scaffold.of(context).showSnackBar(snackBar);
-                                } else {
-                                  final snackBar = SnackBar(
-                                    duration: Duration(seconds: 10),
-                                    content: Text('Access is not granted.'),
-                                    action: SnackBarAction(
-                                      label: 'OK',
-                                      onPressed: () {
-                                        // Some code to undo the change.
-                                      },
-                                    ),
-                                  );
-                                  // Find the Scaffold in the widget tree and use
-                                  // it to show a SnackBar.
-                                  Scaffold.of(context).showSnackBar(snackBar);
-                                }
-                                // _btnController.success();
-                                setState(() {
-                                  stateCallSmartContractFunctionButton = ButtonState.success;
-                                });
-                                Timer(Duration(seconds: 3), () {
-                                  // _btnController.stop();
-                                  setState(() {
-                                    stateCallSmartContractFunctionButton = ButtonState.idle;
-                                  });
-                                });
-                              }
-                              print('done call have access: ' + result.toString());
-                              break;
-                            default:
-                          }
-                        } catch (e) {
-                          final snackBar = SnackBar(
-                            duration: Duration(seconds: 10),
-                            content: Text('error: ' + e.toString()),
-                            action: SnackBarAction(
-                              label: 'OK',
-                              onPressed: () {
-                                // Some code to undo the change.
-                              },
-                            ),
-                          );
-                          // Find the Scaffold in the widget tree and use
-                          // it to show a SnackBar.
-                          Scaffold.of(context).showSnackBar(snackBar);
-                          // _btnController.error();
-                          setState(() {
-                            stateCallSmartContractFunctionButton = ButtonState.fail;
-                          });
-                          Timer(Duration(seconds: 3), () {
-                            // _btnController.stop();
-                            setState(() {
-                              stateCallSmartContractFunctionButton = ButtonState.success;
-                            });
-                          });
-                        }
-                      } else {
-                        // _btnController.reset();
-                        setState(() {
-                          stateCallSmartContractFunctionButton = ButtonState.idle;
-                        });
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-          isExpanded: item.isExpanded,
-        );
-      }).toList(),
     );
   }
 }
