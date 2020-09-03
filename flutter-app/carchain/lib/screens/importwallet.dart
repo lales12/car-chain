@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:carchain/services/walletmanager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:progress_state_button/iconed_button.dart';
+import 'package:progress_state_button/progress_button.dart';
 import 'package:provider/provider.dart';
 
 enum WalletTypeEnum { privateKey, mnemonic }
@@ -18,6 +21,7 @@ class _ImportWalletState extends State<ImportWallet> {
   final _formKey = GlobalKey<FormState>();
   String formFieldInputTex = '';
   TextEditingController _qrTextEditingController = TextEditingController();
+  ButtonState stateImportWalletButton = ButtonState.idle;
 
   @override
   Widget build(BuildContext context) {
@@ -81,13 +85,8 @@ class _ImportWalletState extends State<ImportWallet> {
                         textAlignVertical: TextAlignVertical.center,
                         controller: _qrTextEditingController,
                         // initialValue: _qrTextEditingController.text,
-                        decoration: InputDecoration().copyWith(
-                            hintText:
-                                (_walletTypeEnum == WalletTypeEnum.privateKey)
-                                    ? 'Private Key'
-                                    : 'Mnemonic Words'),
-                        validator: (val) =>
-                            val.isEmpty ? 'Enter a valid Private Key' : null,
+                        decoration: InputDecoration().copyWith(hintText: (_walletTypeEnum == WalletTypeEnum.privateKey) ? 'Private Key' : 'Mnemonic Words'),
+                        validator: (val) => val.isEmpty ? 'Enter a valid Private Key' : null,
                         minLines: 2,
                         maxLines: 5,
                         onChanged: (val) {
@@ -121,19 +120,44 @@ class _ImportWalletState extends State<ImportWallet> {
                 ],
               ),
               SizedBox(height: 20.0),
-              RaisedButton(
-                child: Text(
-                  'Import',
-                ),
+              ProgressButton.icon(
+                iconedButtons: {
+                  ButtonState.idle: IconedButton(text: 'Import', icon: Icon(Icons.download_sharp, color: Colors.white), color: Theme.of(context).buttonColor),
+                  ButtonState.loading: IconedButton(text: "Changing", color: Theme.of(context).buttonColor),
+                  ButtonState.fail: IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
+                  ButtonState.success: IconedButton(
+                      text: "Success",
+                      icon: Icon(
+                        Icons.check_circle,
+                        color: Colors.white,
+                      ),
+                      color: Theme.of(context).buttonColor)
+                },
+                state: stateImportWalletButton,
                 onPressed: () async {
                   if (_formKey.currentState.validate()) {
-                    if (_walletTypeEnum == WalletTypeEnum.privateKey) {
-                      log('importing private key: ' + formFieldInputTex);
-                      walletManager.setupWalletFromPrivKey(formFieldInputTex);
-                    } else {
-                      log('importing mnemonic words: ' + formFieldInputTex);
-                      walletManager.setupWalletFromMnemonic(formFieldInputTex);
-                    }
+                    setState(() {
+                      stateImportWalletButton = ButtonState.loading;
+                    });
+                    Timer(Duration(seconds: 2), () {
+                      try {
+                        if (_walletTypeEnum == WalletTypeEnum.privateKey) {
+                          log('importing private key: ' + formFieldInputTex);
+                          walletManager.setupWalletFromPrivKey(formFieldInputTex);
+                        } else {
+                          log('importing mnemonic words: ' + formFieldInputTex);
+                          walletManager.setupWalletFromMnemonic(formFieldInputTex);
+                        }
+                        setState(() {
+                          stateImportWalletButton = ButtonState.success;
+                        });
+                      } catch (e) {
+                        log(e);
+                        setState(() {
+                          stateImportWalletButton = ButtonState.fail;
+                        });
+                      }
+                    });
                   }
                 },
               ),

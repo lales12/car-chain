@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:carchain/contracts_services/cartracker.dart';
 import 'package:carchain/contracts_services/permissions.dart';
-import 'package:carchain/models/AppUserWallet.dart';
 import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/util/loading.dart';
 import 'package:flutter/material.dart';
@@ -212,6 +211,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                                             duration: Duration(seconds: 10),
                                             content: Text('error: ' + e.toString()),
                                             action: SnackBarAction(
+                                              textColor: Theme.of(context).buttonColor,
                                               label: 'OK',
                                               onPressed: () {
                                                 // Some code to undo the change.
@@ -357,6 +357,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                                             duration: Duration(seconds: 10),
                                             content: Text('error: ' + e.toString()),
                                             action: SnackBarAction(
+                                              textColor: Theme.of(context).buttonColor,
                                               label: 'OK',
                                               onPressed: () {
                                                 // Some code to undo the change.
@@ -491,6 +492,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                                               duration: Duration(seconds: 10),
                                               content: Text('Access is granted.'),
                                               action: SnackBarAction(
+                                                textColor: Theme.of(context).buttonColor,
                                                 label: 'OK',
                                                 onPressed: () {
                                                   // Some code to undo the change.
@@ -505,6 +507,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                                               duration: Duration(seconds: 10),
                                               content: Text('Access is not granted.'),
                                               action: SnackBarAction(
+                                                textColor: Theme.of(context).buttonColor,
                                                 label: 'OK',
                                                 onPressed: () {
                                                   // Some code to undo the change.
@@ -530,6 +533,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                                           duration: Duration(seconds: 10),
                                           content: Text('error: ' + e.toString()),
                                           action: SnackBarAction(
+                                            textColor: Theme.of(context).buttonColor,
                                             label: 'OK',
                                             onPressed: () {
                                               // Some code to undo the change.
