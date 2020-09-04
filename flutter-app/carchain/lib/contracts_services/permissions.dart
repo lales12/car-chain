@@ -3,12 +3,9 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:carchain/app_config.dart';
-import 'package:carchain/contracts_services/cartracker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart';
-import 'package:provider/provider.dart';
-import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -69,15 +66,12 @@ class PermissionContract extends ChangeNotifier {
     String abiStringFile = await rootBundle.loadString("abis/Permissions.json");
     var jsonAbi = jsonDecode(abiStringFile);
     _abiCode = jsonEncode(jsonAbi["abi"]);
-    _contractAddress = EthereumAddress.fromHex(
-        jsonAbi["networks"][configParams.networkId]["address"]);
+    _contractAddress = EthereumAddress.fromHex(jsonAbi["networks"][configParams.networkId]["address"]);
     contractAddress = _contractAddress;
     log('permissions contract address: ' + contractAddress.toString());
     // gettting contractDeployedBlockNumber
-    String _deplyTxHash =
-        jsonAbi["networks"][configParams.networkId]["transactionHash"];
-    TransactionInformation txInfo =
-        await _client.getTransactionByHash(_deplyTxHash);
+    String _deplyTxHash = jsonAbi["networks"][configParams.networkId]["transactionHash"];
+    TransactionInformation txInfo = await _client.getTransactionByHash(_deplyTxHash);
     contractDeployedBlockNumber = txInfo.blockNumber;
   }
 
@@ -89,8 +83,7 @@ class PermissionContract extends ChangeNotifier {
   }
 
   Future<void> _getDeployedContract() async {
-    _contract = DeployedContract(
-        ContractAbi.fromJson(_abiCode, "Permissions"), _contractAddress);
+    _contract = DeployedContract(ContractAbi.fromJson(_abiCode, "Permissions"), _contractAddress);
 
     // functions
     _owner = _contract.function('owner');
@@ -104,8 +97,7 @@ class PermissionContract extends ChangeNotifier {
 
   // functions
   Future<void> _getContractOwner() async {
-    List response =
-        await _client.call(contract: _contract, function: _owner, params: []);
+    List response = await _client.call(contract: _contract, function: _owner, params: []);
     contractOwner = response[0];
     log('Permissions: contract owner: ' + contractOwner.toString());
     notifyListeners();
@@ -115,14 +107,10 @@ class PermissionContract extends ChangeNotifier {
   Stream<List<AddPermisionEvent>> get addPermissionEventStream {
     return _client
         .events(
-          FilterOptions.events(
-              contract: _contract,
-              event: _permissionAdded,
-              fromBlock: contractDeployedBlockNumber),
+          FilterOptions.events(contract: _contract, event: _permissionAdded, fromBlock: contractDeployedBlockNumber),
         )
         .map((event) {
-          final decoded =
-              _permissionAdded.decodeResults(event.topics, event.data);
+          final decoded = _permissionAdded.decodeResults(event.topics, event.data);
           print('from stream listen: addPermissionEventStream');
           print(decoded.toString());
           return AddPermisionEvent(
@@ -136,22 +124,17 @@ class PermissionContract extends ChangeNotifier {
   }
 
   Stream<List<AddPermisionEvent>> get addPermissionEventHistoryStream {
-    log('addPermissionEventHistoryStream from block: ' +
-        contractDeployedBlockNumber.blockNum.toString());
+    log('addPermissionEventHistoryStream from block: ' + contractDeployedBlockNumber.blockNum.toString());
 
     return _client
         .getLogs(
           // filter,
-          FilterOptions.events(
-              contract: _contract,
-              event: _permissionAdded,
-              fromBlock: contractDeployedBlockNumber),
+          FilterOptions.events(contract: _contract, event: _permissionAdded, fromBlock: contractDeployedBlockNumber),
         )
         .asStream()
         .map((eventList) {
       return eventList.map((event) {
-        final decoded =
-            _permissionAdded.decodeResults(event.topics, event.data);
+        final decoded = _permissionAdded.decodeResults(event.topics, event.data);
         print('from stream listen: addPermissionEventHistoryStream');
         print(decoded.toString());
         return AddPermisionEvent(
@@ -165,13 +148,9 @@ class PermissionContract extends ChangeNotifier {
 
   Stream<List<RemovePermisionEvent>> get removePermissionEventStream {
     return _client
-        .events(FilterOptions.events(
-            contract: _contract,
-            event: _permissionRemoved,
-            fromBlock: contractDeployedBlockNumber))
+        .events(FilterOptions.events(contract: _contract, event: _permissionRemoved, fromBlock: contractDeployedBlockNumber))
         .map((event) {
-          final decoded =
-              _permissionRemoved.decodeResults(event.topics, event.data);
+          final decoded = _permissionRemoved.decodeResults(event.topics, event.data);
 
           return RemovePermisionEvent(
             contract: decoded[0] as EthereumAddress,
@@ -184,18 +163,13 @@ class PermissionContract extends ChangeNotifier {
   }
 
   Stream<List<RemovePermisionEvent>> get removePermissionEventHistoryStream {
-    log('removePermissionEventHistoryStream from block: ' +
-        contractDeployedBlockNumber.blockNum.toString());
+    log('removePermissionEventHistoryStream from block: ' + contractDeployedBlockNumber.blockNum.toString());
     return _client
-        .getLogs(FilterOptions.events(
-            contract: _contract,
-            event: _permissionRemoved,
-            fromBlock: contractDeployedBlockNumber))
+        .getLogs(FilterOptions.events(contract: _contract, event: _permissionRemoved, fromBlock: contractDeployedBlockNumber))
         .asStream()
         .map((eventList) {
       return eventList.map((event) {
-        final decoded =
-            _permissionRemoved.decodeResults(event.topics, event.data);
+        final decoded = _permissionRemoved.decodeResults(event.topics, event.data);
         return RemovePermisionEvent(
           contract: decoded[0] as EthereumAddress,
           method: decoded[1] as String,
@@ -206,38 +180,26 @@ class PermissionContract extends ChangeNotifier {
   }
 
   // callable functions
-  Future<String> addPermission(EthereumAddress contractAddress,
-      String functionName, EthereumAddress toAddress) async {
+  Future<String> addPermission(EthereumAddress contractAddress, String functionName, EthereumAddress toAddress) async {
     String res = await _client.sendTransaction(
       _credentials,
-      Transaction.callContract(
-          contract: _contract,
-          function: _addPermission,
-          parameters: [contractAddress, functionName, toAddress]),
+      Transaction.callContract(contract: _contract, function: _addPermission, parameters: [contractAddress, functionName, toAddress]),
       fetchChainIdFromNetworkId: true,
     );
     return res;
   }
 
-  Future<String> removePermission(EthereumAddress contractAddress,
-      String functionName, EthereumAddress toAddress) async {
+  Future<String> removePermission(EthereumAddress contractAddress, String functionName, EthereumAddress toAddress) async {
     String res = await _client.sendTransaction(
       _credentials,
-      Transaction.callContract(
-          contract: _contract,
-          function: _removePermission,
-          parameters: [contractAddress, functionName, toAddress]),
+      Transaction.callContract(contract: _contract, function: _removePermission, parameters: [contractAddress, functionName, toAddress]),
       fetchChainIdFromNetworkId: true,
     );
     return res;
   }
 
-  Future<bool> requestAccess(EthereumAddress contractAddress,
-      String functionName, EthereumAddress toAddress) async {
-    List haveAccess = await _client.call(
-        contract: _contract,
-        function: _requestAccess,
-        params: [contractAddress, functionName, toAddress]);
+  Future<bool> requestAccess(EthereumAddress contractAddress, String functionName, EthereumAddress toAddress) async {
+    List haveAccess = await _client.call(contract: _contract, function: _requestAccess, params: [contractAddress, functionName, toAddress]);
 
     return haveAccess[0];
   }

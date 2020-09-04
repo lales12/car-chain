@@ -19,9 +19,7 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
   cardColor: light_contrastColor,
   buttonColor: light_primaryMiddleColor,
   scaffoldBackgroundColor: light_primaryLightColor,
-  floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: light_primaryMiddleColor,
-      splashColor: light_primaryDarkColor),
+  floatingActionButtonTheme: FloatingActionButtonThemeData(backgroundColor: light_primaryMiddleColor, splashColor: light_primaryDarkColor),
   appBarTheme: AppBarTheme(
     color: light_primaryDarkColor,
     iconTheme: IconThemeData(
@@ -32,8 +30,7 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
     buttonColor: light_primaryMiddleColor,
     textTheme: ButtonTextTheme.primary,
     splashColor: light_primaryDarkColor,
-    shape:
-        RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
+    shape: RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0)),
   ),
   bottomNavigationBarTheme: BottomNavigationBarThemeData(
     backgroundColor: light_primaryMiddleColor,
@@ -43,12 +40,10 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
     labelColor: light_primaryDarkColor,
     unselectedLabelColor: light_primaryMiddleColor,
   ),
-  dividerTheme:
-      DividerThemeData(thickness: 40.0, color: light_primaryDarkColor),
+  dividerTheme: DividerThemeData(thickness: 40.0, color: light_primaryDarkColor),
   toggleButtonsTheme: ToggleButtonsThemeData(
     fillColor: light_primaryMiddleColor,
     selectedColor: light_contrastColor,
   ),
-  inputDecorationTheme:
-      InputDecorationTheme(contentPadding: EdgeInsets.all(5.0)),
+  inputDecorationTheme: InputDecorationTheme(contentPadding: EdgeInsets.all(5.0)),
 );
