@@ -30,7 +30,8 @@ dependencies:
   # rounded_loading_button: ^1.0.13
   barcode_scan: ^1.0.0
   progress_state_button: ^1.0.1
-  flutter_blue: ^0.7.2
+  # flutter_blue: ^0.7.2
+  flutter_bluetooth_serial: ^0.2.2
 
 dev_dependencies:
   flutter_test:

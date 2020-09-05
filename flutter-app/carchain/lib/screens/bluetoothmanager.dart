@@ -1,166 +1,180 @@
-import 'dart:async';
+import 'dart:developer';
 
+import 'package:carchain/services/appbluetoothservice.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_blue/flutter_blue.dart';
-import 'package:progress_state_button/iconed_button.dart';
-import 'package:progress_state_button/progress_button.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:provider/provider.dart';
 
-class BlueToothManager extends StatefulWidget {
+class BluetoothManager extends StatefulWidget {
   @override
-  _BlueToothManagerState createState() => _BlueToothManagerState();
+  _BluetoothManagerState createState() => _BluetoothManagerState();
 }
 
-class _BlueToothManagerState extends State<BlueToothManager> {
-  ButtonState stateBtConnectButton = ButtonState.idle;
+class _BluetoothManagerState extends State<BluetoothManager> {
+  List<BluetoothDevice> bluetoothPairedList;
+
+  Future<void> _showModal(BuildContext context, BluetoothDevice device) {
+    return showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            BluetoothConnection connection;
+
+            return Container(
+              height: 750,
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  ListTile(
+                    leading: Icon(Icons.devices),
+                    title: Text(device.name),
+                    subtitle: Text(device.address),
+                    trailing: connection != null
+                        ? connection.isConnected ?? device.isConnected
+                        : device.isConnected
+                            ? TextButton.icon(
+                                label: Text('Disconnect'),
+                                icon: Icon(Icons.bluetooth_disabled),
+                                onPressed: () async {
+                                  // TO DO
+                                  connection.close();
+                                },
+                              )
+                            : TextButton.icon(
+                                label: Text('Connect'),
+                                icon: Icon(Icons.bluetooth_connected),
+                                onPressed: () {
+                                  log('connecting to: ' + device.address.toString());
+                                  BluetoothConnection.toAddress(device.address)
+                                      .then(
+                                        (BluetoothConnection connectionResult) => setModalState(
+                                          () {
+                                            connection = connectionResult;
+                                          },
+                                        ),
+                                      )
+                                      .catchError(
+                                        (onError) => log(onError.toString()),
+                                      );
+                                },
+                              ),
+                  ),
+                  if (connection != null) ...[
+                    Text('commands'),
+                  ],
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void updateBluetoothPairedList() {
+    AppBlueToothService().getPairedDevices().then((List<BluetoothDevice> value) {
+      setState(() {
+        bluetoothPairedList = value;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final bluetoothState = Provider.of<BluetoothState>(context);
-    final bluetoothConnectedDevices = Provider.of<List<BluetoothDevice>>(context);
-    if (bluetoothState != null && bluetoothConnectedDevices != null) {
-      print(bluetoothState.toString());
-      print(bluetoothConnectedDevices.length);
+    if (bluetoothState != null) {
+      updateBluetoothPairedList();
     }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Bluetooth Manager'),
+        title: Text('BlueTooth Manager'),
         actions: [
           IconButton(
-            icon: Icon((bluetoothState == BluetoothState.on) ? Icons.bluetooth_connected : Icons.bluetooth_disabled),
-            onPressed: () {},
+            icon: bluetoothState != BluetoothState.STATE_ON
+                ? Icon(Icons.bluetooth_disabled)
+                : Icon(
+                    Icons.bluetooth,
+                    // color: Theme.of(context).primaryColorLight,
+                  ),
+            onPressed: () async {
+              if (bluetoothState != BluetoothState.STATE_ON) {
+                log('turning blutooth on');
+                bool temp = await AppBlueToothService().enableBluetooth();
+                if (temp) {
+                  log('blutooth enabled');
+                } else {
+                  log(temp.toString());
+                }
+              } else {
+                log('turning blutooth of');
+                bool temp = await AppBlueToothService().disableBluetooth();
+                if (temp) {
+                  log('blutooth disabled');
+                } else {
+                  log(temp.toString());
+                }
+              }
+            },
           ),
         ],
       ),
       body: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            StreamBuilder<List<ScanResult>>(
-              stream: FlutterBlue.instance.scanResults,
-              initialData: [],
-              builder: (c, snapshot) => Column(
-                children: snapshot.data
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (bluetoothState != BluetoothState.STATE_ON) ...[
+                Center(
+                  child: Text("The Bluetooth Adapter seems to be OFF, try turning it ON from the App Bar's Bluetooth button"),
+                ),
+              ],
+              if (bluetoothState == BluetoothState.STATE_ON && bluetoothPairedList != null && bluetoothPairedList.length == 0) ...[
+                Center(
+                  child: Text("It appear that you don't have any device paired, go to settings and pair with a device."),
+                ),
+                SizedBox(height: 20.0),
+                RaisedButton(
+                  child: Text('Open Settings'),
+                  onPressed: () {
+                    AppBlueToothService().openSettings();
+                  },
+                ),
+              ],
+              if (bluetoothPairedList != null) ...[
+                ...bluetoothPairedList
                     .map(
-                      (scanResult) => ListTile(
-                        title: Text(scanResult.device.name == '' ? 'Unknown' : scanResult.device.name),
-                        subtitle: Text(scanResult.device.id.toString()),
-                        trailing: Icon(scanResult.advertisementData.connectable ? Icons.bluetooth_searching : Icons.bluetooth_disabled),
-                        enabled: scanResult.advertisementData.connectable ? true : false,
-                        tileColor: Theme.of(context).primaryColor,
+                      (device) => ListTile(
+                        leading: Icon(Icons.devices_other),
+                        title: Text(device.name),
+                        subtitle: Text(device.address),
+                        trailing: device.isConnected
+                            ? Icon(
+                                Icons.bluetooth_connected,
+                                color: Theme.of(context).primaryColorLight,
+                              )
+                            : Icon(
+                                Icons.bluetooth_disabled,
+                                color: Theme.of(context).accentColor,
+                              ),
                         onTap: () {
-                          showModalBottomSheet<void>(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return StatefulBuilder(
-                                builder: (BuildContext context, StateSetter setModalState) {
-                                  return Container(
-                                    height: 500,
-                                    // color: Colors.amber,
-                                    child: Center(
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: <Widget>[
-                                          Text(
-                                            (scanResult.device.name == '') ? 'Unknown' : scanResult.device.name,
-                                            style: TextStyle(color: Theme.of(context).primaryColorLight),
-                                          ),
-                                          SizedBox(height: 20.0),
-                                          Text(
-                                            scanResult.device.id.toString(),
-                                            style: TextStyle(color: Theme.of(context).primaryColorLight),
-                                          ),
-                                          SizedBox(height: 20.0),
-                                          ProgressButton.icon(
-                                            iconedButtons: {
-                                              ButtonState.idle: IconedButton(
-                                                  text: 'Connect',
-                                                  icon: Icon(Icons.bluetooth_sharp, color: Colors.white),
-                                                  color: Theme.of(context).buttonColor),
-                                              ButtonState.loading: IconedButton(text: "Loading", color: Theme.of(context).buttonColor),
-                                              ButtonState.fail: IconedButton(
-                                                  text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
-                                              ButtonState.success: IconedButton(
-                                                  text: "Success",
-                                                  icon: Icon(
-                                                    Icons.check_circle,
-                                                    color: Colors.white,
-                                                  ),
-                                                  color: Theme.of(context).buttonColor)
-                                            },
-                                            state: stateBtConnectButton,
-                                            onPressed: () async {
-                                              bool opStatus = true;
-                                              setModalState(() {
-                                                stateBtConnectButton = ButtonState.loading;
-                                              });
-                                              await scanResult.device.connect().timeout(Duration(seconds: 10), onTimeout: () {
-                                                opStatus = false;
-                                                setModalState(() {
-                                                  stateBtConnectButton = ButtonState.fail;
-                                                });
-                                                Timer(Duration(seconds: 2), () {
-                                                  stateBtConnectButton = ButtonState.idle;
-                                                });
-                                              }).catchError((onError) {
-                                                opStatus = false;
-                                                print(onError);
-                                                setModalState(() {
-                                                  stateBtConnectButton = ButtonState.fail;
-                                                });
-                                                Timer(Duration(seconds: 2), () {
-                                                  stateBtConnectButton = ButtonState.idle;
-                                                });
-                                              }).then((value) {
-                                                print('BT connecting finished');
-                                                if (opStatus) {
-                                                  setModalState(() {
-                                                    stateBtConnectButton = ButtonState.success;
-                                                  });
-                                                  Timer(Duration(seconds: 2), () {
-                                                    Navigator.pop(context);
-                                                  });
-                                                }
-                                              });
-                                            },
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                          );
+                          // show buttom modal
+                          _showModal(context, device);
                         },
                       ),
                     )
                     .toList(),
-              ),
-            ),
-          ],
+              ],
+            ],
+          ),
         ),
-      ),
-      floatingActionButton: StreamBuilder<bool>(
-        stream: FlutterBlue.instance.isScanning,
-        initialData: false,
-        builder: (c, snapshot) {
-          if (snapshot.data) {
-            return FloatingActionButton(
-              child: Icon(Icons.stop),
-              onPressed: () => FlutterBlue.instance.stopScan(),
-              backgroundColor: Theme.of(context).accentColor,
-            );
-          } else {
-            return FloatingActionButton(
-              child: Icon(Icons.search),
-              onPressed: () => FlutterBlue.instance.startScan(
-                allowDuplicates: false,
-                timeout: Duration(seconds: 60),
-              ),
-            );
-          }
-        },
       ),
     );
   }
