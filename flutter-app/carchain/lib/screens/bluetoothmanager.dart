@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:carchain/services/appbluetoothservice.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:provider/provider.dart';
 

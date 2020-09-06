@@ -163,16 +163,6 @@
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
         }
       ],
       "payable": false,
@@ -180,25 +170,25 @@
       "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.5.16+commit.9c3226ce\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"carID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"date\",\"type\":\"uint256\"}],\"name\":\"CarAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"carID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"date\",\"type\":\"uint256\"}],\"name\":\"CarStateUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"carID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"date\",\"type\":\"uint256\"}],\"name\":\"ITVInspection\",\"type\":\"event\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"addCar\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"getCar\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"updateCarState\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"updateITV\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/home/rekard0/Documents/WORK/project_master/car-chain/flutter-app/carchain/contracts/CarInterface.sol\":\"CarInterface\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/rekard0/Documents/WORK/project_master/car-chain/flutter-app/carchain/contracts/CarInterface.sol\":{\"keccak256\":\"0x63da1aac510876145afb45c3cd23a48638456519627ae2ffc38b349c42c1233d\",\"urls\":[\"bzz-raw://fd55812d24f9acba9c47fb6af3ebc3dde431ec0f5bb81f191b4755bd9521330f\",\"dweb:/ipfs/QmSZcBrCqAEjkeAWAWUaxZHyWftSVG7yvRZZVWX61hRfpQ\"]}},\"version\":1}",
+  "metadata": "{\"compiler\":{\"version\":\"0.5.16+commit.9c3226ce\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"carID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"date\",\"type\":\"uint256\"}],\"name\":\"CarAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"carID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"date\",\"type\":\"uint256\"}],\"name\":\"CarStateUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"carID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"date\",\"type\":\"uint256\"}],\"name\":\"ITVInspection\",\"type\":\"event\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"addCar\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"getCar\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"updateCarState\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"updateITV\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/home/rekard0/Documents/WORK/project_master/car-chain/flutter-app/carchain/contracts/interfaces/CarInterface.sol\":\"CarInterface\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/rekard0/Documents/WORK/project_master/car-chain/flutter-app/carchain/contracts/interfaces/CarInterface.sol\":{\"keccak256\":\"0x9e71c011cc32b5edd4affa786ce5196ff30a6b18bb11814ad6a27d53f6de60cd\",\"urls\":[\"bzz-raw://2de1aa0edc61b6fff01326a943a7424ca8aa28744d1297467dd257d0dc90cee1\",\"dweb:/ipfs/QmYsDTAwUbyaNHzxFyR5d8xEaVj68rzViLG1fwBvszZCu5\"]}},\"version\":1}",
   "bytecode": "0x",
   "deployedBytecode": "0x",
   "sourceMap": "",
   "deployedSourceMap": "",
-  "source": "pragma solidity >=0.5.16;\n\n\ninterface CarInterface {\n    /*\n     * Permit type or car type is related to the ITV - inspection intervals are determined by this variable\n     * We must look into the `legal` types of vehicles and permits\n     */\n    enum CarType {\n        TWO_WHEEL,\n        THREE_WHEEL,\n        FOUR_WHEEL,\n        HEAVY,\n        AGRICULTURE,\n        SERVICE\n    }\n\n    /*\n     * At the moment this state adds nothing to the contract - it doesn't give the users relevant information,\n     * and it doesn't modify functions. We must update this to include relevant information or remove it.\n     */\n    enum CarState {\n        SHIPPED,\n        FOR_SALE,\n        PROCESSING_SALE,\n        SOLD,\n        PROCESSING_REGISTER,\n        REGISTERED\n    }\n\n    enum ITVState {PASSED, NOT_PASSED, NEGATIVE}\n\n    struct ITV {\n        ITVState state;\n        uint256 lastInspection;\n    }\n\n    struct Car {\n        bytes32 ID;\n        uint256 creationBlock;\n        address ownerID;\n        string licensePlate;\n        CarType _type;\n        CarState _state;\n        ITV itv;\n    }\n\n    event CarAdded(bytes32 indexed carID, uint256 date); // probably we need carOwner's address in the event\n    event CarStateUpdated(bytes32 indexed carID, uint256 date);\n    event ITVInspection(bytes32 indexed carID, uint256 date);\n\n    function addCar(bytes calldata, string calldata, uint256) external;\n\n    function updateCarState(bytes calldata, uint256) external;\n\n    function updateITV(bytes calldata, uint256) external;\n\n    function getCar(bytes calldata)\n        external\n        view\n        returns (\n            bytes32,\n            uint256,\n            address,\n            string memory,\n            uint256,\n            uint256,\n            uint256,\n            uint256\n        );\n}\n",
-  "sourcePath": "/home/rekard0/Documents/WORK/project_master/car-chain/flutter-app/carchain/contracts/CarInterface.sol",
+  "source": "pragma solidity >=0.5.16;\n\n\ninterface CarInterface {\n    event CarAdded(bytes32 indexed carID, uint256 date); // probably we need carOwner's address in the event\n    event CarStateUpdated(bytes32 indexed carID, uint256 date);\n    event ITVInspection(bytes32 indexed carID, uint256 date);\n\n    function addCar(bytes calldata, string calldata, uint256) external;\n\n    function updateCarState(bytes calldata, uint256) external;\n\n    function updateITV(bytes calldata, uint256) external;\n\n    function getCar(bytes calldata)\n        external\n        view\n        returns (\n            bytes32,\n            uint256,\n            address,\n            string memory,\n            uint256,\n            uint256\n        );\n}\n",
+  "sourcePath": "/home/rekard0/Documents/WORK/project_master/car-chain/flutter-app/carchain/contracts/interfaces/CarInterface.sol",
   "ast": {
-    "absolutePath": "/home/rekard0/Documents/WORK/project_master/car-chain/flutter-app/carchain/contracts/CarInterface.sol",
+    "absolutePath": "/home/rekard0/Documents/WORK/project_master/car-chain/flutter-app/carchain/contracts/interfaces/CarInterface.sol",
     "exportedSymbols": {
       "CarInterface": [
-        102
+        545
       ]
     },
-    "id": 103,
+    "id": 546,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 1,
+        "id": 486,
         "literals": [
           "solidity",
           ">=",
@@ -206,7 +196,7 @@
           ".16"
         ],
         "nodeType": "PragmaDirective",
-        "src": "0:25:0"
+        "src": "0:25:5"
       },
       {
         "baseContracts": [],
@@ -214,413 +204,31 @@
         "contractKind": "interface",
         "documentation": null,
         "fullyImplemented": false,
-        "id": 102,
+        "id": 545,
         "linearizedBaseContracts": [
-          102
+          545
         ],
         "name": "CarInterface",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
-            "canonicalName": "CarInterface.CarType",
-            "id": 8,
-            "members": [
-              {
-                "id": 2,
-                "name": "TWO_WHEEL",
-                "nodeType": "EnumValue",
-                "src": "270:9:0"
-              },
-              {
-                "id": 3,
-                "name": "THREE_WHEEL",
-                "nodeType": "EnumValue",
-                "src": "289:11:0"
-              },
-              {
-                "id": 4,
-                "name": "FOUR_WHEEL",
-                "nodeType": "EnumValue",
-                "src": "310:10:0"
-              },
-              {
-                "id": 5,
-                "name": "HEAVY",
-                "nodeType": "EnumValue",
-                "src": "330:5:0"
-              },
-              {
-                "id": 6,
-                "name": "AGRICULTURE",
-                "nodeType": "EnumValue",
-                "src": "345:11:0"
-              },
-              {
-                "id": 7,
-                "name": "SERVICE",
-                "nodeType": "EnumValue",
-                "src": "366:7:0"
-              }
-            ],
-            "name": "CarType",
-            "nodeType": "EnumDefinition",
-            "src": "247:132:0"
-          },
-          {
-            "canonicalName": "CarInterface.CarState",
-            "id": 15,
-            "members": [
-              {
-                "id": 9,
-                "name": "SHIPPED",
-                "nodeType": "EnumValue",
-                "src": "641:7:0"
-              },
-              {
-                "id": 10,
-                "name": "FOR_SALE",
-                "nodeType": "EnumValue",
-                "src": "658:8:0"
-              },
-              {
-                "id": 11,
-                "name": "PROCESSING_SALE",
-                "nodeType": "EnumValue",
-                "src": "676:15:0"
-              },
-              {
-                "id": 12,
-                "name": "SOLD",
-                "nodeType": "EnumValue",
-                "src": "701:4:0"
-              },
-              {
-                "id": 13,
-                "name": "PROCESSING_REGISTER",
-                "nodeType": "EnumValue",
-                "src": "715:19:0"
-              },
-              {
-                "id": 14,
-                "name": "REGISTERED",
-                "nodeType": "EnumValue",
-                "src": "744:10:0"
-              }
-            ],
-            "name": "CarState",
-            "nodeType": "EnumDefinition",
-            "src": "617:143:0"
-          },
-          {
-            "canonicalName": "CarInterface.ITVState",
-            "id": 19,
-            "members": [
-              {
-                "id": 16,
-                "name": "PASSED",
-                "nodeType": "EnumValue",
-                "src": "781:6:0"
-              },
-              {
-                "id": 17,
-                "name": "NOT_PASSED",
-                "nodeType": "EnumValue",
-                "src": "789:10:0"
-              },
-              {
-                "id": 18,
-                "name": "NEGATIVE",
-                "nodeType": "EnumValue",
-                "src": "801:8:0"
-              }
-            ],
-            "name": "ITVState",
-            "nodeType": "EnumDefinition",
-            "src": "766:44:0"
-          },
-          {
-            "canonicalName": "CarInterface.ITV",
-            "id": 24,
-            "members": [
-              {
-                "constant": false,
-                "id": 21,
-                "name": "state",
-                "nodeType": "VariableDeclaration",
-                "scope": 24,
-                "src": "837:14:0",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_enum$_ITVState_$19",
-                  "typeString": "enum CarInterface.ITVState"
-                },
-                "typeName": {
-                  "contractScope": null,
-                  "id": 20,
-                  "name": "ITVState",
-                  "nodeType": "UserDefinedTypeName",
-                  "referencedDeclaration": 19,
-                  "src": "837:8:0",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_enum$_ITVState_$19",
-                    "typeString": "enum CarInterface.ITVState"
-                  }
-                },
-                "value": null,
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 23,
-                "name": "lastInspection",
-                "nodeType": "VariableDeclaration",
-                "scope": 24,
-                "src": "861:22:0",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_uint256",
-                  "typeString": "uint256"
-                },
-                "typeName": {
-                  "id": 22,
-                  "name": "uint256",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "861:7:0",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  }
-                },
-                "value": null,
-                "visibility": "internal"
-              }
-            ],
-            "name": "ITV",
-            "nodeType": "StructDefinition",
-            "scope": 102,
-            "src": "816:74:0",
-            "visibility": "public"
-          },
-          {
-            "canonicalName": "CarInterface.Car",
-            "id": 39,
-            "members": [
-              {
-                "constant": false,
-                "id": 26,
-                "name": "ID",
-                "nodeType": "VariableDeclaration",
-                "scope": 39,
-                "src": "917:10:0",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_bytes32",
-                  "typeString": "bytes32"
-                },
-                "typeName": {
-                  "id": 25,
-                  "name": "bytes32",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "917:7:0",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_bytes32",
-                    "typeString": "bytes32"
-                  }
-                },
-                "value": null,
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 28,
-                "name": "creationBlock",
-                "nodeType": "VariableDeclaration",
-                "scope": 39,
-                "src": "937:21:0",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_uint256",
-                  "typeString": "uint256"
-                },
-                "typeName": {
-                  "id": 27,
-                  "name": "uint256",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "937:7:0",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  }
-                },
-                "value": null,
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 30,
-                "name": "ownerID",
-                "nodeType": "VariableDeclaration",
-                "scope": 39,
-                "src": "968:15:0",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_address",
-                  "typeString": "address"
-                },
-                "typeName": {
-                  "id": 29,
-                  "name": "address",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "968:7:0",
-                  "stateMutability": "nonpayable",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_address",
-                    "typeString": "address"
-                  }
-                },
-                "value": null,
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 32,
-                "name": "licensePlate",
-                "nodeType": "VariableDeclaration",
-                "scope": 39,
-                "src": "993:19:0",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_string_storage_ptr",
-                  "typeString": "string"
-                },
-                "typeName": {
-                  "id": 31,
-                  "name": "string",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "993:6:0",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_string_storage_ptr",
-                    "typeString": "string"
-                  }
-                },
-                "value": null,
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 34,
-                "name": "_type",
-                "nodeType": "VariableDeclaration",
-                "scope": 39,
-                "src": "1022:13:0",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_enum$_CarType_$8",
-                  "typeString": "enum CarInterface.CarType"
-                },
-                "typeName": {
-                  "contractScope": null,
-                  "id": 33,
-                  "name": "CarType",
-                  "nodeType": "UserDefinedTypeName",
-                  "referencedDeclaration": 8,
-                  "src": "1022:7:0",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_enum$_CarType_$8",
-                    "typeString": "enum CarInterface.CarType"
-                  }
-                },
-                "value": null,
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 36,
-                "name": "_state",
-                "nodeType": "VariableDeclaration",
-                "scope": 39,
-                "src": "1045:15:0",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_enum$_CarState_$15",
-                  "typeString": "enum CarInterface.CarState"
-                },
-                "typeName": {
-                  "contractScope": null,
-                  "id": 35,
-                  "name": "CarState",
-                  "nodeType": "UserDefinedTypeName",
-                  "referencedDeclaration": 15,
-                  "src": "1045:8:0",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_enum$_CarState_$15",
-                    "typeString": "enum CarInterface.CarState"
-                  }
-                },
-                "value": null,
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 38,
-                "name": "itv",
-                "nodeType": "VariableDeclaration",
-                "scope": 39,
-                "src": "1070:7:0",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_struct$_ITV_$24_storage_ptr",
-                  "typeString": "struct CarInterface.ITV"
-                },
-                "typeName": {
-                  "contractScope": null,
-                  "id": 37,
-                  "name": "ITV",
-                  "nodeType": "UserDefinedTypeName",
-                  "referencedDeclaration": 24,
-                  "src": "1070:3:0",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_struct$_ITV_$24_storage_ptr",
-                    "typeString": "struct CarInterface.ITV"
-                  }
-                },
-                "value": null,
-                "visibility": "internal"
-              }
-            ],
-            "name": "Car",
-            "nodeType": "StructDefinition",
-            "scope": 102,
-            "src": "896:188:0",
-            "visibility": "public"
-          },
-          {
             "anonymous": false,
             "documentation": null,
-            "id": 45,
+            "id": 492,
             "name": "CarAdded",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 44,
+              "id": 491,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 41,
+                  "id": 488,
                   "indexed": true,
                   "name": "carID",
                   "nodeType": "VariableDeclaration",
-                  "scope": 45,
-                  "src": "1105:21:0",
+                  "scope": 492,
+                  "src": "72:21:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -628,10 +236,10 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 40,
+                    "id": 487,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1105:7:0",
+                    "src": "72:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -642,12 +250,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 43,
+                  "id": 490,
                   "indexed": false,
                   "name": "date",
                   "nodeType": "VariableDeclaration",
-                  "scope": 45,
-                  "src": "1128:12:0",
+                  "scope": 492,
+                  "src": "95:12:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -655,10 +263,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 42,
+                    "id": 489,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1128:7:0",
+                    "src": "95:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -668,28 +276,28 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "1104:37:0"
+              "src": "71:37:5"
             },
-            "src": "1090:52:0"
+            "src": "57:52:5"
           },
           {
             "anonymous": false,
             "documentation": null,
-            "id": 51,
+            "id": 498,
             "name": "CarStateUpdated",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 50,
+              "id": 497,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 47,
+                  "id": 494,
                   "indexed": true,
                   "name": "carID",
                   "nodeType": "VariableDeclaration",
-                  "scope": 51,
-                  "src": "1221:21:0",
+                  "scope": 498,
+                  "src": "188:21:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -697,10 +305,10 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 46,
+                    "id": 493,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1221:7:0",
+                    "src": "188:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -711,12 +319,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 49,
+                  "id": 496,
                   "indexed": false,
                   "name": "date",
                   "nodeType": "VariableDeclaration",
-                  "scope": 51,
-                  "src": "1244:12:0",
+                  "scope": 498,
+                  "src": "211:12:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -724,10 +332,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 48,
+                    "id": 495,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1244:7:0",
+                    "src": "211:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -737,28 +345,28 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "1220:37:0"
+              "src": "187:37:5"
             },
-            "src": "1199:59:0"
+            "src": "166:59:5"
           },
           {
             "anonymous": false,
             "documentation": null,
-            "id": 57,
+            "id": 504,
             "name": "ITVInspection",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 56,
+              "id": 503,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 53,
+                  "id": 500,
                   "indexed": true,
                   "name": "carID",
                   "nodeType": "VariableDeclaration",
-                  "scope": 57,
-                  "src": "1283:21:0",
+                  "scope": 504,
+                  "src": "250:21:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -766,10 +374,10 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 52,
+                    "id": 499,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1283:7:0",
+                    "src": "250:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -780,12 +388,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 55,
+                  "id": 502,
                   "indexed": false,
                   "name": "date",
                   "nodeType": "VariableDeclaration",
-                  "scope": 57,
-                  "src": "1306:12:0",
+                  "scope": 504,
+                  "src": "273:12:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -793,10 +401,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 54,
+                    "id": 501,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1306:7:0",
+                    "src": "273:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -806,30 +414,30 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "1282:37:0"
+              "src": "249:37:5"
             },
-            "src": "1263:57:0"
+            "src": "230:57:5"
           },
           {
             "body": null,
             "documentation": null,
-            "id": 66,
+            "id": 513,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "addCar",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 64,
+              "id": 511,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 59,
+                  "id": 506,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 66,
-                  "src": "1342:14:0",
+                  "scope": 513,
+                  "src": "309:14:5",
                   "stateVariable": false,
                   "storageLocation": "calldata",
                   "typeDescriptions": {
@@ -837,10 +445,10 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 58,
+                    "id": 505,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1342:5:0",
+                    "src": "309:5:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes_storage_ptr",
                       "typeString": "bytes"
@@ -851,11 +459,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 61,
+                  "id": 508,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 66,
-                  "src": "1358:15:0",
+                  "scope": 513,
+                  "src": "325:15:5",
                   "stateVariable": false,
                   "storageLocation": "calldata",
                   "typeDescriptions": {
@@ -863,10 +471,10 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 60,
+                    "id": 507,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1358:6:0",
+                    "src": "325:6:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
                       "typeString": "string"
@@ -877,11 +485,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 63,
+                  "id": 510,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 66,
-                  "src": "1375:7:0",
+                  "scope": 513,
+                  "src": "342:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -889,10 +497,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 62,
+                    "id": 509,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1375:7:0",
+                    "src": "342:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -902,16 +510,16 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "1341:42:0"
+              "src": "308:42:5"
             },
             "returnParameters": {
-              "id": 65,
+              "id": 512,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "1392:0:0"
+              "src": "359:0:5"
             },
-            "scope": 102,
-            "src": "1326:67:0",
+            "scope": 545,
+            "src": "293:67:5",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
@@ -919,23 +527,23 @@
           {
             "body": null,
             "documentation": null,
-            "id": 73,
+            "id": 520,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "updateCarState",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 71,
+              "id": 518,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 68,
+                  "id": 515,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 73,
-                  "src": "1423:14:0",
+                  "scope": 520,
+                  "src": "390:14:5",
                   "stateVariable": false,
                   "storageLocation": "calldata",
                   "typeDescriptions": {
@@ -943,10 +551,10 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 67,
+                    "id": 514,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1423:5:0",
+                    "src": "390:5:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes_storage_ptr",
                       "typeString": "bytes"
@@ -957,11 +565,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 70,
+                  "id": 517,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 73,
-                  "src": "1439:7:0",
+                  "scope": 520,
+                  "src": "406:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -969,10 +577,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 69,
+                    "id": 516,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1439:7:0",
+                    "src": "406:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -982,16 +590,16 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "1422:25:0"
+              "src": "389:25:5"
             },
             "returnParameters": {
-              "id": 72,
+              "id": 519,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "1456:0:0"
+              "src": "423:0:5"
             },
-            "scope": 102,
-            "src": "1399:58:0",
+            "scope": 545,
+            "src": "366:58:5",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
@@ -999,23 +607,23 @@
           {
             "body": null,
             "documentation": null,
-            "id": 80,
+            "id": 527,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "updateITV",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 78,
+              "id": 525,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 75,
+                  "id": 522,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 80,
-                  "src": "1482:14:0",
+                  "scope": 527,
+                  "src": "449:14:5",
                   "stateVariable": false,
                   "storageLocation": "calldata",
                   "typeDescriptions": {
@@ -1023,10 +631,10 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 74,
+                    "id": 521,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1482:5:0",
+                    "src": "449:5:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes_storage_ptr",
                       "typeString": "bytes"
@@ -1037,11 +645,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 77,
+                  "id": 524,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 80,
-                  "src": "1498:7:0",
+                  "scope": 527,
+                  "src": "465:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1049,10 +657,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 76,
+                    "id": 523,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1498:7:0",
+                    "src": "465:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -1062,16 +670,16 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "1481:25:0"
+              "src": "448:25:5"
             },
             "returnParameters": {
-              "id": 79,
+              "id": 526,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "1515:0:0"
+              "src": "482:0:5"
             },
-            "scope": 102,
-            "src": "1463:53:0",
+            "scope": 545,
+            "src": "430:53:5",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
@@ -1079,23 +687,23 @@
           {
             "body": null,
             "documentation": null,
-            "id": 101,
+            "id": 544,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "getCar",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 83,
+              "id": 530,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 82,
+                  "id": 529,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 101,
-                  "src": "1538:14:0",
+                  "scope": 544,
+                  "src": "505:14:5",
                   "stateVariable": false,
                   "storageLocation": "calldata",
                   "typeDescriptions": {
@@ -1103,10 +711,10 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 81,
+                    "id": 528,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1538:5:0",
+                    "src": "505:5:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes_storage_ptr",
                       "typeString": "bytes"
@@ -1116,19 +724,19 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "1537:16:0"
+              "src": "504:16:5"
             },
             "returnParameters": {
-              "id": 100,
+              "id": 543,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 85,
+                  "id": 532,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 101,
-                  "src": "1614:7:0",
+                  "scope": 544,
+                  "src": "581:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1136,10 +744,10 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 84,
+                    "id": 531,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1614:7:0",
+                    "src": "581:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -1150,11 +758,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 87,
+                  "id": 534,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 101,
-                  "src": "1635:7:0",
+                  "scope": 544,
+                  "src": "602:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1162,10 +770,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 86,
+                    "id": 533,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1635:7:0",
+                    "src": "602:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -1176,11 +784,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 89,
+                  "id": 536,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 101,
-                  "src": "1656:7:0",
+                  "scope": 544,
+                  "src": "623:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1188,10 +796,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 88,
+                    "id": 535,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1656:7:0",
+                    "src": "623:7:5",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -1203,11 +811,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 91,
+                  "id": 538,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 101,
-                  "src": "1677:13:0",
+                  "scope": 544,
+                  "src": "644:13:5",
                   "stateVariable": false,
                   "storageLocation": "memory",
                   "typeDescriptions": {
@@ -1215,10 +823,10 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 90,
+                    "id": 537,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1677:6:0",
+                    "src": "644:6:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
                       "typeString": "string"
@@ -1229,11 +837,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 93,
+                  "id": 540,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 101,
-                  "src": "1704:7:0",
+                  "scope": 544,
+                  "src": "671:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1241,10 +849,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 92,
+                    "id": 539,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1704:7:0",
+                    "src": "671:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -1255,11 +863,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 95,
+                  "id": 542,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 101,
-                  "src": "1725:7:0",
+                  "scope": 544,
+                  "src": "692:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1267,62 +875,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 94,
+                    "id": 541,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1725:7:0",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "value": null,
-                  "visibility": "internal"
-                },
-                {
-                  "constant": false,
-                  "id": 97,
-                  "name": "",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 101,
-                  "src": "1746:7:0",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 96,
-                    "name": "uint256",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "1746:7:0",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "value": null,
-                  "visibility": "internal"
-                },
-                {
-                  "constant": false,
-                  "id": 99,
-                  "name": "",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 101,
-                  "src": "1767:7:0",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 98,
-                    "name": "uint256",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "1767:7:0",
+                    "src": "692:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -1332,33 +888,33 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "1600:184:0"
+              "src": "567:142:5"
             },
-            "scope": 102,
-            "src": "1522:263:0",
+            "scope": 545,
+            "src": "489:221:5",
             "stateMutability": "view",
             "superFunction": null,
             "visibility": "external"
           }
         ],
-        "scope": 103,
-        "src": "28:1759:0"
+        "scope": 546,
+        "src": "28:684:5"
       }
     ],
-    "src": "0:1788:0"
+    "src": "0:713:5"
   },
   "legacyAST": {
-    "absolutePath": "/home/rekard0/Documents/WORK/project_master/car-chain/flutter-app/carchain/contracts/CarInterface.sol",
+    "absolutePath": "/home/rekard0/Documents/WORK/project_master/car-chain/flutter-app/carchain/contracts/interfaces/CarInterface.sol",
     "exportedSymbols": {
       "CarInterface": [
-        102
+        545
       ]
     },
-    "id": 103,
+    "id": 546,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 1,
+        "id": 486,
         "literals": [
           "solidity",
           ">=",
@@ -1366,7 +922,7 @@
           ".16"
         ],
         "nodeType": "PragmaDirective",
-        "src": "0:25:0"
+        "src": "0:25:5"
       },
       {
         "baseContracts": [],
@@ -1374,413 +930,31 @@
         "contractKind": "interface",
         "documentation": null,
         "fullyImplemented": false,
-        "id": 102,
+        "id": 545,
         "linearizedBaseContracts": [
-          102
+          545
         ],
         "name": "CarInterface",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
-            "canonicalName": "CarInterface.CarType",
-            "id": 8,
-            "members": [
-              {
-                "id": 2,
-                "name": "TWO_WHEEL",
-                "nodeType": "EnumValue",
-                "src": "270:9:0"
-              },
-              {
-                "id": 3,
-                "name": "THREE_WHEEL",
-                "nodeType": "EnumValue",
-                "src": "289:11:0"
-              },
-              {
-                "id": 4,
-                "name": "FOUR_WHEEL",
-                "nodeType": "EnumValue",
-                "src": "310:10:0"
-              },
-              {
-                "id": 5,
-                "name": "HEAVY",
-                "nodeType": "EnumValue",
-                "src": "330:5:0"
-              },
-              {
-                "id": 6,
-                "name": "AGRICULTURE",
-                "nodeType": "EnumValue",
-                "src": "345:11:0"
-              },
-              {
-                "id": 7,
-                "name": "SERVICE",
-                "nodeType": "EnumValue",
-                "src": "366:7:0"
-              }
-            ],
-            "name": "CarType",
-            "nodeType": "EnumDefinition",
-            "src": "247:132:0"
-          },
-          {
-            "canonicalName": "CarInterface.CarState",
-            "id": 15,
-            "members": [
-              {
-                "id": 9,
-                "name": "SHIPPED",
-                "nodeType": "EnumValue",
-                "src": "641:7:0"
-              },
-              {
-                "id": 10,
-                "name": "FOR_SALE",
-                "nodeType": "EnumValue",
-                "src": "658:8:0"
-              },
-              {
-                "id": 11,
-                "name": "PROCESSING_SALE",
-                "nodeType": "EnumValue",
-                "src": "676:15:0"
-              },
-              {
-                "id": 12,
-                "name": "SOLD",
-                "nodeType": "EnumValue",
-                "src": "701:4:0"
-              },
-              {
-                "id": 13,
-                "name": "PROCESSING_REGISTER",
-                "nodeType": "EnumValue",
-                "src": "715:19:0"
-              },
-              {
-                "id": 14,
-                "name": "REGISTERED",
-                "nodeType": "EnumValue",
-                "src": "744:10:0"
-              }
-            ],
-            "name": "CarState",
-            "nodeType": "EnumDefinition",
-            "src": "617:143:0"
-          },
-          {
-            "canonicalName": "CarInterface.ITVState",
-            "id": 19,
-            "members": [
-              {
-                "id": 16,
-                "name": "PASSED",
-                "nodeType": "EnumValue",
-                "src": "781:6:0"
-              },
-              {
-                "id": 17,
-                "name": "NOT_PASSED",
-                "nodeType": "EnumValue",
-                "src": "789:10:0"
-              },
-              {
-                "id": 18,
-                "name": "NEGATIVE",
-                "nodeType": "EnumValue",
-                "src": "801:8:0"
-              }
-            ],
-            "name": "ITVState",
-            "nodeType": "EnumDefinition",
-            "src": "766:44:0"
-          },
-          {
-            "canonicalName": "CarInterface.ITV",
-            "id": 24,
-            "members": [
-              {
-                "constant": false,
-                "id": 21,
-                "name": "state",
-                "nodeType": "VariableDeclaration",
-                "scope": 24,
-                "src": "837:14:0",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_enum$_ITVState_$19",
-                  "typeString": "enum CarInterface.ITVState"
-                },
-                "typeName": {
-                  "contractScope": null,
-                  "id": 20,
-                  "name": "ITVState",
-                  "nodeType": "UserDefinedTypeName",
-                  "referencedDeclaration": 19,
-                  "src": "837:8:0",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_enum$_ITVState_$19",
-                    "typeString": "enum CarInterface.ITVState"
-                  }
-                },
-                "value": null,
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 23,
-                "name": "lastInspection",
-                "nodeType": "VariableDeclaration",
-                "scope": 24,
-                "src": "861:22:0",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_uint256",
-                  "typeString": "uint256"
-                },
-                "typeName": {
-                  "id": 22,
-                  "name": "uint256",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "861:7:0",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  }
-                },
-                "value": null,
-                "visibility": "internal"
-              }
-            ],
-            "name": "ITV",
-            "nodeType": "StructDefinition",
-            "scope": 102,
-            "src": "816:74:0",
-            "visibility": "public"
-          },
-          {
-            "canonicalName": "CarInterface.Car",
-            "id": 39,
-            "members": [
-              {
-                "constant": false,
-                "id": 26,
-                "name": "ID",
-                "nodeType": "VariableDeclaration",
-                "scope": 39,
-                "src": "917:10:0",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_bytes32",
-                  "typeString": "bytes32"
-                },
-                "typeName": {
-                  "id": 25,
-                  "name": "bytes32",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "917:7:0",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_bytes32",
-                    "typeString": "bytes32"
-                  }
-                },
-                "value": null,
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 28,
-                "name": "creationBlock",
-                "nodeType": "VariableDeclaration",
-                "scope": 39,
-                "src": "937:21:0",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_uint256",
-                  "typeString": "uint256"
-                },
-                "typeName": {
-                  "id": 27,
-                  "name": "uint256",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "937:7:0",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  }
-                },
-                "value": null,
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 30,
-                "name": "ownerID",
-                "nodeType": "VariableDeclaration",
-                "scope": 39,
-                "src": "968:15:0",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_address",
-                  "typeString": "address"
-                },
-                "typeName": {
-                  "id": 29,
-                  "name": "address",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "968:7:0",
-                  "stateMutability": "nonpayable",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_address",
-                    "typeString": "address"
-                  }
-                },
-                "value": null,
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 32,
-                "name": "licensePlate",
-                "nodeType": "VariableDeclaration",
-                "scope": 39,
-                "src": "993:19:0",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_string_storage_ptr",
-                  "typeString": "string"
-                },
-                "typeName": {
-                  "id": 31,
-                  "name": "string",
-                  "nodeType": "ElementaryTypeName",
-                  "src": "993:6:0",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_string_storage_ptr",
-                    "typeString": "string"
-                  }
-                },
-                "value": null,
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 34,
-                "name": "_type",
-                "nodeType": "VariableDeclaration",
-                "scope": 39,
-                "src": "1022:13:0",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_enum$_CarType_$8",
-                  "typeString": "enum CarInterface.CarType"
-                },
-                "typeName": {
-                  "contractScope": null,
-                  "id": 33,
-                  "name": "CarType",
-                  "nodeType": "UserDefinedTypeName",
-                  "referencedDeclaration": 8,
-                  "src": "1022:7:0",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_enum$_CarType_$8",
-                    "typeString": "enum CarInterface.CarType"
-                  }
-                },
-                "value": null,
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 36,
-                "name": "_state",
-                "nodeType": "VariableDeclaration",
-                "scope": 39,
-                "src": "1045:15:0",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_enum$_CarState_$15",
-                  "typeString": "enum CarInterface.CarState"
-                },
-                "typeName": {
-                  "contractScope": null,
-                  "id": 35,
-                  "name": "CarState",
-                  "nodeType": "UserDefinedTypeName",
-                  "referencedDeclaration": 15,
-                  "src": "1045:8:0",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_enum$_CarState_$15",
-                    "typeString": "enum CarInterface.CarState"
-                  }
-                },
-                "value": null,
-                "visibility": "internal"
-              },
-              {
-                "constant": false,
-                "id": 38,
-                "name": "itv",
-                "nodeType": "VariableDeclaration",
-                "scope": 39,
-                "src": "1070:7:0",
-                "stateVariable": false,
-                "storageLocation": "default",
-                "typeDescriptions": {
-                  "typeIdentifier": "t_struct$_ITV_$24_storage_ptr",
-                  "typeString": "struct CarInterface.ITV"
-                },
-                "typeName": {
-                  "contractScope": null,
-                  "id": 37,
-                  "name": "ITV",
-                  "nodeType": "UserDefinedTypeName",
-                  "referencedDeclaration": 24,
-                  "src": "1070:3:0",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_struct$_ITV_$24_storage_ptr",
-                    "typeString": "struct CarInterface.ITV"
-                  }
-                },
-                "value": null,
-                "visibility": "internal"
-              }
-            ],
-            "name": "Car",
-            "nodeType": "StructDefinition",
-            "scope": 102,
-            "src": "896:188:0",
-            "visibility": "public"
-          },
-          {
             "anonymous": false,
             "documentation": null,
-            "id": 45,
+            "id": 492,
             "name": "CarAdded",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 44,
+              "id": 491,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 41,
+                  "id": 488,
                   "indexed": true,
                   "name": "carID",
                   "nodeType": "VariableDeclaration",
-                  "scope": 45,
-                  "src": "1105:21:0",
+                  "scope": 492,
+                  "src": "72:21:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1788,10 +962,10 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 40,
+                    "id": 487,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1105:7:0",
+                    "src": "72:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -1802,12 +976,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 43,
+                  "id": 490,
                   "indexed": false,
                   "name": "date",
                   "nodeType": "VariableDeclaration",
-                  "scope": 45,
-                  "src": "1128:12:0",
+                  "scope": 492,
+                  "src": "95:12:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1815,10 +989,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 42,
+                    "id": 489,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1128:7:0",
+                    "src": "95:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -1828,28 +1002,28 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "1104:37:0"
+              "src": "71:37:5"
             },
-            "src": "1090:52:0"
+            "src": "57:52:5"
           },
           {
             "anonymous": false,
             "documentation": null,
-            "id": 51,
+            "id": 498,
             "name": "CarStateUpdated",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 50,
+              "id": 497,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 47,
+                  "id": 494,
                   "indexed": true,
                   "name": "carID",
                   "nodeType": "VariableDeclaration",
-                  "scope": 51,
-                  "src": "1221:21:0",
+                  "scope": 498,
+                  "src": "188:21:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1857,10 +1031,10 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 46,
+                    "id": 493,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1221:7:0",
+                    "src": "188:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -1871,12 +1045,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 49,
+                  "id": 496,
                   "indexed": false,
                   "name": "date",
                   "nodeType": "VariableDeclaration",
-                  "scope": 51,
-                  "src": "1244:12:0",
+                  "scope": 498,
+                  "src": "211:12:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1884,10 +1058,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 48,
+                    "id": 495,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1244:7:0",
+                    "src": "211:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -1897,28 +1071,28 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "1220:37:0"
+              "src": "187:37:5"
             },
-            "src": "1199:59:0"
+            "src": "166:59:5"
           },
           {
             "anonymous": false,
             "documentation": null,
-            "id": 57,
+            "id": 504,
             "name": "ITVInspection",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 56,
+              "id": 503,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 53,
+                  "id": 500,
                   "indexed": true,
                   "name": "carID",
                   "nodeType": "VariableDeclaration",
-                  "scope": 57,
-                  "src": "1283:21:0",
+                  "scope": 504,
+                  "src": "250:21:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1926,10 +1100,10 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 52,
+                    "id": 499,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1283:7:0",
+                    "src": "250:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -1940,12 +1114,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 55,
+                  "id": 502,
                   "indexed": false,
                   "name": "date",
                   "nodeType": "VariableDeclaration",
-                  "scope": 57,
-                  "src": "1306:12:0",
+                  "scope": 504,
+                  "src": "273:12:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1953,10 +1127,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 54,
+                    "id": 501,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1306:7:0",
+                    "src": "273:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -1966,30 +1140,30 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "1282:37:0"
+              "src": "249:37:5"
             },
-            "src": "1263:57:0"
+            "src": "230:57:5"
           },
           {
             "body": null,
             "documentation": null,
-            "id": 66,
+            "id": 513,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "addCar",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 64,
+              "id": 511,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 59,
+                  "id": 506,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 66,
-                  "src": "1342:14:0",
+                  "scope": 513,
+                  "src": "309:14:5",
                   "stateVariable": false,
                   "storageLocation": "calldata",
                   "typeDescriptions": {
@@ -1997,10 +1171,10 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 58,
+                    "id": 505,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1342:5:0",
+                    "src": "309:5:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes_storage_ptr",
                       "typeString": "bytes"
@@ -2011,11 +1185,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 61,
+                  "id": 508,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 66,
-                  "src": "1358:15:0",
+                  "scope": 513,
+                  "src": "325:15:5",
                   "stateVariable": false,
                   "storageLocation": "calldata",
                   "typeDescriptions": {
@@ -2023,10 +1197,10 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 60,
+                    "id": 507,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1358:6:0",
+                    "src": "325:6:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
                       "typeString": "string"
@@ -2037,11 +1211,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 63,
+                  "id": 510,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 66,
-                  "src": "1375:7:0",
+                  "scope": 513,
+                  "src": "342:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -2049,10 +1223,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 62,
+                    "id": 509,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1375:7:0",
+                    "src": "342:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -2062,16 +1236,16 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "1341:42:0"
+              "src": "308:42:5"
             },
             "returnParameters": {
-              "id": 65,
+              "id": 512,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "1392:0:0"
+              "src": "359:0:5"
             },
-            "scope": 102,
-            "src": "1326:67:0",
+            "scope": 545,
+            "src": "293:67:5",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
@@ -2079,23 +1253,23 @@
           {
             "body": null,
             "documentation": null,
-            "id": 73,
+            "id": 520,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "updateCarState",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 71,
+              "id": 518,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 68,
+                  "id": 515,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 73,
-                  "src": "1423:14:0",
+                  "scope": 520,
+                  "src": "390:14:5",
                   "stateVariable": false,
                   "storageLocation": "calldata",
                   "typeDescriptions": {
@@ -2103,10 +1277,10 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 67,
+                    "id": 514,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1423:5:0",
+                    "src": "390:5:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes_storage_ptr",
                       "typeString": "bytes"
@@ -2117,11 +1291,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 70,
+                  "id": 517,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 73,
-                  "src": "1439:7:0",
+                  "scope": 520,
+                  "src": "406:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -2129,10 +1303,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 69,
+                    "id": 516,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1439:7:0",
+                    "src": "406:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -2142,16 +1316,16 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "1422:25:0"
+              "src": "389:25:5"
             },
             "returnParameters": {
-              "id": 72,
+              "id": 519,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "1456:0:0"
+              "src": "423:0:5"
             },
-            "scope": 102,
-            "src": "1399:58:0",
+            "scope": 545,
+            "src": "366:58:5",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
@@ -2159,23 +1333,23 @@
           {
             "body": null,
             "documentation": null,
-            "id": 80,
+            "id": 527,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "updateITV",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 78,
+              "id": 525,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 75,
+                  "id": 522,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 80,
-                  "src": "1482:14:0",
+                  "scope": 527,
+                  "src": "449:14:5",
                   "stateVariable": false,
                   "storageLocation": "calldata",
                   "typeDescriptions": {
@@ -2183,10 +1357,10 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 74,
+                    "id": 521,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1482:5:0",
+                    "src": "449:5:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes_storage_ptr",
                       "typeString": "bytes"
@@ -2197,11 +1371,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 77,
+                  "id": 524,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 80,
-                  "src": "1498:7:0",
+                  "scope": 527,
+                  "src": "465:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -2209,10 +1383,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 76,
+                    "id": 523,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1498:7:0",
+                    "src": "465:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -2222,16 +1396,16 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "1481:25:0"
+              "src": "448:25:5"
             },
             "returnParameters": {
-              "id": 79,
+              "id": 526,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "1515:0:0"
+              "src": "482:0:5"
             },
-            "scope": 102,
-            "src": "1463:53:0",
+            "scope": 545,
+            "src": "430:53:5",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
@@ -2239,23 +1413,23 @@
           {
             "body": null,
             "documentation": null,
-            "id": 101,
+            "id": 544,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "getCar",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 83,
+              "id": 530,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 82,
+                  "id": 529,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 101,
-                  "src": "1538:14:0",
+                  "scope": 544,
+                  "src": "505:14:5",
                   "stateVariable": false,
                   "storageLocation": "calldata",
                   "typeDescriptions": {
@@ -2263,10 +1437,10 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 81,
+                    "id": 528,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1538:5:0",
+                    "src": "505:5:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes_storage_ptr",
                       "typeString": "bytes"
@@ -2276,19 +1450,19 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "1537:16:0"
+              "src": "504:16:5"
             },
             "returnParameters": {
-              "id": 100,
+              "id": 543,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 85,
+                  "id": 532,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 101,
-                  "src": "1614:7:0",
+                  "scope": 544,
+                  "src": "581:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -2296,10 +1470,10 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 84,
+                    "id": 531,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1614:7:0",
+                    "src": "581:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -2310,11 +1484,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 87,
+                  "id": 534,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 101,
-                  "src": "1635:7:0",
+                  "scope": 544,
+                  "src": "602:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -2322,10 +1496,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 86,
+                    "id": 533,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1635:7:0",
+                    "src": "602:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -2336,11 +1510,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 89,
+                  "id": 536,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 101,
-                  "src": "1656:7:0",
+                  "scope": 544,
+                  "src": "623:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -2348,10 +1522,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 88,
+                    "id": 535,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1656:7:0",
+                    "src": "623:7:5",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -2363,11 +1537,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 91,
+                  "id": 538,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 101,
-                  "src": "1677:13:0",
+                  "scope": 544,
+                  "src": "644:13:5",
                   "stateVariable": false,
                   "storageLocation": "memory",
                   "typeDescriptions": {
@@ -2375,10 +1549,10 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 90,
+                    "id": 537,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1677:6:0",
+                    "src": "644:6:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_string_storage_ptr",
                       "typeString": "string"
@@ -2389,11 +1563,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 93,
+                  "id": 540,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 101,
-                  "src": "1704:7:0",
+                  "scope": 544,
+                  "src": "671:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -2401,10 +1575,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 92,
+                    "id": 539,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1704:7:0",
+                    "src": "671:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -2415,11 +1589,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 95,
+                  "id": 542,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 101,
-                  "src": "1725:7:0",
+                  "scope": 544,
+                  "src": "692:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -2427,62 +1601,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 94,
+                    "id": 541,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1725:7:0",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "value": null,
-                  "visibility": "internal"
-                },
-                {
-                  "constant": false,
-                  "id": 97,
-                  "name": "",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 101,
-                  "src": "1746:7:0",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 96,
-                    "name": "uint256",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "1746:7:0",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "value": null,
-                  "visibility": "internal"
-                },
-                {
-                  "constant": false,
-                  "id": 99,
-                  "name": "",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 101,
-                  "src": "1767:7:0",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 98,
-                    "name": "uint256",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "1767:7:0",
+                    "src": "692:7:5",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -2492,20 +1614,20 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "1600:184:0"
+              "src": "567:142:5"
             },
-            "scope": 102,
-            "src": "1522:263:0",
+            "scope": 545,
+            "src": "489:221:5",
             "stateMutability": "view",
             "superFunction": null,
             "visibility": "external"
           }
         ],
-        "scope": 103,
-        "src": "28:1759:0"
+        "scope": 546,
+        "src": "28:684:5"
       }
     ],
-    "src": "0:1788:0"
+    "src": "0:713:5"
   },
   "compiler": {
     "name": "solc",
@@ -2513,7 +1635,7 @@
   },
   "networks": {},
   "schemaVersion": "3.2.3",
-  "updatedAt": "2020-08-30T14:31:58.298Z",
+  "updatedAt": "2020-09-06T14:43:32.027Z",
   "devdoc": {
     "methods": {}
   },
