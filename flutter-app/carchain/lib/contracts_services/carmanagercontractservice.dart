@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:carchain/app_config.dart';
 import 'package:flutter/material.dart';
@@ -18,15 +19,7 @@ class Car {
   BigInt carState;
   BigInt itvState;
   BigInt lastInspection;
-  Car(
-      {this.id,
-      this.creationBlock,
-      this.ownerID,
-      this.licensePlate,
-      this.carType,
-      this.carState,
-      this.itvState,
-      this.lastInspection});
+  Car({this.id, this.creationBlock, this.ownerID, this.licensePlate, this.carType, this.carState, this.itvState, this.lastInspection});
 }
 
 // event classes (model)
@@ -42,14 +35,14 @@ class CarStateUpdatedEvent {
   CarStateUpdatedEvent({this.carId, this.date});
 }
 
-class ITVInspectionEvent {
-  FixedBytes carId;
-  BigInt date;
-  ITVInspectionEvent({this.carId, this.date});
-}
+// class ITVInspectionEvent {
+//   FixedBytes carId;
+//   BigInt date;
+//   ITVInspectionEvent({this.carId, this.date});
+// }
 
 // contract class
-class CarTracker extends ChangeNotifier {
+class CarManager extends ChangeNotifier {
   // initialization variables
   String prefKey = 'privKey';
   SharedPreferences prefs;
@@ -63,12 +56,12 @@ class CarTracker extends ChangeNotifier {
   DeployedContract _contract;
   ContractFunction _addCar;
   ContractFunction _updateCarState;
-  ContractFunction _updateITV;
+  // ContractFunction _updateITV;
   ContractFunction _getCar;
   // events
   ContractEvent _carAddedEvent;
   ContractEvent _carStateUpdatedEvent;
-  ContractEvent _iTVInspectionEvent;
+  // ContractEvent _iTVInspectionEvent;
 
   // public variables
   List<ContractFunction> contractFunctionsList; // = List<ContractFunction>();
@@ -76,7 +69,7 @@ class CarTracker extends ChangeNotifier {
   EthereumAddress contractAddress;
   bool doneLoading = false;
 
-  CarTracker() {
+  CarManager() {
     _initiateSetup();
   }
 
@@ -102,118 +95,95 @@ class CarTracker extends ChangeNotifier {
   }
 
   Future<void> _getAbi() async {
-    String abiStringFile = await rootBundle.loadString("abis/CarTracker.json");
+    String abiStringFile = await rootBundle.loadString("abis/CarManager.json");
     var jsonAbi = jsonDecode(abiStringFile);
     _abiCode = jsonEncode(jsonAbi["abi"]);
-    _contractAddress = EthereumAddress.fromHex(
-        jsonAbi["networks"][configParams.networkId]["address"]);
-    print('CarTracker contract address' + _contractAddress.toString());
+    _contractAddress = EthereumAddress.fromHex(jsonAbi["networks"][configParams.networkId]["address"]);
     contractAddress = _contractAddress;
+    log('CarManager contract address: ' + contractAddress.toString());
     // gettting contractDeployedBlockNumber
-    String _deplyTxHash =
-        jsonAbi["networks"][configParams.networkId]["transactionHash"];
-    TransactionInformation txInfo =
-        await _client.getTransactionByHash(_deplyTxHash);
+    String _deplyTxHash = jsonAbi["networks"][configParams.networkId]["transactionHash"];
+    TransactionInformation txInfo = await _client.getTransactionByHash(_deplyTxHash);
     contractDeployedBlockNumber = txInfo.blockNumber;
+    log('CarManager contractDeployedBlockNumber: ' + contractDeployedBlockNumber.toString());
   }
 
   Future<void> _getCredentials(String privateKey) async {
     _credentials = await _client.credentialsFromPrivateKey(privateKey);
     _userAddress = await _credentials.extractAddress();
-    print('CarTracker: useraddress from privkey');
-    print(_userAddress);
+    log('CarManager: useraddress from privkey: ' + _userAddress.toString());
   }
 
   Future<void> _getDeployedContract() async {
-    _contract = DeployedContract(
-        ContractAbi.fromJson(_abiCode, "CarTracker"), _contractAddress);
+    _contract = DeployedContract(ContractAbi.fromJson(_abiCode, "CarManager"), _contractAddress);
     // set events
     _carAddedEvent = _contract.event('CarAdded');
     _carStateUpdatedEvent = _contract.event('CarStateUpdated');
-    _iTVInspectionEvent = _contract.event('ITVInspection');
+    // _iTVInspectionEvent = _contract.event('ITVInspection');
     // set functions list
     List<ContractFunction> tempFuncList = List.of(_contract.functions);
     if (tempFuncList != null) {
-      // ** the first function is a (address), i am not sure what is it, probably a default fallback or somthing
-      tempFuncList.removeAt(0);
+      // ** the first and second function as they may come from interfaces
+      tempFuncList.removeRange(0, 2);
+      // remove last function getCar as it does not need auth
+      tempFuncList.removeAt(tempFuncList.lastIndexOf(tempFuncList.last));
     }
     contractFunctionsList = tempFuncList;
     // set functions
     _addCar = _contract.function('addCar');
     _updateCarState = _contract.function('updateCarState');
-    _updateITV = _contract.function('updateITV');
+    // _updateITV = _contract.function('updateITV');
     _getCar = _contract.function('getCar');
   }
 
   // Stream Events
   Stream<List<CarAddedEvent>> get addcarAddedEventListStream {
-    print('addcarAddedEventListStream from block: ' +
-        contractDeployedBlockNumber.blockNum.toString());
+    print('addcarAddedEventListStream from block: ' + contractDeployedBlockNumber.blockNum.toString());
 
     return _client
-        .getLogs(FilterOptions.events(
-            contract: _contract,
-            event: _carAddedEvent,
-            fromBlock: contractDeployedBlockNumber))
+        .getLogs(FilterOptions.events(contract: _contract, event: _carAddedEvent, fromBlock: contractDeployedBlockNumber))
         .asStream()
         .map((eventList) {
       return eventList.map((event) {
         final decoded = _carAddedEvent.decodeResults(event.topics, event.data);
-        return CarAddedEvent(
-            carId: decoded[0] as FixedBytes, date: decoded[1] as BigInt);
+        return CarAddedEvent(carId: decoded[0] as FixedBytes, date: decoded[1] as BigInt);
       }).toList();
     });
   }
 
   Stream<List<CarStateUpdatedEvent>> get carStateUpdatedEventListStream {
-    print('carStateUpdatedEventListStream from block: ' +
-        contractDeployedBlockNumber.blockNum.toString());
+    print('carStateUpdatedEventListStream from block: ' + contractDeployedBlockNumber.blockNum.toString());
 
     return _client
-        .getLogs(FilterOptions.events(
-            contract: _contract,
-            event: _carStateUpdatedEvent,
-            fromBlock: contractDeployedBlockNumber))
+        .getLogs(FilterOptions.events(contract: _contract, event: _carStateUpdatedEvent, fromBlock: contractDeployedBlockNumber))
         .asStream()
         .map((eventList) {
       return eventList.map((event) {
-        final decoded =
-            _carStateUpdatedEvent.decodeResults(event.topics, event.data);
-        return CarStateUpdatedEvent(
-            carId: decoded[0] as FixedBytes, date: decoded[1] as BigInt);
+        final decoded = _carStateUpdatedEvent.decodeResults(event.topics, event.data);
+        return CarStateUpdatedEvent(carId: decoded[0] as FixedBytes, date: decoded[1] as BigInt);
       }).toList();
     });
   }
 
-  Stream<List<ITVInspectionEvent>> get iTVInspectionEventListStream {
-    print('iTVInspectionEventListStream from block: ' +
-        contractDeployedBlockNumber.blockNum.toString());
+  // Stream<List<ITVInspectionEvent>> get iTVInspectionEventListStream {
+  //   print('iTVInspectionEventListStream from block: ' + contractDeployedBlockNumber.blockNum.toString());
 
-    return _client
-        .getLogs(FilterOptions.events(
-            contract: _contract,
-            event: _iTVInspectionEvent,
-            fromBlock: contractDeployedBlockNumber))
-        .asStream()
-        .map((eventList) {
-      return eventList.map((event) {
-        final decoded =
-            _iTVInspectionEvent.decodeResults(event.topics, event.data);
-        return ITVInspectionEvent(
-            carId: decoded[0] as FixedBytes, date: decoded[1] as BigInt);
-      }).toList();
-    });
-  }
+  //   return _client
+  //       .getLogs(FilterOptions.events(contract: _contract, event: _iTVInspectionEvent, fromBlock: contractDeployedBlockNumber))
+  //       .asStream()
+  //       .map((eventList) {
+  //     return eventList.map((event) {
+  //       final decoded = _iTVInspectionEvent.decodeResults(event.topics, event.data);
+  //       return ITVInspectionEvent(carId: decoded[0] as FixedBytes, date: decoded[1] as BigInt);
+  //     }).toList();
+  //   });
+  // }
 
   // callable functions
-  Future<String> addCar(
-      FixedBytes carID, String licensePlate, int carTypeIndex) async {
+  Future<String> addCar(FixedBytes carID, String licensePlate, int carTypeIndex) async {
     String res = await _client.sendTransaction(
       _credentials,
-      Transaction.callContract(
-          contract: _contract,
-          function: _addCar,
-          parameters: [carID, licensePlate, carTypeIndex]),
+      Transaction.callContract(contract: _contract, function: _addCar, parameters: [carID, licensePlate, carTypeIndex]),
       fetchChainIdFromNetworkId: true,
     );
     return res;
@@ -222,30 +192,23 @@ class CarTracker extends ChangeNotifier {
   Future<String> updateCarState(FixedBytes carID, int carStateIndex) async {
     String res = await _client.sendTransaction(
       _credentials,
-      Transaction.callContract(
-          contract: _contract,
-          function: _updateCarState,
-          parameters: [carID, carStateIndex]),
+      Transaction.callContract(contract: _contract, function: _updateCarState, parameters: [carID, carStateIndex]),
       fetchChainIdFromNetworkId: true,
     );
     return res;
   }
 
-  Future<String> updateITV(FixedBytes carID, int itvStateIndex) async {
-    String res = await _client.sendTransaction(
-      _credentials,
-      Transaction.callContract(
-          contract: _contract,
-          function: _updateITV,
-          parameters: [carID, itvStateIndex]),
-      fetchChainIdFromNetworkId: true,
-    );
-    return res;
-  }
+  // Future<String> updateITV(FixedBytes carID, int itvStateIndex) async {
+  //   String res = await _client.sendTransaction(
+  //     _credentials,
+  //     Transaction.callContract(contract: _contract, function: _updateITV, parameters: [carID, itvStateIndex]),
+  //     fetchChainIdFromNetworkId: true,
+  //   );
+  //   return res;
+  // }
 
   Future<Car> requestAccess(FixedBytes carID) async {
-    List haveAccess = await _client
-        .call(contract: _contract, function: _getCar, params: [carID]);
+    List haveAccess = await _client.call(contract: _contract, function: _getCar, params: [carID]);
 
     return Car(
         id: haveAccess[0] as FixedBytes,

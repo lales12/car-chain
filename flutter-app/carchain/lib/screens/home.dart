@@ -1,11 +1,11 @@
-import 'package:carchain/contracts_services/cartracker.dart';
-import 'package:carchain/contracts_services/permissions.dart';
+import 'package:carchain/contracts_services/carmanagercontractservice.dart';
+import 'package:carchain/contracts_services/authorizercontractservice.dart';
 import 'package:carchain/screens/accountprofile.dart';
 import 'package:carchain/screens/bluetoothmanager.dart';
+import 'package:carchain/screens/tabs/authorizertab.dart';
 import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/screens/settings.dart';
 import 'package:carchain/screens/tabs/hometab.dart';
-import 'package:carchain/screens/tabs/permissionstab.dart';
 import 'package:carchain/util/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -20,7 +20,7 @@ class _HomeState extends State<Home> {
   // tabs
   final tabs = [
     Container(child: HomeTab()),
-    Container(child: PermissionsTab()),
+    Container(child: AuthorizerTab()),
   ];
   // Tab Items
   final navItems = [
@@ -45,11 +45,11 @@ class _HomeState extends State<Home> {
     return MultiProvider(
       // we use this multi provider to provide smart contracts to all child widgets
       providers: [
-        ChangeNotifierProvider<PermissionContract>(
-          create: (_) => PermissionContract(appUserWallet.privkey),
+        ChangeNotifierProvider<AuthorizerContract>(
+          create: (_) => AuthorizerContract(appUserWallet.privkey),
         ),
-        ChangeNotifierProvider<CarTracker>(
-          create: (_) => CarTracker(),
+        ChangeNotifierProvider<CarManager>(
+          create: (_) => CarManager(),
         ),
       ],
       child: Scaffold(

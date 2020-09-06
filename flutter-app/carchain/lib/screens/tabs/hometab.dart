@@ -1,4 +1,4 @@
-import 'package:carchain/contracts_services/cartracker.dart';
+import 'package:carchain/contracts_services/carmanagercontractservice.dart';
 import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/util/cards.dart';
 import 'package:carchain/util/loading.dart';
@@ -15,11 +15,10 @@ class _HomeTabState extends State<HomeTab> {
   @override
   Widget build(BuildContext context) {
     final appUserWallet = Provider.of<WalletManager>(context).appUserWallet;
-    final carTracker = Provider.of<CarTracker>(context);
-    if (carTracker != null) {
-      print('carTracker: ' + carTracker.doneLoading.toString());
-      print('carTracker functions: ' +
-          carTracker.contractFunctionsList.toString());
+    final carManager = Provider.of<CarManager>(context);
+    if (carManager != null) {
+      print('carManager: ' + carManager.doneLoading.toString());
+      print('carManager functions: ' + carManager.contractFunctionsList.toString());
     }
     if (appUserWallet != null && appUserWallet.balance != null) {
       return Scaffold(
@@ -29,13 +28,8 @@ class _HomeTabState extends State<HomeTab> {
               IconCountCard(
                 cardTitle: 'Balance',
                 cardIcon: Icon(Icons.account_balance),
-                count: appUserWallet.balance
-                    .getValueInUnit(EtherUnit.ether)
-                    .toStringAsFixed(4),
-                subTitle: appUserWallet.balance
-                        .getValueInUnit(EtherUnit.wei)
-                        .toString() +
-                    ' Wei',
+                count: appUserWallet.balance.getValueInUnit(EtherUnit.ether).toStringAsFixed(4),
+                subTitle: appUserWallet.balance.getValueInUnit(EtherUnit.wei).toString() + ' Wei',
               )
             ],
           ),

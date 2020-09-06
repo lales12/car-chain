@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:barcode_scan/barcode_scan.dart';
-import 'package:carchain/contracts_services/cartracker.dart';
-import 'package:carchain/contracts_services/permissions.dart';
+import 'package:carchain/contracts_services/carmanagercontractservice.dart';
+import 'package:carchain/contracts_services/authorizercontractservice.dart';
 import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/util/loading.dart';
 import 'package:flutter/material.dart';
@@ -43,12 +43,12 @@ List<Item> _data = [
   ),
 ];
 
-class PermissionsTab extends StatefulWidget {
+class AuthorizerTab extends StatefulWidget {
   @override
-  _PermissionsTabState createState() => _PermissionsTabState();
+  _AuthorizerTabState createState() => _AuthorizerTabState();
 }
 
-class _PermissionsTabState extends State<PermissionsTab> {
+class _AuthorizerTabState extends State<AuthorizerTab> {
   final _formKeyAdd = GlobalKey<FormState>();
   final _formKeyRemove = GlobalKey<FormState>();
   final _formKeyRequest = GlobalKey<FormState>();
@@ -59,15 +59,15 @@ class _PermissionsTabState extends State<PermissionsTab> {
 
   @override
   Widget build(BuildContext context) {
-    final permissionsContract = Provider.of<PermissionContract>(context);
-    final carTrackeContract = Provider.of<CarTracker>(context);
+    final authorizerContract = Provider.of<AuthorizerContract>(context);
+    final carManagerContract = Provider.of<CarManager>(context);
     final appUserWallet = Provider.of<WalletManager>(context).appUserWallet;
-    if (appUserWallet != null && permissionsContract.doneLoading && carTrackeContract.doneLoading) {
+    if (appUserWallet != null && authorizerContract.doneLoading && carManagerContract.doneLoading) {
       // set
-      List<ContractFunction> carTrackerFunctionList = carTrackeContract.contractFunctionsList;
-      inputContractAddress = carTrackeContract.contractAddress.toString();
+      List<ContractFunction> carManagerFunctionList = carManagerContract.contractFunctionsList;
+      inputContractAddress = carManagerContract.contractAddress.toString();
       //logs
-      print('permistion contract address: ' + permissionsContract.contractAddress.toString());
+      print('permistion contract address: ' + authorizerContract.contractAddress.toString());
 
       return Scaffold(
         body: SingleChildScrollView(
@@ -84,7 +84,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                           item.isExpanded = false;
                         });
                       });
-                      if (permissionsContract.contractOwner != appUserWallet.pubKey) {
+                      if (authorizerContract.contractOwner != appUserWallet.pubKey) {
                         // i don't like that, well ...
                         index = 2;
                       }
@@ -93,7 +93,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                       });
                     },
                     children: [
-                      if (permissionsContract.contractOwner == appUserWallet.pubKey) ...[
+                      if (authorizerContract.contractOwner == appUserWallet.pubKey) ...[
                         ExpansionPanel(
                           isExpanded: _data[0].isExpanded,
                           canTapOnHeader: true,
@@ -122,7 +122,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                                       }),
                                   SizedBox(height: 20.0),
                                   DropdownButtonFormField(
-                                    items: carTrackerFunctionList.map((func) {
+                                    items: carManagerFunctionList.map((func) {
                                       print('func: ' + func.encodeName());
                                       return DropdownMenuItem(value: func.encodeName(), child: Text(func.name));
                                     }).toList(),
@@ -191,7 +191,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                                           stateCallSmartContractFunctionButton = ButtonState.loading;
                                         });
                                         try {
-                                          String result = await permissionsContract.addPermission(
+                                          String result = await authorizerContract.addPermission(
                                               EthereumAddress.fromHex(inputContractAddress), inputFunctionName, EthereumAddress.fromHex(inputToAddress));
                                           if (result != null) {
                                             Timer(Duration(seconds: 2), () {
@@ -268,7 +268,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                                       }),
                                   SizedBox(height: 20.0),
                                   DropdownButtonFormField(
-                                    items: carTrackerFunctionList.map((func) {
+                                    items: carManagerFunctionList.map((func) {
                                       print('func: ' + func.encodeName());
                                       return DropdownMenuItem(value: func.encodeName(), child: Text(func.name));
                                     }).toList(),
@@ -337,7 +337,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                                           stateCallSmartContractFunctionButton = ButtonState.loading;
                                         });
                                         try {
-                                          String result = await permissionsContract.removePermission(
+                                          String result = await authorizerContract.removePermission(
                                               EthereumAddress.fromHex(inputContractAddress), inputFunctionName, EthereumAddress.fromHex(inputToAddress));
                                           if (result != null) {
                                             Timer(Duration(seconds: 2), () {
@@ -415,7 +415,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                                     }),
                                 SizedBox(height: 20.0),
                                 DropdownButtonFormField(
-                                  items: carTrackerFunctionList.map((func) {
+                                  items: carManagerFunctionList.map((func) {
                                     print('func: ' + func.encodeName());
                                     return DropdownMenuItem(value: func.encodeName(), child: Text(func.name));
                                   }).toList(),
@@ -484,7 +484,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
                                         stateCallSmartContractFunctionButton = ButtonState.loading;
                                       });
                                       try {
-                                        bool result = await permissionsContract.requestAccess(
+                                        bool result = await authorizerContract.requestAccess(
                                             EthereumAddress.fromHex(inputContractAddress), inputFunctionName, EthereumAddress.fromHex(inputToAddress));
                                         if (result != null) {
                                           if (result) {
@@ -564,36 +564,68 @@ class _PermissionsTabState extends State<PermissionsTab> {
                       ),
                     ],
                   ),
-                )
-                // _buildPanel(_data, permissionsContract, carTrackeContract.contractFunctionsList, appUserWallet),
-                // SizedBox(height: 20.0),
-                // StreamBuilder(
-                //   stream: permissionsContract.addPermissionEventHistoryStream,
-                //   builder: (context, AsyncSnapshot<List<AddPermisionEvent>> snapShot) {
-                //     if (snapShot.hasError) {
-                //       return Text('error: ' + snapShot.toString());
-                //     } else if (snapShot.connectionState == ConnectionState.waiting) {
-                //       return Text('AddPermisionEvent waiting...');
-                //     } else {
-                //       return Text(
-                //         'added data: ' + snapShot.data.toString(),
-                //       );
-                //     }
-                //   },
-                // ),
-                // SizedBox(height: 20.0),
-                // StreamBuilder(
-                //   stream: permissionsContract.removePermissionEventStream,
-                //   builder: (context, AsyncSnapshot<List<RemovePermisionEvent>> snapShot) {
-                //     if (snapShot.hasError) {
-                //       return Text('error: ' + snapShot.toString());
-                //     } else if (snapShot.connectionState == ConnectionState.waiting) {
-                //       return Text('RemovePermisionEvent waiting...');
-                //     } else {
-                //       return Text('removed data: ' + snapShot.data.length.toString());
-                //     }
-                //   },
-                // ),
+                ),
+                // _buildPanel(_data, authorizerContract, carManagerContract.contractFunctionsList, appUserWallet),
+                Divider(thickness: 2.0, height: 40.0),
+                StreamBuilder(
+                  stream: authorizerContract.addPermissionEventHistoryStream,
+                  builder: (context, AsyncSnapshot<List<AddPermisionEvent>> snapShot) {
+                    if (snapShot.hasError) {
+                      return Text('error: ' + snapShot.toString());
+                    } else if (snapShot.connectionState == ConnectionState.waiting) {
+                      return Text('Add Permision Event waiting...');
+                    } else {
+                      return Column(
+                        children: [
+                          Center(
+                            child: Text(
+                              'Added Authorizations History',
+                              style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorLight),
+                            ),
+                          ),
+                          ...snapShot.data.map(
+                            (event) {
+                              return ListTile(
+                                title: Text(event.method.split('(')[0].toString()),
+                                subtitle: Text(event.to.toString()),
+                              );
+                            },
+                          ).toList(),
+                        ],
+                      );
+                    }
+                  },
+                ),
+                Divider(thickness: 2.0, height: 40.0),
+                StreamBuilder(
+                  stream: authorizerContract.removePermissionEventHistoryStream,
+                  builder: (context, AsyncSnapshot<List<RemovePermisionEvent>> snapShot) {
+                    if (snapShot.hasError) {
+                      return Text('error: ' + snapShot.toString());
+                    } else if (snapShot.connectionState == ConnectionState.waiting) {
+                      return Text('RemovePermisionEvent waiting...');
+                    } else {
+                      return Column(
+                        children: [
+                          Center(
+                            child: Text(
+                              'Remove Authorizations History',
+                              style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorLight),
+                            ),
+                          ),
+                          ...snapShot.data.map(
+                            (event) {
+                              return ListTile(
+                                title: Text(event.method.split('(')[0].toString()),
+                                subtitle: Text(event.to.toString()),
+                              );
+                            },
+                          ).toList(),
+                        ],
+                      );
+                    }
+                  },
+                ),
               ],
             ),
           ),
@@ -601,7 +633,7 @@ class _PermissionsTabState extends State<PermissionsTab> {
       );
     }
     return Loading(
-      loadingMessage: 'Loading Contract...',
+      loadingMessage: 'Loading Contract . . .',
     );
   }
 }
