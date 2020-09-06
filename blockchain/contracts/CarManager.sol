@@ -6,7 +6,7 @@ import "./interfaces/CarInterface.sol";
 
 contract CarManager is CarInterface, BaseManager {
     string constant ADD_CAR_METHOD = "addCar(bytes,string,uint256)";
-    string constant UPDATE_CAR_METHOD =  "updateCarState(bytes,uint256)";
+    string constant UPDATE_CAR_METHOD = "updateCarState(bytes,uint256)";
     /*
      * At the moment this state adds nothing to the contract - it doesn't give the users relevant information,
      * and it doesn't modify functions. We must update this to include relevant information or remove it.
@@ -46,15 +46,16 @@ contract CarManager is CarInterface, BaseManager {
     event CarStateUpdated(uint256 indexed carID);
     event ITVInspection(uint256 indexed carID);
 
-    constructor(
-        address authorizerContractAddress
-    ) BaseManager(authorizerContractAddress) public {}
+    constructor(address authorizerContractAddress)
+        public
+        BaseManager(authorizerContractAddress)
+    {}
 
     function addCar(
-        string memory carId,
+        string calldata carId,
         string calldata licensePlate,
         uint256 carTypeIndex
-    ) external onlyAuthorized(ADD_CAR_METHOD, msg.sender) {      
+    ) external onlyAuthorized(ADD_CAR_METHOD, msg.sender) {
         uint256 id = uint256(keccak256(abi.encode(carId)));
 
         trackedCars[id] = Car({
@@ -87,7 +88,7 @@ contract CarManager is CarInterface, BaseManager {
     {
         Car memory car = trackedCars[carId];
 
-        return(
+        return (
             carId,
             car.licensePlate,
             uint256(car.carType),
