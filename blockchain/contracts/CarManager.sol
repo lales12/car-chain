@@ -1,7 +1,8 @@
 pragma solidity >=0.5.16;
 
-import "./BaseManager.sol";
 import "./interfaces/CarInterface.sol";
+import "./Authorizer.sol";
+import "./BaseManager.sol";
 
 
 contract CarManager is CarInterface, BaseManager {
