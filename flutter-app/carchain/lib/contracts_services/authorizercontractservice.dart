@@ -133,28 +133,24 @@ class AuthorizerContract extends ChangeNotifier {
       address: _contractAddress,
       fromBlock: contractDeployedBlockNumber,
       topics: [
-        //The first index declares the event type
-        [
-          bytesToHex(_permissionAdded.signature, padToEvenLength: true, include0x: true),
-          // null,
-          // bytesToHex(_userAddress.addressBytes, padToEvenLength: true, include0x: true)
-        ],
-        null,
-        [bytesToHex(_userAddress.addressBytes, padToEvenLength: true, include0x: true)]
+        [bytesToHex(_permissionAdded.signature, padToEvenLength: true, include0x: true)],
+        // [bytesToHex(_contractAddress.addressBytes, padToEvenLength: true, include0x: true)],
+        // [bytesToHex(_userAddress.addressBytes, padToEvenLength: true, include0x: true)]
       ],
     );
     void start() {
       // first get historical events
       _client
           .getLogs(
-        // filter,
-        FilterOptions.events(contract: _contract, event: _permissionAdded, fromBlock: contractDeployedBlockNumber),
+        filter,
+        // FilterOptions.events(contract: _contract, event: _permissionAdded, fromBlock: contractDeployedBlockNumber),
       )
           .then(
         (List<FilterEvent> eventsList) {
           eventsList.forEach(
             (FilterEvent event) {
               final decoded = _permissionAdded.decodeResults(event.topics, event.data);
+              log('full event: ' + event.toString());
               // print('from stream listen: addPermissionEventHistoryStream');
               // print(decoded.toString());
               temp.add(
