@@ -4,7 +4,7 @@ import "./BaseManager.sol";
 import "./interfaces/CarInterface.sol";
 
 
-contract CarManager is CarInterface, BaseManager {
+contract CarManager is BaseManager {
     string constant ADD_CAR_METHOD = "addCar(bytes,string,uint256)";
     string constant UPDATE_CAR_METHOD = "updateCarState(bytes,uint256)";
     /*
