@@ -59,7 +59,6 @@
       "type": "event"
     },
     {
-      "constant": false,
       "inputs": [
         {
           "internalType": "bytes",
@@ -79,12 +78,10 @@
       ],
       "name": "addCar",
       "outputs": [],
-      "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
-      "constant": false,
       "inputs": [
         {
           "internalType": "bytes",
@@ -99,12 +96,10 @@
       ],
       "name": "updateCarState",
       "outputs": [],
-      "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
-      "constant": false,
       "inputs": [
         {
           "internalType": "bytes",
@@ -119,12 +114,10 @@
       ],
       "name": "updateITV",
       "outputs": [],
-      "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
     },
     {
-      "constant": true,
       "inputs": [
         {
           "internalType": "bytes",
@@ -165,14 +158,14 @@
           "type": "uint256"
         }
       ],
-      "payable": false,
       "stateMutability": "view",
       "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.5.16+commit.9c3226ce\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"carID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"date\",\"type\":\"uint256\"}],\"name\":\"CarAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"carID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"date\",\"type\":\"uint256\"}],\"name\":\"CarStateUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"carID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"date\",\"type\":\"uint256\"}],\"name\":\"ITVInspection\",\"type\":\"event\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"addCar\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":true,\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"getCar\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"updateCarState\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"updateITV\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/home/rekard0/Documents/WORK/project_master/car-chain/flutter-app/carchain/contracts/interfaces/CarInterface.sol\":\"CarInterface\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/rekard0/Documents/WORK/project_master/car-chain/flutter-app/carchain/contracts/interfaces/CarInterface.sol\":{\"keccak256\":\"0x9e71c011cc32b5edd4affa786ce5196ff30a6b18bb11814ad6a27d53f6de60cd\",\"urls\":[\"bzz-raw://2de1aa0edc61b6fff01326a943a7424ca8aa28744d1297467dd257d0dc90cee1\",\"dweb:/ipfs/QmYsDTAwUbyaNHzxFyR5d8xEaVj68rzViLG1fwBvszZCu5\"]}},\"version\":1}",
+  "metadata": "{\"compiler\":{\"version\":\"0.6.6+commit.6c089d02\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"carID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"date\",\"type\":\"uint256\"}],\"name\":\"CarAdded\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"carID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"date\",\"type\":\"uint256\"}],\"name\":\"CarStateUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"carID\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"date\",\"type\":\"uint256\"}],\"name\":\"ITVInspection\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"addCar\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"getCar\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"updateCarState\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"updateITV\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/home/rekard0/Documents/WORK/project_master/car-chain/flutter-app/carchain/contracts/interfaces/CarInterface.sol\":\"CarInterface\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/rekard0/Documents/WORK/project_master/car-chain/flutter-app/carchain/contracts/interfaces/CarInterface.sol\":{\"keccak256\":\"0x9e71c011cc32b5edd4affa786ce5196ff30a6b18bb11814ad6a27d53f6de60cd\",\"urls\":[\"bzz-raw://2de1aa0edc61b6fff01326a943a7424ca8aa28744d1297467dd257d0dc90cee1\",\"dweb:/ipfs/QmYsDTAwUbyaNHzxFyR5d8xEaVj68rzViLG1fwBvszZCu5\"]}},\"version\":1}",
   "bytecode": "0x",
   "deployedBytecode": "0x",
+  "immutableReferences": {},
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "pragma solidity >=0.5.16;\n\n\ninterface CarInterface {\n    event CarAdded(bytes32 indexed carID, uint256 date); // probably we need carOwner's address in the event\n    event CarStateUpdated(bytes32 indexed carID, uint256 date);\n    event ITVInspection(bytes32 indexed carID, uint256 date);\n\n    function addCar(bytes calldata, string calldata, uint256) external;\n\n    function updateCarState(bytes calldata, uint256) external;\n\n    function updateITV(bytes calldata, uint256) external;\n\n    function getCar(bytes calldata)\n        external\n        view\n        returns (\n            bytes32,\n            uint256,\n            address,\n            string memory,\n            uint256,\n            uint256\n        );\n}\n",
@@ -181,14 +174,14 @@
     "absolutePath": "/home/rekard0/Documents/WORK/project_master/car-chain/flutter-app/carchain/contracts/interfaces/CarInterface.sol",
     "exportedSymbols": {
       "CarInterface": [
-        543
+        590
       ]
     },
-    "id": 544,
+    "id": 591,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 484,
+        "id": 531,
         "literals": [
           "solidity",
           ">=",
@@ -199,14 +192,15 @@
         "src": "0:25:5"
       },
       {
+        "abstract": false,
         "baseContracts": [],
         "contractDependencies": [],
         "contractKind": "interface",
         "documentation": null,
         "fullyImplemented": false,
-        "id": 543,
+        "id": 590,
         "linearizedBaseContracts": [
-          543
+          590
         ],
         "name": "CarInterface",
         "nodeType": "ContractDefinition",
@@ -214,20 +208,22 @@
           {
             "anonymous": false,
             "documentation": null,
-            "id": 490,
+            "id": 537,
             "name": "CarAdded",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 489,
+              "id": 536,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 486,
+                  "id": 533,
                   "indexed": true,
+                  "mutability": "mutable",
                   "name": "carID",
                   "nodeType": "VariableDeclaration",
-                  "scope": 490,
+                  "overrides": null,
+                  "scope": 537,
                   "src": "72:21:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -236,7 +232,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 485,
+                    "id": 532,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "72:7:5",
@@ -250,11 +246,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 488,
+                  "id": 535,
                   "indexed": false,
+                  "mutability": "mutable",
                   "name": "date",
                   "nodeType": "VariableDeclaration",
-                  "scope": 490,
+                  "overrides": null,
+                  "scope": 537,
                   "src": "95:12:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -263,7 +261,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 487,
+                    "id": 534,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "95:7:5",
@@ -283,20 +281,22 @@
           {
             "anonymous": false,
             "documentation": null,
-            "id": 496,
+            "id": 543,
             "name": "CarStateUpdated",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 495,
+              "id": 542,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 492,
+                  "id": 539,
                   "indexed": true,
+                  "mutability": "mutable",
                   "name": "carID",
                   "nodeType": "VariableDeclaration",
-                  "scope": 496,
+                  "overrides": null,
+                  "scope": 543,
                   "src": "188:21:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -305,7 +305,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 491,
+                    "id": 538,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "188:7:5",
@@ -319,11 +319,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 494,
+                  "id": 541,
                   "indexed": false,
+                  "mutability": "mutable",
                   "name": "date",
                   "nodeType": "VariableDeclaration",
-                  "scope": 496,
+                  "overrides": null,
+                  "scope": 543,
                   "src": "211:12:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -332,7 +334,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 493,
+                    "id": 540,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "211:7:5",
@@ -352,20 +354,22 @@
           {
             "anonymous": false,
             "documentation": null,
-            "id": 502,
+            "id": 549,
             "name": "ITVInspection",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 501,
+              "id": 548,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 498,
+                  "id": 545,
                   "indexed": true,
+                  "mutability": "mutable",
                   "name": "carID",
                   "nodeType": "VariableDeclaration",
-                  "scope": 502,
+                  "overrides": null,
+                  "scope": 549,
                   "src": "250:21:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -374,7 +378,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 497,
+                    "id": 544,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "250:7:5",
@@ -388,11 +392,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 500,
+                  "id": 547,
                   "indexed": false,
+                  "mutability": "mutable",
                   "name": "date",
                   "nodeType": "VariableDeclaration",
-                  "scope": 502,
+                  "overrides": null,
+                  "scope": 549,
                   "src": "273:12:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -401,7 +407,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 499,
+                    "id": 546,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "273:7:5",
@@ -421,22 +427,26 @@
           {
             "body": null,
             "documentation": null,
-            "id": 511,
+            "functionSelector": "95aea5df",
+            "id": 558,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "addCar",
             "nodeType": "FunctionDefinition",
+            "overrides": null,
             "parameters": {
-              "id": 509,
+              "id": 556,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 504,
+                  "id": 551,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 511,
+                  "overrides": null,
+                  "scope": 558,
                   "src": "309:14:5",
                   "stateVariable": false,
                   "storageLocation": "calldata",
@@ -445,7 +455,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 503,
+                    "id": 550,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "309:5:5",
@@ -459,10 +469,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 506,
+                  "id": 553,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 511,
+                  "overrides": null,
+                  "scope": 558,
                   "src": "325:15:5",
                   "stateVariable": false,
                   "storageLocation": "calldata",
@@ -471,7 +483,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 505,
+                    "id": 552,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "325:6:5",
@@ -485,10 +497,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 508,
+                  "id": 555,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 511,
+                  "overrides": null,
+                  "scope": 558,
                   "src": "342:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -497,7 +511,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 507,
+                    "id": 554,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "342:7:5",
@@ -513,36 +527,40 @@
               "src": "308:42:5"
             },
             "returnParameters": {
-              "id": 510,
+              "id": 557,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "359:0:5"
             },
-            "scope": 543,
+            "scope": 590,
             "src": "293:67:5",
             "stateMutability": "nonpayable",
-            "superFunction": null,
+            "virtual": false,
             "visibility": "external"
           },
           {
             "body": null,
             "documentation": null,
-            "id": 518,
+            "functionSelector": "feb7450f",
+            "id": 565,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "updateCarState",
             "nodeType": "FunctionDefinition",
+            "overrides": null,
             "parameters": {
-              "id": 516,
+              "id": 563,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 513,
+                  "id": 560,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 518,
+                  "overrides": null,
+                  "scope": 565,
                   "src": "390:14:5",
                   "stateVariable": false,
                   "storageLocation": "calldata",
@@ -551,7 +569,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 512,
+                    "id": 559,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "390:5:5",
@@ -565,10 +583,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 515,
+                  "id": 562,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 518,
+                  "overrides": null,
+                  "scope": 565,
                   "src": "406:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -577,7 +597,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 514,
+                    "id": 561,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "406:7:5",
@@ -593,36 +613,40 @@
               "src": "389:25:5"
             },
             "returnParameters": {
-              "id": 517,
+              "id": 564,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "423:0:5"
             },
-            "scope": 543,
+            "scope": 590,
             "src": "366:58:5",
             "stateMutability": "nonpayable",
-            "superFunction": null,
+            "virtual": false,
             "visibility": "external"
           },
           {
             "body": null,
             "documentation": null,
-            "id": 525,
+            "functionSelector": "4d378655",
+            "id": 572,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "updateITV",
             "nodeType": "FunctionDefinition",
+            "overrides": null,
             "parameters": {
-              "id": 523,
+              "id": 570,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 520,
+                  "id": 567,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 525,
+                  "overrides": null,
+                  "scope": 572,
                   "src": "449:14:5",
                   "stateVariable": false,
                   "storageLocation": "calldata",
@@ -631,7 +655,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 519,
+                    "id": 566,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "449:5:5",
@@ -645,10 +669,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 522,
+                  "id": 569,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 525,
+                  "overrides": null,
+                  "scope": 572,
                   "src": "465:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -657,7 +683,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 521,
+                    "id": 568,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "465:7:5",
@@ -673,36 +699,40 @@
               "src": "448:25:5"
             },
             "returnParameters": {
-              "id": 524,
+              "id": 571,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "482:0:5"
             },
-            "scope": 543,
+            "scope": 590,
             "src": "430:53:5",
             "stateMutability": "nonpayable",
-            "superFunction": null,
+            "virtual": false,
             "visibility": "external"
           },
           {
             "body": null,
             "documentation": null,
-            "id": 542,
+            "functionSelector": "20d86bc7",
+            "id": 589,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "getCar",
             "nodeType": "FunctionDefinition",
+            "overrides": null,
             "parameters": {
-              "id": 528,
+              "id": 575,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 527,
+                  "id": 574,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 542,
+                  "overrides": null,
+                  "scope": 589,
                   "src": "505:14:5",
                   "stateVariable": false,
                   "storageLocation": "calldata",
@@ -711,7 +741,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 526,
+                    "id": 573,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "505:5:5",
@@ -727,15 +757,17 @@
               "src": "504:16:5"
             },
             "returnParameters": {
-              "id": 541,
+              "id": 588,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 530,
+                  "id": 577,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 542,
+                  "overrides": null,
+                  "scope": 589,
                   "src": "581:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -744,7 +776,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 529,
+                    "id": 576,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "581:7:5",
@@ -758,10 +790,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 532,
+                  "id": 579,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 542,
+                  "overrides": null,
+                  "scope": 589,
                   "src": "602:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -770,7 +804,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 531,
+                    "id": 578,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "602:7:5",
@@ -784,10 +818,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 534,
+                  "id": 581,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 542,
+                  "overrides": null,
+                  "scope": 589,
                   "src": "623:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -796,7 +832,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 533,
+                    "id": 580,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "623:7:5",
@@ -811,10 +847,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 536,
+                  "id": 583,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 542,
+                  "overrides": null,
+                  "scope": 589,
                   "src": "644:13:5",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -823,7 +861,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 535,
+                    "id": 582,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "644:6:5",
@@ -837,10 +875,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 538,
+                  "id": 585,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 542,
+                  "overrides": null,
+                  "scope": 589,
                   "src": "671:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -849,7 +889,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 537,
+                    "id": 584,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "671:7:5",
@@ -863,10 +903,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 540,
+                  "id": 587,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 542,
+                  "overrides": null,
+                  "scope": 589,
                   "src": "692:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -875,7 +917,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 539,
+                    "id": 586,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "692:7:5",
@@ -890,14 +932,14 @@
               ],
               "src": "567:142:5"
             },
-            "scope": 543,
+            "scope": 590,
             "src": "489:221:5",
             "stateMutability": "view",
-            "superFunction": null,
+            "virtual": false,
             "visibility": "external"
           }
         ],
-        "scope": 544,
+        "scope": 591,
         "src": "28:684:5"
       }
     ],
@@ -907,14 +949,14 @@
     "absolutePath": "/home/rekard0/Documents/WORK/project_master/car-chain/flutter-app/carchain/contracts/interfaces/CarInterface.sol",
     "exportedSymbols": {
       "CarInterface": [
-        543
+        590
       ]
     },
-    "id": 544,
+    "id": 591,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 484,
+        "id": 531,
         "literals": [
           "solidity",
           ">=",
@@ -925,14 +967,15 @@
         "src": "0:25:5"
       },
       {
+        "abstract": false,
         "baseContracts": [],
         "contractDependencies": [],
         "contractKind": "interface",
         "documentation": null,
         "fullyImplemented": false,
-        "id": 543,
+        "id": 590,
         "linearizedBaseContracts": [
-          543
+          590
         ],
         "name": "CarInterface",
         "nodeType": "ContractDefinition",
@@ -940,20 +983,22 @@
           {
             "anonymous": false,
             "documentation": null,
-            "id": 490,
+            "id": 537,
             "name": "CarAdded",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 489,
+              "id": 536,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 486,
+                  "id": 533,
                   "indexed": true,
+                  "mutability": "mutable",
                   "name": "carID",
                   "nodeType": "VariableDeclaration",
-                  "scope": 490,
+                  "overrides": null,
+                  "scope": 537,
                   "src": "72:21:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -962,7 +1007,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 485,
+                    "id": 532,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "72:7:5",
@@ -976,11 +1021,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 488,
+                  "id": 535,
                   "indexed": false,
+                  "mutability": "mutable",
                   "name": "date",
                   "nodeType": "VariableDeclaration",
-                  "scope": 490,
+                  "overrides": null,
+                  "scope": 537,
                   "src": "95:12:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -989,7 +1036,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 487,
+                    "id": 534,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "95:7:5",
@@ -1009,20 +1056,22 @@
           {
             "anonymous": false,
             "documentation": null,
-            "id": 496,
+            "id": 543,
             "name": "CarStateUpdated",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 495,
+              "id": 542,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 492,
+                  "id": 539,
                   "indexed": true,
+                  "mutability": "mutable",
                   "name": "carID",
                   "nodeType": "VariableDeclaration",
-                  "scope": 496,
+                  "overrides": null,
+                  "scope": 543,
                   "src": "188:21:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1031,7 +1080,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 491,
+                    "id": 538,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "188:7:5",
@@ -1045,11 +1094,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 494,
+                  "id": 541,
                   "indexed": false,
+                  "mutability": "mutable",
                   "name": "date",
                   "nodeType": "VariableDeclaration",
-                  "scope": 496,
+                  "overrides": null,
+                  "scope": 543,
                   "src": "211:12:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1058,7 +1109,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 493,
+                    "id": 540,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "211:7:5",
@@ -1078,20 +1129,22 @@
           {
             "anonymous": false,
             "documentation": null,
-            "id": 502,
+            "id": 549,
             "name": "ITVInspection",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 501,
+              "id": 548,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 498,
+                  "id": 545,
                   "indexed": true,
+                  "mutability": "mutable",
                   "name": "carID",
                   "nodeType": "VariableDeclaration",
-                  "scope": 502,
+                  "overrides": null,
+                  "scope": 549,
                   "src": "250:21:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1100,7 +1153,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 497,
+                    "id": 544,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "250:7:5",
@@ -1114,11 +1167,13 @@
                 },
                 {
                   "constant": false,
-                  "id": 500,
+                  "id": 547,
                   "indexed": false,
+                  "mutability": "mutable",
                   "name": "date",
                   "nodeType": "VariableDeclaration",
-                  "scope": 502,
+                  "overrides": null,
+                  "scope": 549,
                   "src": "273:12:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1127,7 +1182,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 499,
+                    "id": 546,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "273:7:5",
@@ -1147,22 +1202,26 @@
           {
             "body": null,
             "documentation": null,
-            "id": 511,
+            "functionSelector": "95aea5df",
+            "id": 558,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "addCar",
             "nodeType": "FunctionDefinition",
+            "overrides": null,
             "parameters": {
-              "id": 509,
+              "id": 556,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 504,
+                  "id": 551,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 511,
+                  "overrides": null,
+                  "scope": 558,
                   "src": "309:14:5",
                   "stateVariable": false,
                   "storageLocation": "calldata",
@@ -1171,7 +1230,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 503,
+                    "id": 550,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "309:5:5",
@@ -1185,10 +1244,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 506,
+                  "id": 553,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 511,
+                  "overrides": null,
+                  "scope": 558,
                   "src": "325:15:5",
                   "stateVariable": false,
                   "storageLocation": "calldata",
@@ -1197,7 +1258,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 505,
+                    "id": 552,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "325:6:5",
@@ -1211,10 +1272,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 508,
+                  "id": 555,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 511,
+                  "overrides": null,
+                  "scope": 558,
                   "src": "342:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1223,7 +1286,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 507,
+                    "id": 554,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "342:7:5",
@@ -1239,36 +1302,40 @@
               "src": "308:42:5"
             },
             "returnParameters": {
-              "id": 510,
+              "id": 557,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "359:0:5"
             },
-            "scope": 543,
+            "scope": 590,
             "src": "293:67:5",
             "stateMutability": "nonpayable",
-            "superFunction": null,
+            "virtual": false,
             "visibility": "external"
           },
           {
             "body": null,
             "documentation": null,
-            "id": 518,
+            "functionSelector": "feb7450f",
+            "id": 565,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "updateCarState",
             "nodeType": "FunctionDefinition",
+            "overrides": null,
             "parameters": {
-              "id": 516,
+              "id": 563,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 513,
+                  "id": 560,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 518,
+                  "overrides": null,
+                  "scope": 565,
                   "src": "390:14:5",
                   "stateVariable": false,
                   "storageLocation": "calldata",
@@ -1277,7 +1344,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 512,
+                    "id": 559,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "390:5:5",
@@ -1291,10 +1358,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 515,
+                  "id": 562,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 518,
+                  "overrides": null,
+                  "scope": 565,
                   "src": "406:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1303,7 +1372,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 514,
+                    "id": 561,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "406:7:5",
@@ -1319,36 +1388,40 @@
               "src": "389:25:5"
             },
             "returnParameters": {
-              "id": 517,
+              "id": 564,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "423:0:5"
             },
-            "scope": 543,
+            "scope": 590,
             "src": "366:58:5",
             "stateMutability": "nonpayable",
-            "superFunction": null,
+            "virtual": false,
             "visibility": "external"
           },
           {
             "body": null,
             "documentation": null,
-            "id": 525,
+            "functionSelector": "4d378655",
+            "id": 572,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "updateITV",
             "nodeType": "FunctionDefinition",
+            "overrides": null,
             "parameters": {
-              "id": 523,
+              "id": 570,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 520,
+                  "id": 567,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 525,
+                  "overrides": null,
+                  "scope": 572,
                   "src": "449:14:5",
                   "stateVariable": false,
                   "storageLocation": "calldata",
@@ -1357,7 +1430,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 519,
+                    "id": 566,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "449:5:5",
@@ -1371,10 +1444,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 522,
+                  "id": 569,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 525,
+                  "overrides": null,
+                  "scope": 572,
                   "src": "465:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1383,7 +1458,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 521,
+                    "id": 568,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "465:7:5",
@@ -1399,36 +1474,40 @@
               "src": "448:25:5"
             },
             "returnParameters": {
-              "id": 524,
+              "id": 571,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "482:0:5"
             },
-            "scope": 543,
+            "scope": 590,
             "src": "430:53:5",
             "stateMutability": "nonpayable",
-            "superFunction": null,
+            "virtual": false,
             "visibility": "external"
           },
           {
             "body": null,
             "documentation": null,
-            "id": 542,
+            "functionSelector": "20d86bc7",
+            "id": 589,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
             "name": "getCar",
             "nodeType": "FunctionDefinition",
+            "overrides": null,
             "parameters": {
-              "id": 528,
+              "id": 575,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 527,
+                  "id": 574,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 542,
+                  "overrides": null,
+                  "scope": 589,
                   "src": "505:14:5",
                   "stateVariable": false,
                   "storageLocation": "calldata",
@@ -1437,7 +1516,7 @@
                     "typeString": "bytes"
                   },
                   "typeName": {
-                    "id": 526,
+                    "id": 573,
                     "name": "bytes",
                     "nodeType": "ElementaryTypeName",
                     "src": "505:5:5",
@@ -1453,15 +1532,17 @@
               "src": "504:16:5"
             },
             "returnParameters": {
-              "id": 541,
+              "id": 588,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 530,
+                  "id": 577,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 542,
+                  "overrides": null,
+                  "scope": 589,
                   "src": "581:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1470,7 +1551,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 529,
+                    "id": 576,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "581:7:5",
@@ -1484,10 +1565,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 532,
+                  "id": 579,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 542,
+                  "overrides": null,
+                  "scope": 589,
                   "src": "602:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1496,7 +1579,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 531,
+                    "id": 578,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "602:7:5",
@@ -1510,10 +1593,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 534,
+                  "id": 581,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 542,
+                  "overrides": null,
+                  "scope": 589,
                   "src": "623:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1522,7 +1607,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 533,
+                    "id": 580,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "623:7:5",
@@ -1537,10 +1622,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 536,
+                  "id": 583,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 542,
+                  "overrides": null,
+                  "scope": 589,
                   "src": "644:13:5",
                   "stateVariable": false,
                   "storageLocation": "memory",
@@ -1549,7 +1636,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 535,
+                    "id": 582,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "644:6:5",
@@ -1563,10 +1650,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 538,
+                  "id": 585,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 542,
+                  "overrides": null,
+                  "scope": 589,
                   "src": "671:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1575,7 +1664,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 537,
+                    "id": 584,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "671:7:5",
@@ -1589,10 +1678,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 540,
+                  "id": 587,
+                  "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 542,
+                  "overrides": null,
+                  "scope": 589,
                   "src": "692:7:5",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1601,7 +1692,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 539,
+                    "id": 586,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
                     "src": "692:7:5",
@@ -1616,14 +1707,14 @@
               ],
               "src": "567:142:5"
             },
-            "scope": 543,
+            "scope": 590,
             "src": "489:221:5",
             "stateMutability": "view",
-            "superFunction": null,
+            "virtual": false,
             "visibility": "external"
           }
         ],
-        "scope": 544,
+        "scope": 591,
         "src": "28:684:5"
       }
     ],
@@ -1631,11 +1722,11 @@
   },
   "compiler": {
     "name": "solc",
-    "version": "0.5.16+commit.9c3226ce.Emscripten.clang"
+    "version": "0.6.6+commit.6c089d02.Emscripten.clang"
   },
   "networks": {},
   "schemaVersion": "3.2.3",
-  "updatedAt": "2020-09-06T15:37:57.350Z",
+  "updatedAt": "2020-09-11T22:22:36.572Z",
   "devdoc": {
     "methods": {}
   },
