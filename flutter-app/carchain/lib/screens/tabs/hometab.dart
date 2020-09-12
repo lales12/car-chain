@@ -16,9 +16,10 @@ class _HomeTabState extends State<HomeTab> {
   Widget build(BuildContext context) {
     final appUserWallet = Provider.of<WalletManager>(context).appUserWallet;
     final carManager = Provider.of<CarManager>(context);
-    if (carManager != null) {
+    if (carManager != null && carManager.doneLoading) {
       print('carManager: ' + carManager.doneLoading.toString());
       print('carManager functions: ' + carManager.contractFunctionsList.toString());
+      carManager.balanceOf().then((value) => print('tocken balance: ' + value.toString()));
     }
     if (appUserWallet != null && appUserWallet.balance != null) {
       return Scaffold(

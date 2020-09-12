@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:carchain/app_config.dart';
-import 'package:flutter/material.dart';
+import 'package:carchain/contracts_services/erc721service.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,7 +11,7 @@ import 'package:web_socket_channel/io.dart';
 
 // object classes (model)
 class Car {
-  FixedBytes id;
+  UintType id;
   BigInt creationBlock;
   EthereumAddress ownerID;
   String licensePlate;
@@ -24,25 +24,19 @@ class Car {
 
 // event classes (model)
 class CarAddedEvent {
-  FixedBytes carId;
+  UintType carId;
   BigInt date;
   CarAddedEvent({this.carId, this.date});
 }
 
 class CarStateUpdatedEvent {
-  FixedBytes carId;
+  UintType carId;
   BigInt date;
   CarStateUpdatedEvent({this.carId, this.date});
 }
 
-// class ITVInspectionEvent {
-//   FixedBytes carId;
-//   BigInt date;
-//   ITVInspectionEvent({this.carId, this.date});
-// }
-
 // contract class
-class CarManager extends ChangeNotifier {
+class CarManager extends ERC721 {
   // initialization variables
   String prefKey = 'privKey';
   SharedPreferences prefs;
@@ -54,10 +48,13 @@ class CarManager extends ChangeNotifier {
   EthereumAddress _contractAddress;
   EthereumAddress _userAddress;
   DeployedContract _contract;
+  // contract functions
   ContractFunction _addCar;
   ContractFunction _updateCarState;
   // ContractFunction _updateITV;
   ContractFunction _getCar;
+  // functions from ERC721
+  ContractFunction _balanceOf;
   // events
   ContractEvent _carAddedEvent;
   ContractEvent _carStateUpdatedEvent;
@@ -120,20 +117,18 @@ class CarManager extends ChangeNotifier {
     _carAddedEvent = _contract.event('CarAdded');
     _carStateUpdatedEvent = _contract.event('CarStateUpdated');
     // _iTVInspectionEvent = _contract.event('ITVInspection');
-    // set functions list
-    List<ContractFunction> tempFuncList = List.of(_contract.functions);
-    if (tempFuncList != null) {
-      // ** the first and second function as they may come from interfaces
-      tempFuncList.removeRange(0, 2);
-      // remove last function getCar as it does not need auth
-      tempFuncList.removeAt(tempFuncList.lastIndexOf(tempFuncList.last));
-    }
-    contractFunctionsList = tempFuncList;
+
     // set functions
     _addCar = _contract.function('addCar');
     _updateCarState = _contract.function('updateCarState');
     // _updateITV = _contract.function('updateITV');
     _getCar = _contract.function('getCar');
+
+    // set functions list
+    contractFunctionsList = [_addCar, _updateCarState];
+
+    // set functions from ERC721
+    _balanceOf = _contract.function('balanceOf');
   }
 
   // Stream Events
@@ -146,7 +141,7 @@ class CarManager extends ChangeNotifier {
         .map((eventList) {
       return eventList.map((event) {
         final decoded = _carAddedEvent.decodeResults(event.topics, event.data);
-        return CarAddedEvent(carId: decoded[0] as FixedBytes, date: decoded[1] as BigInt);
+        return CarAddedEvent(carId: decoded[0] as UintType, date: decoded[1] as BigInt);
       }).toList();
     });
   }
@@ -160,7 +155,7 @@ class CarManager extends ChangeNotifier {
         .map((eventList) {
       return eventList.map((event) {
         final decoded = _carStateUpdatedEvent.decodeResults(event.topics, event.data);
-        return CarStateUpdatedEvent(carId: decoded[0] as FixedBytes, date: decoded[1] as BigInt);
+        return CarStateUpdatedEvent(carId: decoded[0] as UintType, date: decoded[1] as BigInt);
       }).toList();
     });
   }
@@ -180,16 +175,16 @@ class CarManager extends ChangeNotifier {
   // }
 
   // callable functions
-  Future<String> addCar(FixedBytes carID, String licensePlate, int carTypeIndex) async {
+  Future<String> addCar(String licensePlate, int carTypeIndex) async {
     String res = await _client.sendTransaction(
       _credentials,
-      Transaction.callContract(contract: _contract, function: _addCar, parameters: [carID, licensePlate, carTypeIndex]),
+      Transaction.callContract(contract: _contract, function: _addCar, parameters: [licensePlate, carTypeIndex]),
       fetchChainIdFromNetworkId: true,
     );
     return res;
   }
 
-  Future<String> updateCarState(FixedBytes carID, int carStateIndex) async {
+  Future<String> updateCarState(UintType carID, int carStateIndex) async {
     String res = await _client.sendTransaction(
       _credentials,
       Transaction.callContract(contract: _contract, function: _updateCarState, parameters: [carID, carStateIndex]),
@@ -198,20 +193,11 @@ class CarManager extends ChangeNotifier {
     return res;
   }
 
-  // Future<String> updateITV(FixedBytes carID, int itvStateIndex) async {
-  //   String res = await _client.sendTransaction(
-  //     _credentials,
-  //     Transaction.callContract(contract: _contract, function: _updateITV, parameters: [carID, itvStateIndex]),
-  //     fetchChainIdFromNetworkId: true,
-  //   );
-  //   return res;
-  // }
-
-  Future<Car> requestAccess(FixedBytes carID) async {
+  Future<Car> getCar(UintType carID) async {
     List haveAccess = await _client.call(contract: _contract, function: _getCar, params: [carID]);
 
     return Car(
-        id: haveAccess[0] as FixedBytes,
+        id: haveAccess[0] as UintType,
         creationBlock: haveAccess[1] as BigInt,
         ownerID: haveAccess[2] as EthereumAddress,
         licensePlate: haveAccess[3] as String,
@@ -219,5 +205,11 @@ class CarManager extends ChangeNotifier {
         carState: haveAccess[5] as BigInt,
         itvState: haveAccess[6] as BigInt,
         lastInspection: haveAccess[7] as BigInt);
+  }
+
+  Future<BigInt> balanceOf() async {
+    List<dynamic> balance = await _client.call(contract: _contract, function: _balanceOf, params: [_userAddress]);
+
+    return balance[0] as BigInt;
   }
 }
