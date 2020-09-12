@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:barcode_scan/barcode_scan.dart';
-import 'package:carchain/contracts_services/carmanagercontractservice.dart';
+import 'package:carchain/contracts_services/vehiclemanagercontractservice.dart';
 import 'package:carchain/contracts_services/authorizercontractservice.dart';
 import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/util/loading.dart';

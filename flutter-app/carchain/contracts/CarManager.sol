@@ -10,8 +10,8 @@ contract CarManager is BaseManager, ERC721 {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
     //
-    string constant ADD_CAR_METHOD = "addCar(bytes,string,uint256)";
-    string constant UPDATE_CAR_METHOD = "updateCarState(bytes,uint256)";
+    string constant ADD_CAR_METHOD = "addCar(string,uint256)";
+    string constant UPDATE_CAR_METHOD = "updateCarState(uint256,uint256)";
     /*
      * At the moment this state adds nothing to the contract - it doesn't give the users relevant information,
      * and it doesn't modify functions. We must update this to include relevant information or remove it.

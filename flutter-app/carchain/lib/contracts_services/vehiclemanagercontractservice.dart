@@ -65,6 +65,7 @@ class CarManager extends ERC721 {
   BlockNum contractDeployedBlockNumber;
   EthereumAddress contractAddress;
   bool doneLoading = false;
+  BigInt usersOwnedVehicles;
 
   CarManager() {
     _initiateSetup();
@@ -85,6 +86,7 @@ class CarManager extends ERC721 {
       await _getAbi();
       await _getCredentials(privKey);
       await _getDeployedContract();
+      await _userOwnedVehicles();
       // public variable
       doneLoading = true;
       notifyListeners();
@@ -131,6 +133,12 @@ class CarManager extends ERC721 {
     _balanceOf = _contract.function('balanceOf');
   }
 
+  Future<void> _userOwnedVehicles() async {
+    List<dynamic> balance = await _client.call(contract: _contract, function: _balanceOf, params: [_userAddress]);
+
+    usersOwnedVehicles = balance[0] as BigInt;
+  }
+
   // Stream Events
   Stream<List<CarAddedEvent>> get addcarAddedEventListStream {
     print('addcarAddedEventListStream from block: ' + contractDeployedBlockNumber.blockNum.toString());
@@ -175,10 +183,10 @@ class CarManager extends ERC721 {
   // }
 
   // callable functions
-  Future<String> addCar(String licensePlate, int carTypeIndex) async {
+  Future<String> addCar(String licensePlate, BigInt carTypeIndex) async {
     String res = await _client.sendTransaction(
       _credentials,
-      Transaction.callContract(contract: _contract, function: _addCar, parameters: [licensePlate, carTypeIndex]),
+      Transaction.callContract(contract: _contract, function: _addCar, maxGas: 6721975, parameters: [licensePlate, carTypeIndex]),
       fetchChainIdFromNetworkId: true,
     );
     return res;
@@ -187,7 +195,7 @@ class CarManager extends ERC721 {
   Future<String> updateCarState(UintType carID, int carStateIndex) async {
     String res = await _client.sendTransaction(
       _credentials,
-      Transaction.callContract(contract: _contract, function: _updateCarState, parameters: [carID, carStateIndex]),
+      Transaction.callContract(contract: _contract, function: _updateCarState, maxGas: 6721975, parameters: [carID, carStateIndex]),
       fetchChainIdFromNetworkId: true,
     );
     return res;
@@ -205,11 +213,5 @@ class CarManager extends ERC721 {
         carState: haveAccess[5] as BigInt,
         itvState: haveAccess[6] as BigInt,
         lastInspection: haveAccess[7] as BigInt);
-  }
-
-  Future<BigInt> balanceOf() async {
-    List<dynamic> balance = await _client.call(contract: _contract, function: _balanceOf, params: [_userAddress]);
-
-    return balance[0] as BigInt;
   }
 }

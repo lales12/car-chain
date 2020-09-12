@@ -1,4 +1,4 @@
-import 'package:carchain/contracts_services/carmanagercontractservice.dart';
+import 'package:carchain/contracts_services/vehiclemanagercontractservice.dart';
 import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/util/cards.dart';
 import 'package:carchain/util/loading.dart';
@@ -19,9 +19,10 @@ class _HomeTabState extends State<HomeTab> {
     if (carManager != null && carManager.doneLoading) {
       print('carManager: ' + carManager.doneLoading.toString());
       print('carManager functions: ' + carManager.contractFunctionsList.toString());
-      carManager.balanceOf().then((value) => print('tocken balance: ' + value.toString()));
+
+      print('tocken balance: ' + carManager.usersOwnedVehicles.toString());
     }
-    if (appUserWallet != null && appUserWallet.balance != null) {
+    if (appUserWallet != null && appUserWallet.balance != null && carManager != null && carManager.doneLoading) {
       return Scaffold(
         body: SingleChildScrollView(
           child: Column(
@@ -31,7 +32,13 @@ class _HomeTabState extends State<HomeTab> {
                 cardIcon: Icon(Icons.account_balance),
                 count: appUserWallet.balance.getValueInUnit(EtherUnit.ether).toStringAsFixed(4),
                 subTitle: appUserWallet.balance.getValueInUnit(EtherUnit.wei).toString() + ' Wei',
-              )
+              ),
+              IconCountCard(
+                cardTitle: 'Vehicles',
+                cardIcon: Icon(Icons.car_rental),
+                count: carManager.usersOwnedVehicles.toString() ?? '0',
+                subTitle: 'Total Number of Vehicles Owned',
+              ),
             ],
           ),
         ),

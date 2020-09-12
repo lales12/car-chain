@@ -1,8 +1,9 @@
-import 'package:carchain/contracts_services/carmanagercontractservice.dart';
+import 'package:carchain/contracts_services/vehiclemanagercontractservice.dart';
 import 'package:carchain/contracts_services/authorizercontractservice.dart';
 import 'package:carchain/screens/accountprofile.dart';
 import 'package:carchain/screens/bluetoothmanager.dart';
 import 'package:carchain/screens/tabs/authorizertab.dart';
+import 'package:carchain/screens/tabs/vehiclemanagertab.dart';
 import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/screens/settings.dart';
 import 'package:carchain/screens/tabs/hometab.dart';
@@ -20,6 +21,7 @@ class _HomeState extends State<Home> {
   // tabs
   final tabs = [
     Container(child: HomeTab()),
+    Container(child: VehicleManagerTab()),
     Container(child: AuthorizerTab()),
   ];
   // Tab Items
@@ -27,6 +29,10 @@ class _HomeState extends State<Home> {
     BottomNavigationBarItem(
       label: 'Home',
       icon: Icon(Icons.home),
+    ),
+    BottomNavigationBarItem(
+      label: 'Vehicles',
+      icon: Icon(Icons.car_repair),
     ),
     BottomNavigationBarItem(
       label: 'Authorize',
