@@ -5,6 +5,7 @@ import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/util/loading.dart';
 import 'package:carchain/util/renderqr.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
 import 'package:provider/provider.dart';
@@ -35,6 +36,13 @@ class _AccountProfileState extends State<AccountProfile> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Account Profile"),
+        actions: [
+          IconButton(
+              icon: Icon(Icons.copy),
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: appUserWallet.pubKey.toString()));
+              })
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
