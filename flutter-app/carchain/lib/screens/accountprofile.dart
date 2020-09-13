@@ -34,7 +34,7 @@ class _AccountProfileState extends State<AccountProfile> {
     }
     return Scaffold(
       appBar: AppBar(
-        title: Text("User Account"),
+        title: Text("Account Profile"),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -48,113 +48,105 @@ class _AccountProfileState extends State<AccountProfile> {
               qrData: appUserWallet.pubKey.toString(),
               subTitle: appUserWallet.pubKey.toString(),
             ),
-            if (appUserWallet.isMnemonic) ...[
-              SizedBox(height: 80.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: FloatingActionButton.extended(
-                      label: Text('Change'),
-                      icon: Icon(Icons.refresh),
-                      onPressed: () {
-                        showModalBottomSheet<void>(
-                          context: context,
-                          builder: (BuildContext context) {
-                            ButtonState stateChangeWalletIndex = ButtonState.idle;
-                            return Container(
-                              child: StatefulBuilder(builder: (BuildContext context, StateSetter setModalState) {
-                                return Container(
-                                  height: 500,
-                                  // color: Colors.amber,
-                                  child: Center(
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: <Widget>[
-                                        const Text("Change Your Wallet's index"),
-                                        SizedBox(height: 20.0),
-                                        Padding(
-                                          padding: const EdgeInsets.all(20.0),
-                                          child: Form(
-                                            key: _formKey,
-                                            child: TextFormField(
-                                                keyboardType: TextInputType.number,
-                                                decoration: InputDecoration().copyWith(hintText: 'Account Index Number'),
-                                                validator: (val) => val.isEmpty ? 'Enter a valid Index Number' : null,
-                                                onChanged: (val) {
-                                                  walletAccountIndex = int.parse(val);
-                                                }),
-                                          ),
-                                        ),
-                                        ProgressButton.icon(
-                                          iconedButtons: {
-                                            ButtonState.idle: IconedButton(
-                                                text: "Change", icon: Icon(Icons.refresh, color: Colors.white), color: Theme.of(context).buttonColor),
-                                            ButtonState.loading: IconedButton(text: "Changing", color: Theme.of(context).buttonColor),
-                                            ButtonState.fail: IconedButton(
-                                                text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
-                                            ButtonState.success: IconedButton(
-                                                text: "Success",
-                                                icon: Icon(
-                                                  Icons.check_circle,
-                                                  color: Colors.white,
-                                                ),
-                                                color: Theme.of(context).buttonColor)
-                                          },
-                                          state: stateChangeWalletIndex,
-                                          onPressed: () async {
-                                            if (_formKey.currentState.validate()) {
-                                              print('changing account index to: ' + walletAccountIndex.toString());
-                                              setModalState(() {
-                                                stateChangeWalletIndex = ButtonState.loading;
-                                              });
-
-                                              // _btnController.success();
-
-                                              Timer(Duration(seconds: 2), () async {
-                                                await walletManager.changeWalletAccountIndex(walletAccountIndex);
-                                                Timer(Duration(seconds: 2), () {
-                                                  setModalState(() {
-                                                    stateChangeWalletIndex = ButtonState.success;
-                                                  });
-                                                  Timer(Duration(seconds: 2), () {
-                                                    Navigator.pop(context);
-                                                  });
-                                                });
-                                              });
-                                            } else {
-                                              // _btnController.error();
-                                              setModalState(() {
-                                                stateChangeWalletIndex = ButtonState.fail;
-                                              });
-                                              Timer(Duration(seconds: 2), () {
-                                                // _btnController.stop();
-                                                setModalState(() {
-                                                  stateChangeWalletIndex = ButtonState.idle;
-                                                });
-                                              });
-                                            }
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }),
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              )
-            ],
           ],
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: appUserWallet.isMnemonic
+          ? FloatingActionButton.extended(
+              label: Text('Change'),
+              icon: Icon(Icons.refresh),
+              onPressed: () {
+                showModalBottomSheet<void>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    ButtonState stateChangeWalletIndex = ButtonState.idle;
+                    return Container(
+                      child: StatefulBuilder(builder: (BuildContext context, StateSetter setModalState) {
+                        return Container(
+                          height: 500,
+                          // color: Colors.amber,
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                const Text("Change Your Wallet's index"),
+                                SizedBox(height: 20.0),
+                                Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: Form(
+                                    key: _formKey,
+                                    child: TextFormField(
+                                        keyboardType: TextInputType.number,
+                                        decoration: InputDecoration().copyWith(hintText: 'Account Index Number'),
+                                        validator: (val) => val.isEmpty ? 'Enter a valid Index Number' : null,
+                                        onChanged: (val) {
+                                          walletAccountIndex = int.parse(val);
+                                        }),
+                                  ),
+                                ),
+                                ProgressButton.icon(
+                                  iconedButtons: {
+                                    ButtonState.idle:
+                                        IconedButton(text: "Change", icon: Icon(Icons.refresh, color: Colors.white), color: Theme.of(context).buttonColor),
+                                    ButtonState.loading: IconedButton(text: "Changing", color: Theme.of(context).buttonColor),
+                                    ButtonState.fail:
+                                        IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
+                                    ButtonState.success: IconedButton(
+                                        text: "Success",
+                                        icon: Icon(
+                                          Icons.check_circle,
+                                          color: Colors.white,
+                                        ),
+                                        color: Theme.of(context).buttonColor)
+                                  },
+                                  state: stateChangeWalletIndex,
+                                  onPressed: () async {
+                                    if (_formKey.currentState.validate()) {
+                                      print('changing account index to: ' + walletAccountIndex.toString());
+                                      setModalState(() {
+                                        stateChangeWalletIndex = ButtonState.loading;
+                                      });
+
+                                      // _btnController.success();
+
+                                      Timer(Duration(seconds: 2), () async {
+                                        await walletManager.changeWalletAccountIndex(walletAccountIndex);
+                                        Timer(Duration(seconds: 2), () {
+                                          setModalState(() {
+                                            stateChangeWalletIndex = ButtonState.success;
+                                          });
+                                          Timer(Duration(seconds: 2), () {
+                                            Navigator.pop(context);
+                                          });
+                                        });
+                                      });
+                                    } else {
+                                      // _btnController.error();
+                                      setModalState(() {
+                                        stateChangeWalletIndex = ButtonState.fail;
+                                      });
+                                      Timer(Duration(seconds: 2), () {
+                                        // _btnController.stop();
+                                        setModalState(() {
+                                          stateChangeWalletIndex = ButtonState.idle;
+                                        });
+                                      });
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }),
+                    );
+                  },
+                );
+              },
+            )
+          : null,
     );
   }
 }
