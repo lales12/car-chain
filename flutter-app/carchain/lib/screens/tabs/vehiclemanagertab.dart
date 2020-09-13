@@ -9,8 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
 import 'package:provider/provider.dart';
-import 'package:web3dart/credentials.dart';
-import 'package:web3dart/web3dart.dart';
 
 class Item {
   Item({
@@ -31,12 +29,12 @@ List<Item> _data = [
     isExpanded: false,
   ),
   Item(
-    name: 'Update Vehicle State',
+    name: 'Update State',
     shortDiscribe: 'Update the status of a vehicle on the blockchain.',
     isExpanded: false,
   ),
   Item(
-    name: 'Get Vehicle Status',
+    name: 'Get Status',
     shortDiscribe: 'Read the Status of a Vehicle',
     isExpanded: false,
   ),
@@ -56,7 +54,8 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
   // input for function add Vehicle
   String licensePlate;
   int vehicleType;
-
+  // input for get car function
+  int tockenIndex;
   String inputContractAddress = '';
   String inputFunctionName = '';
   ButtonState stateCallSmartContractFunctionButton = ButtonState.idle;
@@ -138,8 +137,8 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                 SizedBox(height: 20.0),
                                 new ProgressButton.icon(
                                   iconedButtons: {
-                                    ButtonState.idle: IconedButton(
-                                        text: _data[0].name, icon: Icon(Icons.privacy_tip, color: Colors.white), color: Theme.of(context).buttonColor),
+                                    ButtonState.idle:
+                                        IconedButton(text: _data[0].name, icon: Icon(Icons.add, color: Colors.white), color: Theme.of(context).buttonColor),
                                     ButtonState.loading: IconedButton(text: "Changing", color: Theme.of(context).buttonColor),
                                     ButtonState.fail:
                                         IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
@@ -282,8 +281,8 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                 SizedBox(height: 20.0),
                                 new ProgressButton.icon(
                                   iconedButtons: {
-                                    ButtonState.idle: IconedButton(
-                                        text: _data[1].name, icon: Icon(Icons.privacy_tip, color: Colors.white), color: Theme.of(context).buttonColor),
+                                    ButtonState.idle:
+                                        IconedButton(text: _data[1].name, icon: Icon(Icons.update, color: Colors.white), color: Theme.of(context).buttonColor),
                                     ButtonState.loading: IconedButton(text: "Changing", color: Theme.of(context).buttonColor),
                                     ButtonState.fail:
                                         IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
@@ -375,62 +374,22 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                   _data[2].shortDiscribe,
                                 ),
                                 SizedBox(height: 20.0),
-                                new TextFormField(
-                                    initialValue: inputContractAddress,
-                                    decoration: InputDecoration().copyWith(hintText: 'Contract Address'),
-                                    validator: (val) => val.isEmpty ? 'Enter a valid Contract Address' : null,
-                                    onChanged: (val) {
-                                      inputContractAddress = val;
-                                    }),
-                                SizedBox(height: 20.0),
-                                // DropdownButtonFormField(
-                                //   items: carManagerFunctionList.map((func) {
-                                //     print('func: ' + func.encodeName());
-                                //     return DropdownMenuItem(value: func.encodeName(), child: Text(func.name));
-                                //   }).toList(),
-                                //   decoration: InputDecoration().copyWith(hintText: 'Functions'),
-                                //   onChanged: (val) => inputFunctionName = val,
-                                // ),
-                                SizedBox(height: 20.0),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: new TextFormField(
-                                          initialValue: inputToAddress,
-                                          decoration: InputDecoration().copyWith(hintText: 'To Address'),
-                                          validator: (val) => val.isEmpty ? 'Enter a valid To Address' : null,
-                                          onChanged: (val) {
-                                            inputToAddress = val;
-                                          }),
-                                    ),
-                                    IconButton(
-                                        icon: Icon(Icons.qr_code_scanner),
-                                        onPressed: () async {
-                                          try {
-                                            String qrResult = await BarcodeScanner.scan();
-                                            print('qrResult: ' + qrResult);
-                                            setState(() {
-                                              inputToAddress = qrResult;
-                                            });
-                                          } on PlatformException catch (ex) {
-                                            if (ex.code == BarcodeScanner.CameraAccessDenied) {
-                                              inputToAddress = "Camera permission was denied";
-                                            } else {
-                                              inputToAddress = "Unknown Error $ex";
-                                            }
-                                          } on FormatException {
-                                            inputToAddress = "You pressed the back button before scanning anything";
-                                          } catch (ex) {
-                                            inputToAddress = "Unknown Error $ex";
-                                          }
-                                        }),
-                                  ],
+                                DropdownButtonFormField(
+                                  items: () {
+                                    List<DropdownMenuItem> dropList = new List<DropdownMenuItem>();
+                                    for (var i = 0; i < vehicleManagerContract.usersOwnedVehicles.toInt(); i++) {
+                                      dropList.add(DropdownMenuItem(value: i, child: Text('Vehicle No.' + (i + 1).toString())));
+                                    }
+                                    return dropList;
+                                  }(),
+                                  decoration: InputDecoration().copyWith(hintText: 'Car Index'),
+                                  onChanged: (val) => tockenIndex = val,
                                 ),
                                 SizedBox(height: 20.0),
                                 new ProgressButton.icon(
                                   iconedButtons: {
                                     ButtonState.idle: IconedButton(
-                                        text: _data[2].name, icon: Icon(Icons.privacy_tip, color: Colors.white), color: Theme.of(context).buttonColor),
+                                        text: _data[2].name, icon: Icon(Icons.car_rental, color: Colors.white), color: Theme.of(context).buttonColor),
                                     ButtonState.loading: IconedButton(text: "Loading", color: Theme.of(context).buttonColor),
                                     ButtonState.fail:
                                         IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
@@ -446,48 +405,34 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                   onPressed: () async {
                                     if (_formKeyGet.currentState.validate()) {
                                       print('button pressed: ' + _data[2].name);
-                                      print(inputContractAddress);
-                                      print(inputFunctionName);
-                                      print(inputToAddress);
                                       setState(() {
                                         stateCallSmartContractFunctionButton = ButtonState.loading;
                                       });
                                       try {
-                                        bool result = false;
-                                        // await vehicleManagerContract.getCar(
-                                        //     EthereumAddress.fromHex(inputContractAddress), inputFunctionName, EthereumAddress.fromHex(inputToAddress));
+                                        Car result = await vehicleManagerContract.getCar(BigInt.parse(tockenIndex.toString()));
                                         if (result != null) {
-                                          if (result) {
-                                            final snackBar = SnackBar(
-                                              duration: Duration(seconds: 10),
-                                              content: Text('Access is granted.'),
-                                              action: SnackBarAction(
-                                                textColor: Theme.of(context).buttonColor,
-                                                label: 'OK',
-                                                onPressed: () {
-                                                  // Some code to undo the change.
-                                                },
-                                              ),
-                                            );
-                                            // Find the Scaffold in the widget tree and use
-                                            // it to show a SnackBar.
-                                            Scaffold.of(context).showSnackBar(snackBar);
-                                          } else {
-                                            final snackBar = SnackBar(
-                                              duration: Duration(seconds: 10),
-                                              content: Text('Access is not granted.'),
-                                              action: SnackBarAction(
-                                                textColor: Theme.of(context).buttonColor,
-                                                label: 'OK',
-                                                onPressed: () {
-                                                  // Some code to undo the change.
-                                                },
-                                              ),
-                                            );
-                                            // Find the Scaffold in the widget tree and use
-                                            // it to show a SnackBar.
-                                            Scaffold.of(context).showSnackBar(snackBar);
-                                          }
+                                          final snackBar = SnackBar(
+                                            duration: Duration(seconds: 30),
+                                            content: Text('Your Vehicle \nid: ' +
+                                                result.id.toString() +
+                                                '\nLicense Plate: ' +
+                                                result.licensePlate +
+                                                '\nCar Type: ' +
+                                                vehicleTypes.keys.firstWhere((k) => vehicleTypes[k] == result.carType.toInt(), orElse: () => null) +
+                                                '\nCar State: ' +
+                                                vehicleStates.keys.firstWhere((k) => vehicleStates[k] == result.carState.toInt(), orElse: () => null)),
+                                            action: SnackBarAction(
+                                              textColor: Theme.of(context).buttonColor,
+                                              label: 'OK',
+                                              onPressed: () {
+                                                // Some code to undo the change.
+                                              },
+                                            ),
+                                          );
+                                          // Find the Scaffold in the widget tree and use
+                                          // it to show a SnackBar.
+                                          Scaffold.of(context).showSnackBar(snackBar);
+
                                           setState(() {
                                             stateCallSmartContractFunctionButton = ButtonState.success;
                                           });
@@ -497,7 +442,7 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                             });
                                           });
                                         }
-                                        print('done call have access: ' + result.toString());
+                                        print('Got a Car: ' + result.toString());
                                       } catch (e) {
                                         final snackBar = SnackBar(
                                           duration: Duration(seconds: 10),

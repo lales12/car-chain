@@ -11,15 +11,12 @@ import 'package:web_socket_channel/io.dart';
 
 // object classes (model)
 class Car {
-  UintType id;
-  BigInt creationBlock;
-  EthereumAddress ownerID;
+  BigInt id;
   String licensePlate;
   BigInt carType;
   BigInt carState;
-  BigInt itvState;
-  BigInt lastInspection;
-  Car({this.id, this.creationBlock, this.ownerID, this.licensePlate, this.carType, this.carState, this.itvState, this.lastInspection});
+
+  Car({this.id, this.licensePlate, this.carType, this.carState});
 }
 
 // event classes (model)
@@ -201,17 +198,21 @@ class CarManager extends ERC721 {
     return res;
   }
 
-  Future<Car> getCar(UintType carID) async {
-    List haveAccess = await _client.call(contract: _contract, function: _getCar, params: [carID]);
+  Future<BigInt> getTockenIdByIndex(BigInt index) async {
+    ContractFunction _tokenOfOwnerByIndex = _contract.function('tokenOfOwnerByIndex');
+    List<dynamic> ret = await _client.call(contract: _contract, function: _tokenOfOwnerByIndex, params: [_userAddress, index]);
+    return ret[0] as BigInt;
+  }
+
+  Future<Car> getCar(BigInt vehicleIndex) async {
+    BigInt tockenId = await getTockenIdByIndex(vehicleIndex);
+    List<dynamic> ret = await _client.call(contract: _contract, function: _getCar, params: [tockenId]);
 
     return Car(
-        id: haveAccess[0] as UintType,
-        creationBlock: haveAccess[1] as BigInt,
-        ownerID: haveAccess[2] as EthereumAddress,
-        licensePlate: haveAccess[3] as String,
-        carType: haveAccess[4] as BigInt,
-        carState: haveAccess[5] as BigInt,
-        itvState: haveAccess[6] as BigInt,
-        lastInspection: haveAccess[7] as BigInt);
+      id: ret[0] as BigInt,
+      licensePlate: ret[1] as String,
+      carType: ret[2] as BigInt,
+      carState: ret[3] as BigInt,
+    );
   }
 }
