@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
@@ -21,15 +22,13 @@ class Car {
 
 // event classes (model)
 class CarAddedEvent {
-  UintType carId;
-  BigInt date;
-  CarAddedEvent({this.carId, this.date});
+  BigInt carId;
+  CarAddedEvent({this.carId});
 }
 
 class CarStateUpdatedEvent {
-  UintType carId;
-  BigInt date;
-  CarStateUpdatedEvent({this.carId, this.date});
+  BigInt carId;
+  CarStateUpdatedEvent({this.carId});
 }
 
 // contract class
@@ -61,33 +60,36 @@ class CarManager extends ERC721 {
   List<ContractFunction> contractFunctionsList; // = List<ContractFunction>();
   BlockNum contractDeployedBlockNumber;
   EthereumAddress contractAddress;
+  EthereumAddress userAddress;
   bool doneLoading = false;
   BigInt usersOwnedVehicles;
 
-  CarManager() {
-    _initiateSetup();
+  CarManager(EthPrivateKey userPrivKey) {
+    _initiateSetup(userPrivKey);
   }
 
   // initialize shared preferences
-  Future initPrefs() async {
-    if (prefs == null) prefs = await SharedPreferences.getInstance();
-  }
+  // Future initPrefs() async {
+  //   if (prefs == null) prefs = await SharedPreferences.getInstance();
+  // }
 
-  Future<void> _initiateSetup() async {
+  Future<void> _initiateSetup(EthPrivateKey privateKey) async {
+    doneLoading = false;
+    notifyListeners();
     _client = Web3Client(configParams.rpcUrl, Client(), socketConnector: () {
       return IOWebSocketChannel.connect(configParams.wsUrl).cast<String>();
     });
-    await initPrefs();
-    String privKey = prefs.getString(prefKey) ?? null;
-    if (privKey != null) {
-      await _getAbi();
-      await _getCredentials(privKey);
-      await _getDeployedContract();
-      await _userOwnedVehicles();
-      // public variable
-      doneLoading = true;
-      notifyListeners();
-    }
+    // await initPrefs();
+    // String privKey = prefs.getString(prefKey) ?? null;
+    // if (privKey != null) {
+    await _getAbi();
+    await _getCredentials(privateKey);
+    await _getDeployedContract();
+    await _userOwnedVehicles();
+    // public variable
+    doneLoading = true;
+    notifyListeners();
+    // }
   }
 
   Future<void> _getAbi() async {
@@ -96,18 +98,18 @@ class CarManager extends ERC721 {
     _abiCode = jsonEncode(jsonAbi["abi"]);
     _contractAddress = EthereumAddress.fromHex(jsonAbi["networks"][configParams.networkId]["address"]);
     contractAddress = _contractAddress;
-    log('CarManager contract address: ' + contractAddress.toString());
     // gettting contractDeployedBlockNumber
     String _deplyTxHash = jsonAbi["networks"][configParams.networkId]["transactionHash"];
     TransactionInformation txInfo = await _client.getTransactionByHash(_deplyTxHash);
     contractDeployedBlockNumber = txInfo.blockNumber;
-    log('CarManager contractDeployedBlockNumber: ' + contractDeployedBlockNumber.toString());
   }
 
-  Future<void> _getCredentials(String privateKey) async {
-    _credentials = await _client.credentialsFromPrivateKey(privateKey);
+  Future<void> _getCredentials(EthPrivateKey privateKey) async {
+    _credentials = privateKey;
     _userAddress = await _credentials.extractAddress();
+    userAddress = _userAddress;
     log('CarManager: useraddress from privkey: ' + _userAddress.toString());
+    notifyListeners();
   }
 
   Future<void> _getDeployedContract() async {
@@ -134,35 +136,97 @@ class CarManager extends ERC721 {
     List<dynamic> balance = await _client.call(contract: _contract, function: _balanceOf, params: [_userAddress]);
 
     usersOwnedVehicles = balance[0] as BigInt;
+    log('CarManager service: usersOwnedVehicles ' + usersOwnedVehicles.toString());
   }
 
   // Stream Events
   Stream<List<CarAddedEvent>> get addcarAddedEventListStream {
     print('addcarAddedEventListStream from block: ' + contractDeployedBlockNumber.blockNum.toString());
+    StreamController<List<CarAddedEvent>> controller;
+    List<CarAddedEvent> temp = new List<CarAddedEvent>();
+    void start() {
+      // first get historical events
+      _client
+          .getLogs(
+        // filter,
+        FilterOptions.events(contract: _contract, event: _carAddedEvent, fromBlock: contractDeployedBlockNumber),
+      )
+          .then(
+        (List<FilterEvent> eventsList) {
+          eventsList.forEach(
+            (FilterEvent event) {
+              final decoded = _carAddedEvent.decodeResults(event.topics, event.data);
+              // print('from stream listen: addPermissionEventHistoryStream');
+              // print(decoded.toString());
+              temp.add(
+                CarAddedEvent(
+                  carId: decoded[0] as BigInt,
+                ),
+              );
+            },
+          );
+          controller.add(temp);
+        },
+      ); // end of then
+    }
 
-    return _client
-        .getLogs(FilterOptions.events(contract: _contract, event: _carAddedEvent, fromBlock: contractDeployedBlockNumber))
-        .asStream()
-        .map((eventList) {
-      return eventList.map((event) {
-        final decoded = _carAddedEvent.decodeResults(event.topics, event.data);
-        return CarAddedEvent(carId: decoded[0] as UintType, date: decoded[1] as BigInt);
-      }).toList();
-    });
+    void stop() {
+      controller.close();
+    }
+
+    controller = StreamController<List<CarAddedEvent>>(
+      onListen: start,
+      onPause: stop,
+      onResume: start,
+      onCancel: stop,
+    );
+
+    return controller.stream;
   }
 
   Stream<List<CarStateUpdatedEvent>> get carStateUpdatedEventListStream {
     print('carStateUpdatedEventListStream from block: ' + contractDeployedBlockNumber.blockNum.toString());
 
-    return _client
-        .getLogs(FilterOptions.events(contract: _contract, event: _carStateUpdatedEvent, fromBlock: contractDeployedBlockNumber))
-        .asStream()
-        .map((eventList) {
-      return eventList.map((event) {
-        final decoded = _carStateUpdatedEvent.decodeResults(event.topics, event.data);
-        return CarStateUpdatedEvent(carId: decoded[0] as UintType, date: decoded[1] as BigInt);
-      }).toList();
-    });
+    StreamController<List<CarStateUpdatedEvent>> controller;
+    List<CarStateUpdatedEvent> temp = new List<CarStateUpdatedEvent>();
+    void start() {
+      // first get historical events
+      _client
+          .getLogs(
+        // filter,
+        FilterOptions.events(contract: _contract, event: _carStateUpdatedEvent, fromBlock: contractDeployedBlockNumber),
+      )
+          .then(
+        (List<FilterEvent> eventsList) {
+          eventsList.forEach(
+            (FilterEvent event) {
+              final decoded = _carAddedEvent.decodeResults(event.topics, event.data);
+              // print('from stream listen: addPermissionEventHistoryStream');
+              // print(decoded.toString());
+              temp.add(
+                CarStateUpdatedEvent(
+                  carId: decoded[0] as BigInt,
+                ),
+              );
+            },
+          );
+          controller.add(temp);
+        },
+      ); // end of then
+    }
+
+    void stop() {
+      controller.close();
+    }
+
+    controller = StreamController<List<CarStateUpdatedEvent>>(
+      onListen: start,
+      onPause: stop,
+      onResume: start,
+      onCancel: stop,
+    );
+
+    return controller.stream;
   }
 
   // Stream<List<ITVInspectionEvent>> get iTVInspectionEventListStream {
@@ -189,10 +253,10 @@ class CarManager extends ERC721 {
     return res;
   }
 
-  Future<String> updateCarState(UintType carID, int carStateIndex) async {
+  Future<String> updateCarState(BigInt carID, BigInt carStateIndex) async {
     String res = await _client.sendTransaction(
       _credentials,
-      Transaction.callContract(contract: _contract, function: _updateCarState, maxGas: 6721975, parameters: [carID, carStateIndex]),
+      Transaction.callContract(contract: _contract, function: _updateCarState, parameters: [carID, carStateIndex]),
       fetchChainIdFromNetworkId: true,
     );
     return res;

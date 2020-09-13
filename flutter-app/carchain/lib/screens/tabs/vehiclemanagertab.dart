@@ -1,11 +1,9 @@
 import 'dart:async';
 
-import 'package:barcode_scan/barcode_scan.dart';
 import 'package:carchain/contracts_services/vehiclemanagercontractservice.dart';
 import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/util/loading.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
 import 'package:provider/provider.dart';
@@ -56,20 +54,20 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
   int vehicleType;
   // input for get car function
   int tockenIndex;
-  String inputContractAddress = '';
-  String inputFunctionName = '';
+  // input update car state
+  BigInt inputVehicleTockenId;
+  int vehicleState;
+
   ButtonState stateCallSmartContractFunctionButton = ButtonState.idle;
-  String inputToAddress = '';
 
   @override
   Widget build(BuildContext context) {
     final vehicleManagerContract = Provider.of<CarManager>(context);
     final appUserWallet = Provider.of<WalletManager>(context).appUserWallet;
     if (appUserWallet != null && vehicleManagerContract.doneLoading) {
-      // set
-      inputContractAddress = vehicleManagerContract.contractAddress.toString();
       //logs
-      print('permistion contract address: ' + vehicleManagerContract.contractAddress.toString());
+      print('vehicleManagerTab Contract address: ' + vehicleManagerContract.contractAddress.toString());
+      print('vehicleManagerTab Contract User address: ' + vehicleManagerContract.userAddress.toString());
 
       return Scaffold(
         body: SingleChildScrollView(
@@ -228,55 +226,24 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                 ),
                                 SizedBox(height: 20.0),
                                 new TextFormField(
-                                    initialValue: inputContractAddress,
-                                    decoration: InputDecoration().copyWith(hintText: 'Contract Address'),
-                                    validator: (val) => val.isEmpty ? 'Enter a valid Contract Address' : null,
-                                    onChanged: (val) {
-                                      inputContractAddress = val;
-                                    }),
+                                  decoration: InputDecoration().copyWith(hintText: 'Vehicle Id'),
+                                  validator: (val) => val.isEmpty ? 'Enter a valid Vehicle Id' : null,
+                                  onChanged: (val) {
+                                    inputVehicleTockenId = BigInt.parse(val);
+                                  },
+                                ),
                                 SizedBox(height: 20.0),
-                                // DropdownButtonFormField(
-                                //   items: carManagerFunctionList.map((func) {
-                                //     print('func: ' + func.encodeName());
-                                //     return DropdownMenuItem(value: func.encodeName(), child: Text(func.name));
-                                //   }).toList(),
-                                //   decoration: InputDecoration().copyWith(hintText: 'Functions'),
-                                //   onChanged: (val) => inputFunctionName = val,
-                                // ),
-                                SizedBox(height: 20.0),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: new TextFormField(
-                                          initialValue: inputToAddress,
-                                          decoration: InputDecoration().copyWith(hintText: 'To Address'),
-                                          validator: (val) => val.isEmpty ? 'Enter a valid To Address' : null,
-                                          onChanged: (val) {
-                                            inputToAddress = val;
-                                          }),
-                                    ),
-                                    IconButton(
-                                        icon: Icon(Icons.qr_code_scanner),
-                                        onPressed: () async {
-                                          try {
-                                            String qrResult = await BarcodeScanner.scan();
-                                            print('qrResult: ' + qrResult);
-                                            setState(() {
-                                              inputToAddress = qrResult;
-                                            });
-                                          } on PlatformException catch (ex) {
-                                            if (ex.code == BarcodeScanner.CameraAccessDenied) {
-                                              inputToAddress = "Camera permission was denied";
-                                            } else {
-                                              inputToAddress = "Unknown Error $ex";
-                                            }
-                                          } on FormatException {
-                                            inputToAddress = "You pressed the back button before scanning anything";
-                                          } catch (ex) {
-                                            inputToAddress = "Unknown Error $ex";
-                                          }
-                                        }),
-                                  ],
+                                DropdownButtonFormField(
+                                  items: () {
+                                    List<DropdownMenuItem> tempList = new List<DropdownMenuItem>();
+                                    vehicleStates.forEach((key, value) {
+                                      // print('add vehicle key: ' + key + 'add vehicle value: ' + value.toString());
+                                      tempList.add(DropdownMenuItem(value: value, child: Text(key)));
+                                    });
+                                    return tempList;
+                                  }(),
+                                  decoration: InputDecoration().copyWith(hintText: 'Vehicle Sate'),
+                                  onChanged: (val) => vehicleState = val,
                                 ),
                                 SizedBox(height: 20.0),
                                 new ProgressButton.icon(
@@ -298,16 +265,14 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                   onPressed: () async {
                                     if (_formKeyUpdate.currentState.validate()) {
                                       print('button pressed: ' + _data[1].name);
-                                      print(inputContractAddress);
-                                      print(inputFunctionName);
-                                      print(inputToAddress);
+                                      print(inputVehicleTockenId);
+                                      print(vehicleState);
                                       setState(() {
                                         stateCallSmartContractFunctionButton = ButtonState.loading;
                                       });
                                       try {
-                                        String result;
-                                        // await vehicleManagerContract.updateCarState(
-                                        //     EthereumAddress.fromHex(inputContractAddress), inputFunctionName, EthereumAddress.fromHex(inputToAddress));
+                                        String result =
+                                            await vehicleManagerContract.updateCarState(inputVehicleTockenId, BigInt.parse(vehicleState.toString()));
                                         if (result != null) {
                                           Timer(Duration(seconds: 2), () {
                                             setState(() {
@@ -482,36 +447,36 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                 ),
                 // _buildPanel(_data, vehicleManagerContract, carManagerContract.contractFunctionsList, appUserWallet),
                 Divider(thickness: 2.0, height: 40.0),
-                // StreamBuilder(
-                //   stream: vehicleManagerContract.addPermissionEventHistoryStream,
-                //   builder: (context, AsyncSnapshot<List<AddPermisionEvent>> snapShot) {
-                //     if (snapShot.hasError) {
-                //       return Text('error: ' + snapShot.toString());
-                //     } else if (snapShot.connectionState == ConnectionState.waiting) {
-                //       return Text('Add Permision Event waiting...');
-                //     } else {
-                //       return Column(
-                //         children: [
-                //           Center(
-                //             child: Text(
-                //               'Added Authorizations History',
-                //               style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorLight),
-                //             ),
-                //           ),
-                //           ...snapShot.data.map(
-                //             (event) {
-                //               return ListTile(
-                //                 title: Text(event.method.split('(')[0].toString()),
-                //                 subtitle: Text(event.to.toString()),
-                //               );
-                //             },
-                //           ).toList(),
-                //         ],
-                //       );
-                //     }
-                //   },
-                // ),
-                // Divider(thickness: 2.0, height: 40.0),
+                StreamBuilder(
+                  stream: vehicleManagerContract.addcarAddedEventListStream,
+                  builder: (context, AsyncSnapshot<List<CarAddedEvent>> snapShot) {
+                    if (snapShot.hasError) {
+                      return Text('error: ' + snapShot.toString());
+                    } else if (snapShot.connectionState == ConnectionState.waiting) {
+                      return Text('Add Vehicle Event waiting...');
+                    } else {
+                      return Column(
+                        children: [
+                          Center(
+                            child: Text(
+                              'Added Vehicle History',
+                              style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorLight),
+                            ),
+                          ),
+                          ...snapShot.data.map(
+                            (event) {
+                              return ListTile(
+                                title: Text('Vehicle Id: ' + event.carId.toString()),
+                                subtitle: Text('Vehicle Registered'),
+                              );
+                            },
+                          ).toList(),
+                        ],
+                      );
+                    }
+                  },
+                ),
+                Divider(thickness: 2.0, height: 40.0),
                 // StreamBuilder(
                 //   stream: vehicleManagerContract.removePermissionEventHistoryStream,
                 //   builder: (context, AsyncSnapshot<List<RemovePermisionEvent>> snapShot) {

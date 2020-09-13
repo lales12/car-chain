@@ -15,14 +15,9 @@ class _HomeTabState extends State<HomeTab> {
   @override
   Widget build(BuildContext context) {
     final appUserWallet = Provider.of<WalletManager>(context).appUserWallet;
-    final carManager = Provider.of<CarManager>(context);
-    if (carManager != null && carManager.doneLoading) {
-      print('carManager: ' + carManager.doneLoading.toString());
-      print('carManager functions: ' + carManager.contractFunctionsList.toString());
+    final vehicleManagerContract = Provider.of<CarManager>(context, listen: true);
 
-      print('tocken balance: ' + carManager.usersOwnedVehicles.toString());
-    }
-    if (appUserWallet != null && appUserWallet.balance != null && carManager != null && carManager.doneLoading) {
+    if (appUserWallet != null && appUserWallet.balance != null && vehicleManagerContract != null && vehicleManagerContract.doneLoading) {
       return Scaffold(
         body: SingleChildScrollView(
           child: Column(
@@ -36,7 +31,7 @@ class _HomeTabState extends State<HomeTab> {
               IconCountCard(
                 cardTitle: 'Vehicles',
                 cardIcon: Icon(Icons.car_rental),
-                count: carManager.usersOwnedVehicles.toString() ?? '0',
+                count: vehicleManagerContract.usersOwnedVehicles.toString() ?? '??',
                 subTitle: 'Total Number of Vehicles Owned',
               ),
             ],

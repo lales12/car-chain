@@ -44,6 +44,7 @@ class AuthorizerContract extends ChangeNotifier {
   BlockNum contractDeployedBlockNumber;
   EthereumAddress contractOwner;
   EthereumAddress contractAddress;
+  EthereumAddress userAddress;
   bool doneLoading = false;
 
   AuthorizerContract(EthPrivateKey userPrivKey) {
@@ -51,6 +52,8 @@ class AuthorizerContract extends ChangeNotifier {
   }
 
   Future<void> _initiateSetup(EthPrivateKey privateKey) async {
+    doneLoading = false;
+    notifyListeners();
     _client = Web3Client(configParams.rpcUrl, Client(), socketConnector: () {
       return IOWebSocketChannel.connect(configParams.wsUrl).cast<String>();
     });
@@ -70,7 +73,7 @@ class AuthorizerContract extends ChangeNotifier {
     _abiCode = jsonEncode(jsonAbi["abi"]);
     _contractAddress = EthereumAddress.fromHex(jsonAbi["networks"][configParams.networkId]["address"]);
     contractAddress = _contractAddress;
-    log('permissions contract address: ' + contractAddress.toString());
+    log('AuthorizerContract Service: contract address: ' + contractAddress.toString());
     // gettting contractDeployedBlockNumber
     String _deplyTxHash = jsonAbi["networks"][configParams.networkId]["transactionHash"];
     TransactionInformation txInfo = await _client.getTransactionByHash(_deplyTxHash);
@@ -81,7 +84,7 @@ class AuthorizerContract extends ChangeNotifier {
     _credentials = privateKey;
     //await _client.credentialsFromPrivateKey(privateKey);
     _userAddress = await _credentials.extractAddress();
-    log('Permisions: useraddress from privkey: ' + _userAddress.toString());
+    userAddress = _userAddress;
   }
 
   Future<void> _getDeployedContract() async {
@@ -101,7 +104,6 @@ class AuthorizerContract extends ChangeNotifier {
   Future<void> _getContractOwner() async {
     List response = await _client.call(contract: _contract, function: _owner, params: []);
     contractOwner = response[0];
-    log('Permissions: contract owner: ' + contractOwner.toString());
     notifyListeners();
   }
 
@@ -150,7 +152,7 @@ class AuthorizerContract extends ChangeNotifier {
           eventsList.forEach(
             (FilterEvent event) {
               final decoded = _permissionAdded.decodeResults(event.topics, event.data);
-              log('full event: ' + event.toString());
+              // log('full event: ' + event.toString());
               // print('from stream listen: addPermissionEventHistoryStream');
               // print(decoded.toString());
               temp.add(

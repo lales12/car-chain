@@ -66,8 +66,6 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
       // set
       List<ContractFunction> carManagerFunctionList = carManagerContract.contractFunctionsList;
       inputContractAddress = carManagerContract.contractAddress.toString();
-      //logs
-      print('permistion contract address: ' + authorizerContract.contractAddress.toString());
 
       return Scaffold(
         body: SingleChildScrollView(

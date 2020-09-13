@@ -78,8 +78,7 @@ class WalletManager with ChangeNotifier {
   }
 
   // setuppers :)
-  Future<void> setupWalletFromPrivKey(String privKey,
-      [bool setup = true]) async {
+  Future<void> setupWalletFromPrivKey(String privKey, [bool setup = true]) async {
     appUserWallet = AppUserWallet(accountIndex: walletAccountIndex);
     appUserWallet.isMnemonic = false;
     final privateKey = EthPrivateKey.fromHex(privKey);
@@ -99,17 +98,14 @@ class WalletManager with ChangeNotifier {
     // using bip32
     var seed = bip39.mnemonicToSeed(mnemonic);
     final root = bip32.BIP32.fromSeed(seed);
-    final child =
-        root.derivePath("m/44'/60'/0'/0/" + walletAccountIndex.toString());
+    final child = root.derivePath("m/44'/60'/0'/0/" + walletAccountIndex.toString());
     final privateKey = HEX.encode(child.privateKey);
     return privateKey;
   }
 
-  Future<void> setupWalletFromMnemonic(String mnemonic,
-      [bool setup = true]) async {
+  Future<void> setupWalletFromMnemonic(String mnemonic, [bool setup = true]) async {
     // final cryptMnemonic = bip39.mnemonicToEntropy(mnemonic); // damm u entropy
-    final privateKey = _getPrivateKeyFromMnemonic(
-        mnemonic); // _getPrivateKeyFromMnemonic(cryptMnemonic);
+    final privateKey = _getPrivateKeyFromMnemonic(mnemonic); // _getPrivateKeyFromMnemonic(cryptMnemonic);
     appUserWallet = AppUserWallet(accountIndex: walletAccountIndex);
     appUserWallet.isMnemonic = true;
     final private = EthPrivateKey.fromHex(privateKey);
@@ -121,8 +117,8 @@ class WalletManager with ChangeNotifier {
     if (setup) {
       await _setIsWalletTypeMnemonic(true);
       await _setMnemonic(mnemonic);
-      await _setPrivateKey(privateKey);
     }
+    await _setPrivateKey(privateKey);
     isWalletLoading = false;
     notifyListeners();
   }
@@ -131,6 +127,7 @@ class WalletManager with ChangeNotifier {
     await initPrefs();
     await _setWalletIndex(newIndex);
     await _loadFromPrefs();
+    notifyListeners();
   }
 
   // deleters :)

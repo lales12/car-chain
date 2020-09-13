@@ -47,65 +47,70 @@ class _HomeState extends State<Home> {
       return Loading(
         loadingMessage: '',
       );
+    } else {
+      // re-initialize
+      AuthorizerContract authContract = AuthorizerContract(appUserWallet.privkey);
+      CarManager vehicleManagerContract = CarManager(appUserWallet.privkey);
+      return MultiProvider(
+        // we use this multi provider to provide smart contracts to all child widgets
+        providers: [
+          ChangeNotifierProvider<AuthorizerContract>.value(
+            value: authContract,
+          ),
+          ChangeNotifierProvider<CarManager>.value(
+            // create: (context) => vehicleManagerContract,
+            value: vehicleManagerContract,
+          ),
+        ],
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('Car Chain'),
+            actions: [
+              IconButton(
+                icon: Icon(Icons.bluetooth),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BluetoothManager(),
+                    ),
+                  );
+                },
+              ),
+              IconButton(
+                icon: Icon(Icons.person),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AccountProfile(),
+                    ),
+                  );
+                },
+              ),
+              IconButton(
+                icon: Icon(Icons.settings),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Settings()),
+                  );
+                },
+              ),
+            ],
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: selectedIndex,
+            items: navItems,
+            onTap: (index) {
+              setState(() {
+                selectedIndex = index;
+              });
+            },
+          ),
+          body: tabs[selectedIndex],
+        ),
+      );
     }
-    return MultiProvider(
-      // we use this multi provider to provide smart contracts to all child widgets
-      providers: [
-        ChangeNotifierProvider<AuthorizerContract>(
-          create: (_) => AuthorizerContract(appUserWallet.privkey),
-        ),
-        ChangeNotifierProvider<CarManager>(
-          create: (_) => CarManager(),
-        ),
-      ],
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('Car Chain'),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.bluetooth),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BluetoothManager(),
-                  ),
-                );
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.person),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AccountProfile(),
-                  ),
-                );
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.settings),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Settings()),
-                );
-              },
-            ),
-          ],
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: selectedIndex,
-          items: navItems,
-          onTap: (index) {
-            setState(() {
-              selectedIndex = index;
-            });
-          },
-        ),
-        body: tabs[selectedIndex],
-      ),
-    );
   }
 }
