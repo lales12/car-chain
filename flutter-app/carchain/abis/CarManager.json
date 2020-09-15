@@ -6122,12 +6122,12 @@
         }
       },
       "links": {},
-      "address": "0x41749FCc3F3168E8142B59a2d9780c74a9c97579",
-      "transactionHash": "0x3cf9a3979cf503c090bf71c0babc4bc01ffbd71869397e2c08956af88cd6f925"
+      "address": "0x596a48cB21344CD8534f2995FcA5CCB6664F3f52",
+      "transactionHash": "0xb34f2dd8d67069d8a28250aa50af45657349ce49586edc3231c3ce132ba440de"
     }
   },
   "schemaVersion": "3.2.3",
-  "updatedAt": "2020-09-14T23:55:30.581Z",
+  "updatedAt": "2020-09-15T08:03:38.285Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {

@@ -25,30 +25,29 @@ class Item {
   bool isExpanded;
 }
 
-List<Item> _data = [
-  Item(
-    name: 'Add Permission',
-    shortDiscribe: 'Add permistion to a user to use a function in a smart contract.',
-    isExpanded: false,
-  ),
-  Item(
-    name: 'Remove Permission',
-    shortDiscribe: 'Remove permistion to a user to use a function in a smart contract.',
-    isExpanded: false,
-  ),
-  Item(
-    name: 'Access Status',
-    shortDiscribe: 'Request the Status of your permision',
-    isExpanded: false,
-  ),
-];
-
 class AuthorizerTab extends StatefulWidget {
   @override
   _AuthorizerTabState createState() => _AuthorizerTabState();
 }
 
 class _AuthorizerTabState extends State<AuthorizerTab> {
+  List<Item> _data = [
+    Item(
+      name: 'Add Permission',
+      shortDiscribe: 'Add permistion to a user to use a function in a smart contract.',
+      isExpanded: false,
+    ),
+    Item(
+      name: 'Remove Permission',
+      shortDiscribe: 'Remove permistion to a user to use a function in a smart contract.',
+      isExpanded: false,
+    ),
+    Item(
+      name: 'Access Status',
+      shortDiscribe: 'Request the Status of your permision',
+      isExpanded: false,
+    ),
+  ];
   final _formKeyAdd = GlobalKey<FormState>();
   final _formKeyRemove = GlobalKey<FormState>();
   final _formKeyRequest = GlobalKey<FormState>();
@@ -131,7 +130,8 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                   Row(
                                     children: [
                                       Expanded(
-                                        child: new TextFormField(
+                                        child: TextFormField(
+                                            key: Key(inputToAddress),
                                             initialValue: inputToAddress,
                                             decoration: InputDecoration().copyWith(hintText: 'To Address'),
                                             validator: (val) => val.isEmpty ? 'Enter a valid To Address' : null,
@@ -139,27 +139,33 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                               inputToAddress = val;
                                             }),
                                       ),
+                                      // Expanded(child: Text(inputToAddress)),
                                       IconButton(
-                                          icon: Icon(Icons.qr_code_scanner),
-                                          onPressed: () async {
-                                            try {
-                                              String qrResult = await BarcodeScanner.scan();
-                                              print('qrResult: ' + qrResult);
-                                              setState(() {
-                                                inputToAddress = qrResult;
-                                              });
-                                            } on PlatformException catch (ex) {
-                                              if (ex.code == BarcodeScanner.CameraAccessDenied) {
-                                                inputToAddress = "Camera permission was denied";
-                                              } else {
-                                                inputToAddress = "Unknown Error $ex";
-                                              }
-                                            } on FormatException {
-                                              inputToAddress = "You pressed the back button before scanning anything";
-                                            } catch (ex) {
+                                        icon: Icon(Icons.qr_code_scanner),
+                                        onPressed: () async {
+                                          try {
+                                            String qrResult = await BarcodeScanner.scan();
+                                            print('qrResult: ' + qrResult);
+                                            setState(() {
+                                              inputToAddress = qrResult;
+                                            });
+                                          } on PlatformException catch (ex) {
+                                            if (ex.code == BarcodeScanner.CameraAccessDenied) {
+                                              inputToAddress = "Camera permission was denied";
+                                              print('qrResult: ' + inputToAddress);
+                                            } else {
                                               inputToAddress = "Unknown Error $ex";
+                                              print('qrResult: ' + inputToAddress);
                                             }
-                                          }),
+                                          } on FormatException {
+                                            inputToAddress = "You pressed the back button before scanning anything";
+                                            print('qrResult: ' + inputToAddress);
+                                          } catch (ex) {
+                                            inputToAddress = "Unknown Error $ex";
+                                            print('qrResult: ' + inputToAddress);
+                                          }
+                                        },
+                                      ),
                                     ],
                                   ),
                                   SizedBox(height: 20.0),
@@ -278,6 +284,7 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                     children: [
                                       Expanded(
                                         child: new TextFormField(
+                                            key: Key(inputToAddress),
                                             initialValue: inputToAddress,
                                             decoration: InputDecoration().copyWith(hintText: 'To Address'),
                                             validator: (val) => val.isEmpty ? 'Enter a valid To Address' : null,
@@ -425,6 +432,7 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                   children: [
                                     Expanded(
                                       child: new TextFormField(
+                                          key: Key(inputToAddress),
                                           initialValue: inputToAddress,
                                           decoration: InputDecoration().copyWith(hintText: 'To Address'),
                                           validator: (val) => val.isEmpty ? 'Enter a valid To Address' : null,
