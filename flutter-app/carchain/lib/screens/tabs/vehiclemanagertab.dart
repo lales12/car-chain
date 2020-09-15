@@ -445,7 +445,6 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                     ],
                   ),
                 ),
-                // _buildPanel(_data, vehicleManagerContract, carManagerContract.contractFunctionsList, appUserWallet),
                 Divider(thickness: 2.0, height: 40.0),
                 StreamBuilder(
                   stream: vehicleManagerContract.addcarAddedEventListStream,
@@ -477,35 +476,35 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                   },
                 ),
                 Divider(thickness: 2.0, height: 40.0),
-                // StreamBuilder(
-                //   stream: vehicleManagerContract.removePermissionEventHistoryStream,
-                //   builder: (context, AsyncSnapshot<List<RemovePermisionEvent>> snapShot) {
-                //     if (snapShot.hasError) {
-                //       return Text('error: ' + snapShot.toString());
-                //     } else if (snapShot.connectionState == ConnectionState.waiting) {
-                //       return Text('RemovePermisionEvent waiting...');
-                //     } else {
-                //       return Column(
-                //         children: [
-                //           Center(
-                //             child: Text(
-                //               'Remove Authorizations History',
-                //               style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorLight),
-                //             ),
-                //           ),
-                //           ...snapShot.data.map(
-                //             (event) {
-                //               return ListTile(
-                //                 title: Text(event.method.split('(')[0].toString()),
-                //                 subtitle: Text(event.to.toString()),
-                //               );
-                //             },
-                //           ).toList(),
-                //         ],
-                //       );
-                //     }
-                //   },
-                // ),
+                StreamBuilder(
+                  stream: vehicleManagerContract.carStateUpdatedEventListStream,
+                  builder: (context, AsyncSnapshot<List<CarStateUpdatedEvent>> snapShot) {
+                    if (snapShot.hasError) {
+                      return Text('error: ' + snapShot.toString());
+                    } else if (snapShot.connectionState == ConnectionState.waiting) {
+                      return Text('RemovePermisionEvent waiting...');
+                    } else {
+                      return Column(
+                        children: [
+                          Center(
+                            child: Text(
+                              'Update Vehicle History',
+                              style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorLight),
+                            ),
+                          ),
+                          ...snapShot.data.map(
+                            (event) {
+                              return ListTile(
+                                title: Text('Vehicle Id: ' + event.carId.toString()),
+                                subtitle: Text('Vehicle Status Updated'),
+                              );
+                            },
+                          ).toList(),
+                        ],
+                      );
+                    }
+                  },
+                ),
               ],
             ),
           ),
