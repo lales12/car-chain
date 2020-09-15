@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:carchain/app_config.dart';
 import 'package:carchain/services/walletmanager.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';

@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:carchain/app_config.dart';
 import 'package:carchain/models/AppUserWallet.dart';
 import 'package:flutter/material.dart';
 import 'package:hex/hex.dart';
