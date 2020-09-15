@@ -42,15 +42,15 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final appUserWallet = Provider.of<WalletManager>(context).appUserWallet;
-    if (appUserWallet == null) {
+    final walletManager = Provider.of<WalletManager>(context);
+    if (walletManager == null) {
       return Loading(
         loadingMessage: '',
       );
     } else {
       // re-initialize
-      AuthorizerContract authContract = AuthorizerContract(appUserWallet.privkey);
-      CarManager vehicleManagerContract = CarManager(appUserWallet.privkey);
+      AuthorizerContract authContract = AuthorizerContract(walletManager);
+      CarManager vehicleManagerContract = CarManager(walletManager);
       return MultiProvider(
         // we use this multi provider to provide smart contracts to all child widgets
         providers: [

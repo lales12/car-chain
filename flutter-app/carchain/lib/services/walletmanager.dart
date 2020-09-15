@@ -9,32 +9,58 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bip32/bip32.dart' as bip32;
-// import 'package:ethereum_util/ethereum_util.dart' as EthUtil;
+
+class AppNetConfig {
+  String name;
+  String rpcUrl;
+  String wsUrl;
+  String networkId;
+  AppNetConfig({this.name, this.rpcUrl, this.wsUrl, this.networkId});
+}
 
 class WalletManager with ChangeNotifier {
+  // wallet variables
   String _prefPrivKey = 'privKey';
   String _prefMnemonicKey = 'mnemonic';
   String _prefIsMnemonicKey = 'isMnemonic';
   String _prefWalletAccountIndexKey = 'walletIndex';
-  SharedPreferences _prefs;
 
   bool isWalletTypeMnemonic = false;
   bool isWalletLoading = true;
   AppUserWallet appUserWallet;
   int walletAccountIndex = 0;
 
-  final client = Web3Client(configParams.rpcUrl, Client());
+  // network variables
+  String _prefActiveNetworkKey = "activeNetwork";
+  Map<String, AppNetConfig> networkConfigs = {
+    'dev': AppNetConfig(name: 'dev', rpcUrl: 'http://192.168.0.17:7545', wsUrl: 'ws://192.168.0.17:7545/', networkId: '5777'),
+    'ropsten': AppNetConfig(
+        name: 'ropsten',
+        rpcUrl: 'https://ropsten.infura.io/v3/901529b147734743b907456f78d890cb',
+        wsUrl: 'wss://ropsten.infura.io/ws/v3/901529b147734743b907456f78d890cb',
+        networkId: '3'),
+  };
+  AppNetConfig activeNetwork;
+
+  SharedPreferences _prefs;
+
+  // final client = Web3Client(configParams.rpcUrl, Client());
+  Future<Web3Client> _getClient() async {
+    await _loadNetworkFromPrefs();
+    return Web3Client(activeNetwork.rpcUrl, Client());
+  }
 
   WalletManager() {
     appUserWallet = null;
-    _loadFromPrefs();
+    _loadWalletFromPrefs();
+    _loadNetworkFromPrefs();
   }
 
   Future initPrefs() async {
     if (_prefs == null) _prefs = await SharedPreferences.getInstance();
   }
 
-  Future _loadFromPrefs() async {
+  Future _loadWalletFromPrefs() async {
     await initPrefs();
     // get type of wallet
     bool isMnemonic = _prefs.getBool(_prefIsMnemonicKey) ?? false;
@@ -85,6 +111,7 @@ class WalletManager with ChangeNotifier {
     final address = await privateKey.extractAddress();
     appUserWallet.privkey = privateKey;
     appUserWallet.pubKey = address;
+    Web3Client client = await _getClient();
     appUserWallet.balance = await client.getBalance(address);
     if (setup) {
       await _setIsWalletTypeMnemonic(false);
@@ -104,8 +131,7 @@ class WalletManager with ChangeNotifier {
   }
 
   Future<void> setupWalletFromMnemonic(String mnemonic, [bool setup = true]) async {
-    // final cryptMnemonic = bip39.mnemonicToEntropy(mnemonic); // damm u entropy
-    final privateKey = _getPrivateKeyFromMnemonic(mnemonic); // _getPrivateKeyFromMnemonic(cryptMnemonic);
+    final privateKey = _getPrivateKeyFromMnemonic(mnemonic);
     appUserWallet = AppUserWallet(accountIndex: walletAccountIndex);
     appUserWallet.isMnemonic = true;
     final private = EthPrivateKey.fromHex(privateKey);
@@ -113,6 +139,7 @@ class WalletManager with ChangeNotifier {
     final address = await private.extractAddress();
     appUserWallet.privkey = private;
     appUserWallet.pubKey = address;
+    Web3Client client = await _getClient();
     appUserWallet.balance = await client.getBalance(appUserWallet.pubKey);
     if (setup) {
       await _setIsWalletTypeMnemonic(true);
@@ -126,7 +153,7 @@ class WalletManager with ChangeNotifier {
   Future<void> changeWalletAccountIndex(newIndex) async {
     await initPrefs();
     await _setWalletIndex(newIndex);
-    await _loadFromPrefs();
+    await _loadWalletFromPrefs();
     notifyListeners();
   }
 
@@ -136,6 +163,27 @@ class WalletManager with ChangeNotifier {
     await _prefs.clear();
     appUserWallet = null;
     notifyListeners();
+  }
+
+  // network
+  Future _loadNetworkFromPrefs() async {
+    await initPrefs();
+    String activeNetworkName = _prefs.getString(_prefActiveNetworkKey) ?? 'dev';
+    activeNetwork = networkConfigs[activeNetworkName];
+    notifyListeners();
+  }
+
+  // Pref Setters
+  Future<void> _setAppNetworkName(String value) async {
+    await _prefs.setString(_prefActiveNetworkKey, value);
+  }
+
+  // changers
+  Future<void> changeAppNetwork(String netName) async {
+    await initPrefs();
+    await _setAppNetworkName(netName);
+    await _loadNetworkFromPrefs();
+    await _loadWalletFromPrefs();
   }
 
   // this stream might not be needed, i leave it as an example

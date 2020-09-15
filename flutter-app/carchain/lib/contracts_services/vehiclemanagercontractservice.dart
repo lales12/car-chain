@@ -4,6 +4,7 @@ import 'dart:developer';
 
 import 'package:carchain/app_config.dart';
 import 'package:carchain/contracts_services/erc721service.dart';
+import 'package:carchain/services/walletmanager.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -64,8 +65,8 @@ class CarManager extends ERC721 {
   bool doneLoading = false;
   BigInt usersOwnedVehicles;
 
-  CarManager(EthPrivateKey userPrivKey) {
-    _initiateSetup(userPrivKey);
+  CarManager(WalletManager walletManager) {
+    _initiateSetup(walletManager);
   }
 
   // initialize shared preferences
@@ -73,17 +74,17 @@ class CarManager extends ERC721 {
   //   if (prefs == null) prefs = await SharedPreferences.getInstance();
   // }
 
-  Future<void> _initiateSetup(EthPrivateKey privateKey) async {
+  Future<void> _initiateSetup(WalletManager walletManager) async {
     doneLoading = false;
     notifyListeners();
-    _client = Web3Client(configParams.rpcUrl, Client(), socketConnector: () {
-      return IOWebSocketChannel.connect(configParams.wsUrl).cast<String>();
+    _client = Web3Client(walletManager.activeNetwork.rpcUrl, Client(), socketConnector: () {
+      return IOWebSocketChannel.connect(walletManager.activeNetwork.wsUrl).cast<String>();
     });
     // await initPrefs();
     // String privKey = prefs.getString(prefKey) ?? null;
     // if (privKey != null) {
-    await _getAbi();
-    await _getCredentials(privateKey);
+    await _getAbi(walletManager);
+    await _getCredentials(walletManager.appUserWallet.privkey);
     await _getDeployedContract();
     await _userOwnedVehicles();
     // public variable
@@ -92,14 +93,14 @@ class CarManager extends ERC721 {
     // }
   }
 
-  Future<void> _getAbi() async {
+  Future<void> _getAbi(WalletManager walletManager) async {
     String abiStringFile = await rootBundle.loadString("abis/CarManager.json");
     var jsonAbi = jsonDecode(abiStringFile);
     _abiCode = jsonEncode(jsonAbi["abi"]);
-    _contractAddress = EthereumAddress.fromHex(jsonAbi["networks"][configParams.networkId]["address"]);
+    _contractAddress = EthereumAddress.fromHex(jsonAbi["networks"][walletManager.activeNetwork.networkId]["address"]);
     contractAddress = _contractAddress;
     // gettting contractDeployedBlockNumber
-    String _deplyTxHash = jsonAbi["networks"][configParams.networkId]["transactionHash"];
+    String _deplyTxHash = jsonAbi["networks"][walletManager.activeNetwork.networkId]["transactionHash"];
     TransactionInformation txInfo = await _client.getTransactionByHash(_deplyTxHash);
     contractDeployedBlockNumber = txInfo.blockNumber;
   }

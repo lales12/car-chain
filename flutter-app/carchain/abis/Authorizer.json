@@ -4678,10 +4678,67 @@
       "links": {},
       "address": "0x0990a106B7DF9dd063bB07b4A06282359f5c5b1A",
       "transactionHash": "0x10ebc8fa421fe897c129ef9ee81b8922d14023323b924d12b88abd2885b7f85c"
+    },
+    "5777": {
+      "events": {
+        "0x82f5563210993d67d29b617f3b86cec47ad528444be10919648eeb55bb987fa9": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "_contract",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "_to",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "_method",
+              "type": "string"
+            }
+          ],
+          "name": "PermissionAdded",
+          "type": "event"
+        },
+        "0x048eaccc0a663992cc30c83eda01c25e9d2d16aac28df0486bea1630630eec94": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "_contract",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "_to",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "_method",
+              "type": "string"
+            }
+          ],
+          "name": "PermissionRemoved",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x38E96329045B3c27a64676E6669A8B7a7F61904A",
+      "transactionHash": "0x9facfc50fd4e2ba3f09d6fc00ede86c5901379b41bcd25f28abc07d4de9d8a5a"
     }
   },
   "schemaVersion": "3.2.3",
-  "updatedAt": "2020-09-13T23:12:21.044Z",
+  "updatedAt": "2020-09-14T23:55:30.569Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {}
