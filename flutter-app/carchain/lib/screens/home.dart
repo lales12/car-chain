@@ -1,3 +1,4 @@
+import 'package:carchain/contracts_services/itvmanagercontractservice.dart';
 import 'package:carchain/contracts_services/vehiclemanagercontractservice.dart';
 import 'package:carchain/contracts_services/authorizercontractservice.dart';
 import 'package:carchain/screens/accountprofile.dart';
@@ -42,15 +43,16 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final appUserWallet = Provider.of<WalletManager>(context).appUserWallet;
-    if (appUserWallet == null) {
+    final walletManager = Provider.of<WalletManager>(context);
+    if (walletManager == null) {
       return Loading(
         loadingMessage: '',
       );
     } else {
       // re-initialize
-      AuthorizerContract authContract = AuthorizerContract(appUserWallet.privkey);
-      CarManager vehicleManagerContract = CarManager(appUserWallet.privkey);
+      AuthorizerContract authContract = AuthorizerContract(walletManager);
+      CarManager vehicleManagerContract = CarManager(walletManager);
+      ItvManager itvManager = ItvManager(walletManager);
       return MultiProvider(
         // we use this multi provider to provide smart contracts to all child widgets
         providers: [
@@ -60,6 +62,9 @@ class _HomeState extends State<Home> {
           ChangeNotifierProvider<CarManager>.value(
             // create: (context) => vehicleManagerContract,
             value: vehicleManagerContract,
+          ),
+          ChangeNotifierProvider<ItvManager>.value(
+            value: itvManager,
           ),
         ],
         child: Scaffold(

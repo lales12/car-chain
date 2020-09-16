@@ -38,6 +38,23 @@ class _ImportWalletState extends State<ImportWallet> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              Text(
+                'Select A Network',
+              ),
+              SizedBox(height: 20.0),
+              DropdownButtonFormField(
+                items: walletManager.networkConfigs.entries.map<DropdownMenuItem<String>>((entry) {
+                  return DropdownMenuItem<String>(
+                    value: entry.key,
+                    child: Text(entry.key),
+                  );
+                }).toList(),
+                decoration: InputDecoration().copyWith(hintText: 'Network'),
+                onChanged: (String newValue) {
+                  print('network is setting to: ' + newValue);
+                  walletManager.changeAppNetwork(newValue);
+                },
+              ),
               SizedBox(height: 20.0),
               Text(
                 'Import A Wallet',

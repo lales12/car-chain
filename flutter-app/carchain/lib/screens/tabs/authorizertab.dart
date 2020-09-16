@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:barcode_scan/barcode_scan.dart';
+import 'package:carchain/contracts_services/itvmanagercontractservice.dart';
 import 'package:carchain/contracts_services/vehiclemanagercontractservice.dart';
 import 'package:carchain/contracts_services/authorizercontractservice.dart';
 import 'package:carchain/services/walletmanager.dart';
@@ -13,8 +15,8 @@ import 'package:provider/provider.dart';
 import 'package:web3dart/credentials.dart';
 import 'package:web3dart/web3dart.dart';
 
-class Item {
-  Item({
+class ExpandingItem {
+  ExpandingItem({
     this.name,
     this.shortDiscribe,
     this.isExpanded = false,
@@ -25,23 +27,12 @@ class Item {
   bool isExpanded;
 }
 
-List<Item> _data = [
-  Item(
-    name: 'Add Permission',
-    shortDiscribe: 'Add permistion to a user to use a function in a smart contract.',
-    isExpanded: false,
-  ),
-  Item(
-    name: 'Remove Permission',
-    shortDiscribe: 'Remove permistion to a user to use a function in a smart contract.',
-    isExpanded: false,
-  ),
-  Item(
-    name: 'Access Status',
-    shortDiscribe: 'Request the Status of your permision',
-    isExpanded: false,
-  ),
-];
+class InputContract {
+  String name;
+  String address;
+  List<ContractFunction> functionList;
+  InputContract({this.name, this.address});
+}
 
 class AuthorizerTab extends StatefulWidget {
   @override
@@ -49,6 +40,28 @@ class AuthorizerTab extends StatefulWidget {
 }
 
 class _AuthorizerTabState extends State<AuthorizerTab> {
+  List<ExpandingItem> _data = [
+    ExpandingItem(
+      name: 'Add Permission',
+      shortDiscribe: 'Add permistion to a user to use a function in a smart contract.',
+      isExpanded: false,
+    ),
+    ExpandingItem(
+      name: 'Remove Permission',
+      shortDiscribe: 'Remove permistion to a user to use a function in a smart contract.',
+      isExpanded: false,
+    ),
+    ExpandingItem(
+      name: 'Access Status',
+      shortDiscribe: 'Request the Status of your permision',
+      isExpanded: false,
+    ),
+  ];
+
+  List<InputContract> contractsList = [
+    InputContract(name: 'VehicleManager', address: '0x0'),
+    InputContract(name: 'ITVManager', address: '0x1'),
+  ];
   final _formKeyAdd = GlobalKey<FormState>();
   final _formKeyRemove = GlobalKey<FormState>();
   final _formKeyRequest = GlobalKey<FormState>();
@@ -56,17 +69,23 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
   String inputFunctionName = '';
   ButtonState stateCallSmartContractFunctionButton = ButtonState.idle;
   String inputToAddress = '';
+  int selectedContractIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     final authorizerContract = Provider.of<AuthorizerContract>(context);
     final carManagerContract = Provider.of<CarManager>(context);
+    final itvManagerContract = Provider.of<ItvManager>(context);
     final appUserWallet = Provider.of<WalletManager>(context).appUserWallet;
-    if (appUserWallet != null && authorizerContract.doneLoading && carManagerContract.doneLoading) {
+
+    if (appUserWallet != null && authorizerContract.doneLoading && carManagerContract.doneLoading && itvManagerContract.doneLoading) {
       // set
       List<ContractFunction> carManagerFunctionList = carManagerContract.contractFunctionsList;
       inputContractAddress = carManagerContract.contractAddress.toString();
-
+      contractsList[0].address = carManagerContract.contractAddress.toString();
+      contractsList[1].address = itvManagerContract.contractAddress.toString();
+      contractsList[0].functionList = carManagerContract.contractFunctionsList;
+      contractsList[1].functionList = itvManagerContract.contractFunctionsList;
       return Scaffold(
         body: SingleChildScrollView(
           child: Padding(
@@ -111,16 +130,30 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                     _data[0].shortDiscribe,
                                   ),
                                   SizedBox(height: 20.0),
-                                  new TextFormField(
-                                      initialValue: inputContractAddress,
-                                      decoration: InputDecoration().copyWith(hintText: 'Contract Address'),
-                                      validator: (val) => val.isEmpty ? 'Enter a valid Contract Address' : null,
-                                      onChanged: (val) {
-                                        inputContractAddress = val;
-                                      }),
+                                  // new TextFormField(
+                                  //     initialValue: inputContractAddress,
+                                  //     decoration: InputDecoration().copyWith(hintText: 'Contract Address'),
+                                  //     validator: (val) => val.isEmpty ? 'Enter a valid Contract Address' : null,
+                                  //     onChanged: (val) {
+                                  //       inputContractAddress = val;
+                                  //     }),
+                                  DropdownButtonFormField(
+                                    items: contractsList.map((inputContract) {
+                                      print('func: ' + inputContract.name);
+                                      return DropdownMenuItem(value: inputContract, child: Text(inputContract.name));
+                                    }).toList(),
+                                    decoration: InputDecoration().copyWith(hintText: 'Contract'),
+                                    onChanged: (InputContract val) {
+                                      inputContractAddress = val.address;
+                                      setState(() {
+                                        selectedContractIndex = contractsList.indexOf(val);
+                                      });
+                                      log('index of selected contract: ' + selectedContractIndex.toString());
+                                    },
+                                  ),
                                   SizedBox(height: 20.0),
                                   DropdownButtonFormField(
-                                    items: carManagerFunctionList.map((func) {
+                                    items: contractsList[selectedContractIndex].functionList.map((func) {
                                       print('func: ' + func.encodeName());
                                       return DropdownMenuItem(value: func.encodeName(), child: Text(func.name));
                                     }).toList(),
@@ -131,7 +164,8 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                   Row(
                                     children: [
                                       Expanded(
-                                        child: new TextFormField(
+                                        child: TextFormField(
+                                            key: Key(inputToAddress),
                                             initialValue: inputToAddress,
                                             decoration: InputDecoration().copyWith(hintText: 'To Address'),
                                             validator: (val) => val.isEmpty ? 'Enter a valid To Address' : null,
@@ -139,27 +173,33 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                               inputToAddress = val;
                                             }),
                                       ),
+                                      // Expanded(child: Text(inputToAddress)),
                                       IconButton(
-                                          icon: Icon(Icons.qr_code_scanner),
-                                          onPressed: () async {
-                                            try {
-                                              String qrResult = await BarcodeScanner.scan();
-                                              print('qrResult: ' + qrResult);
-                                              setState(() {
-                                                inputToAddress = qrResult;
-                                              });
-                                            } on PlatformException catch (ex) {
-                                              if (ex.code == BarcodeScanner.CameraAccessDenied) {
-                                                inputToAddress = "Camera permission was denied";
-                                              } else {
-                                                inputToAddress = "Unknown Error $ex";
-                                              }
-                                            } on FormatException {
-                                              inputToAddress = "You pressed the back button before scanning anything";
-                                            } catch (ex) {
+                                        icon: Icon(Icons.qr_code_scanner),
+                                        onPressed: () async {
+                                          try {
+                                            String qrResult = await BarcodeScanner.scan();
+                                            print('qrResult: ' + qrResult);
+                                            setState(() {
+                                              inputToAddress = qrResult;
+                                            });
+                                          } on PlatformException catch (ex) {
+                                            if (ex.code == BarcodeScanner.CameraAccessDenied) {
+                                              inputToAddress = "Camera permission was denied";
+                                              print('qrResult: ' + inputToAddress);
+                                            } else {
                                               inputToAddress = "Unknown Error $ex";
+                                              print('qrResult: ' + inputToAddress);
                                             }
-                                          }),
+                                          } on FormatException {
+                                            inputToAddress = "You pressed the back button before scanning anything";
+                                            print('qrResult: ' + inputToAddress);
+                                          } catch (ex) {
+                                            inputToAddress = "Unknown Error $ex";
+                                            print('qrResult: ' + inputToAddress);
+                                          }
+                                        },
+                                      ),
                                     ],
                                   ),
                                   SizedBox(height: 20.0),
@@ -278,6 +318,7 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                     children: [
                                       Expanded(
                                         child: new TextFormField(
+                                            key: Key(inputToAddress),
                                             initialValue: inputToAddress,
                                             decoration: InputDecoration().copyWith(hintText: 'To Address'),
                                             validator: (val) => val.isEmpty ? 'Enter a valid To Address' : null,
@@ -425,6 +466,7 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                   children: [
                                     Expanded(
                                       child: new TextFormField(
+                                          key: Key(inputToAddress),
                                           initialValue: inputToAddress,
                                           decoration: InputDecoration().copyWith(hintText: 'To Address'),
                                           validator: (val) => val.isEmpty ? 'Enter a valid To Address' : null,

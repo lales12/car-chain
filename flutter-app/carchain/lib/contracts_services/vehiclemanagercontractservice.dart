@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:carchain/app_config.dart';
 import 'package:carchain/contracts_services/erc721service.dart';
+import 'package:carchain/services/walletmanager.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,10 +33,6 @@ class CarStateUpdatedEvent {
 
 // contract class
 class CarManager extends ERC721 {
-  // initialization variables
-  String prefKey = 'privKey';
-  SharedPreferences prefs;
-
   // private variables
   Web3Client _client;
   String _abiCode;
@@ -47,59 +43,48 @@ class CarManager extends ERC721 {
   // contract functions
   ContractFunction _addCar;
   ContractFunction _updateCarState;
-  // ContractFunction _updateITV;
   ContractFunction _getCar;
   // functions from ERC721
   ContractFunction _balanceOf;
   // events
   ContractEvent _carAddedEvent;
   ContractEvent _carStateUpdatedEvent;
-  // ContractEvent _iTVInspectionEvent;
 
   // public variables
-  List<ContractFunction> contractFunctionsList; // = List<ContractFunction>();
+  List<ContractFunction> contractFunctionsList;
   BlockNum contractDeployedBlockNumber;
   EthereumAddress contractAddress;
   EthereumAddress userAddress;
   bool doneLoading = false;
   BigInt usersOwnedVehicles;
 
-  CarManager(EthPrivateKey userPrivKey) {
-    _initiateSetup(userPrivKey);
+  CarManager(WalletManager walletManager) {
+    _initiateSetup(walletManager);
   }
 
-  // initialize shared preferences
-  // Future initPrefs() async {
-  //   if (prefs == null) prefs = await SharedPreferences.getInstance();
-  // }
-
-  Future<void> _initiateSetup(EthPrivateKey privateKey) async {
+  Future<void> _initiateSetup(WalletManager walletManager) async {
     doneLoading = false;
     notifyListeners();
-    _client = Web3Client(configParams.rpcUrl, Client(), socketConnector: () {
-      return IOWebSocketChannel.connect(configParams.wsUrl).cast<String>();
+    _client = Web3Client(walletManager.activeNetwork.rpcUrl, Client(), socketConnector: () {
+      return IOWebSocketChannel.connect(walletManager.activeNetwork.wsUrl).cast<String>();
     });
-    // await initPrefs();
-    // String privKey = prefs.getString(prefKey) ?? null;
-    // if (privKey != null) {
-    await _getAbi();
-    await _getCredentials(privateKey);
+    await _getAbi(walletManager);
+    await _getCredentials(walletManager.appUserWallet.privkey);
     await _getDeployedContract();
     await _userOwnedVehicles();
     // public variable
     doneLoading = true;
     notifyListeners();
-    // }
   }
 
-  Future<void> _getAbi() async {
+  Future<void> _getAbi(WalletManager walletManager) async {
     String abiStringFile = await rootBundle.loadString("abis/CarManager.json");
     var jsonAbi = jsonDecode(abiStringFile);
     _abiCode = jsonEncode(jsonAbi["abi"]);
-    _contractAddress = EthereumAddress.fromHex(jsonAbi["networks"][configParams.networkId]["address"]);
+    _contractAddress = EthereumAddress.fromHex(jsonAbi["networks"][walletManager.activeNetwork.networkId]["address"]);
     contractAddress = _contractAddress;
     // gettting contractDeployedBlockNumber
-    String _deplyTxHash = jsonAbi["networks"][configParams.networkId]["transactionHash"];
+    String _deplyTxHash = jsonAbi["networks"][walletManager.activeNetwork.networkId]["transactionHash"];
     TransactionInformation txInfo = await _client.getTransactionByHash(_deplyTxHash);
     contractDeployedBlockNumber = txInfo.blockNumber;
   }
@@ -156,8 +141,6 @@ class CarManager extends ERC721 {
           eventsList.forEach(
             (FilterEvent event) {
               final decoded = _carAddedEvent.decodeResults(event.topics, event.data);
-              // print('from stream listen: addPermissionEventHistoryStream');
-              // print(decoded.toString());
               temp.add(
                 CarAddedEvent(
                   carId: decoded[0] as BigInt,
@@ -201,8 +184,6 @@ class CarManager extends ERC721 {
           eventsList.forEach(
             (FilterEvent event) {
               final decoded = _carAddedEvent.decodeResults(event.topics, event.data);
-              // print('from stream listen: addPermissionEventHistoryStream');
-              // print(decoded.toString());
               temp.add(
                 CarStateUpdatedEvent(
                   carId: decoded[0] as BigInt,
@@ -243,7 +224,7 @@ class CarManager extends ERC721 {
   //   });
   // }
 
-  // callable functions
+  // Contract Calls
   Future<String> addCar(String licensePlate, BigInt carTypeIndex) async {
     String res = await _client.sendTransaction(
       _credentials,

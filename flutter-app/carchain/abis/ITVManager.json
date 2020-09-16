@@ -1786,10 +1786,36 @@
       "links": {},
       "address": "0xE259f03d28104704651f9dB76D425a7F4460A11C",
       "transactionHash": "0x38a7f634ebc7ad42aae26a1cf00a253d5b5260d27e088b694594d96f7cce226e"
+    },
+    "5777": {
+      "events": {
+        "0x817b4362f0d8ae5bacc61027db96b810feac7b953e33679c3d1979e46d8c4945": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "carID",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "enum ITVManager.ITVState",
+              "name": "state",
+              "type": "uint8"
+            }
+          ],
+          "name": "ITVInspectionEvent",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0xd5E26a1264Ff0C8DF2F0CAf5A7012cE9498D2c76",
+      "transactionHash": "0xe6671a6b47690f8bfcff1ef0414ba614373907fb6754ff2ead0560ba7d369a04"
     }
   },
   "schemaVersion": "3.2.3",
-  "updatedAt": "2020-09-13T23:12:21.056Z",
+  "updatedAt": "2020-09-15T08:03:38.294Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {}
