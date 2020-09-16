@@ -19,8 +19,9 @@ contract ITVManager  is BaseManager {
     event ITVInspectionEvent(uint256 carID, ITVState state);
 
     constructor(
-        address authorizerContractAddress
-    ) BaseManager(authorizerContractAddress) public {}
+        address authorizerContractAddress,
+        address carAssetContractAddress
+    ) BaseManager(authorizerContractAddress, carAssetContractAddress) public {}
 
     function updateITV(uint256 carId, ITVState itvStateIndex) 
         public

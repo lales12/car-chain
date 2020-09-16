@@ -47,9 +47,11 @@ contract CarManager is BaseManager {
     event CarStateUpdated(uint256 indexed carID);
     event ITVInspection(uint256 indexed carID);
 
-    constructor(address authorizerContractAddress)
-        public
-        BaseManager(authorizerContractAddress)
+    constructor(
+        address authorizerContractAddress,
+        address carTokenContractAddress
+    ) public
+        BaseManager(authorizerContractAddress, carTokenContractAddress)
     {}
 
     function addCar(
@@ -58,6 +60,8 @@ contract CarManager is BaseManager {
         uint256 carTypeIndex
     ) external onlyAuthorized(ADD_CAR_METHOD, msg.sender) {
         uint256 id = uint256(keccak256(abi.encode(carId)));
+
+        carToken.mint(msg.sender, id);
 
         trackedCars[id] = Car({
             licensePlate: licensePlate,
