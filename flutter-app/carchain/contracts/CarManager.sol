@@ -1,17 +1,13 @@
-pragma solidity ^0.6.0;
+pragma solidity >=0.5.16;
 
-import "./BaseManager.sol";
 import "./interfaces/CarInterface.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
+import "./Authorizer.sol";
+import "./BaseManager.sol";
 
-contract CarManager is BaseManager, ERC721 {
-    // erc721 related
-    using Counters for Counters.Counter;
-    Counters.Counter private _tokenIds;
-    //
-    string constant ADD_CAR_METHOD = "addCar(string,uint256)";
-    string constant UPDATE_CAR_METHOD = "updateCarState(uint256,uint256)";
+
+contract CarManager is BaseManager {
+    string constant ADD_CAR_METHOD = "addCar(bytes,string,uint256)";
+    string constant UPDATE_CAR_METHOD = "updateCarState(bytes,uint256)";
     /*
      * At the moment this state adds nothing to the contract - it doesn't give the users relevant information,
      * and it doesn't modify functions. We must update this to include relevant information or remove it.
@@ -39,7 +35,6 @@ contract CarManager is BaseManager, ERC721 {
     }
 
     struct Car {
-        uint256 vehicleId;
         string licensePlate;
         CarType carType;
         CarState carState;
@@ -52,41 +47,29 @@ contract CarManager is BaseManager, ERC721 {
     event CarStateUpdated(uint256 indexed carID);
     event ITVInspection(uint256 indexed carID);
 
-    constructor(address authorizerContractAddress)
-        public
-        BaseManager(authorizerContractAddress) ERC721("VehicleTocken", "VCLE")
+    constructor(
+        address authorizerContractAddress,
+        address carTokenContractAddress
+    ) public
+        BaseManager(authorizerContractAddress, carTokenContractAddress)
     {}
 
-    function _generateVehicleTocken(address vehicleOwner, string memory tokenURI)
-        internal
-        returns (uint256)
-    {
-        _tokenIds.increment();
-
-        uint256 newItemId = _tokenIds.current();
-        _mint(vehicleOwner, newItemId);
-        _setTokenURI(newItemId, tokenURI);
-
-        return newItemId;
-    }
-
     function addCar(
-        // string calldata carId,
+        string calldata carId,
         string calldata licensePlate,
         uint256 carTypeIndex
     ) external onlyAuthorized(ADD_CAR_METHOD, msg.sender) {
-        // uint256 id = uint256(keccak256(abi.encode(carId)));
+        uint256 id = uint256(keccak256(abi.encode(carId)));
 
-        uint256 tockenId = _generateVehicleTocken(msg.sender,licensePlate);
+        carToken.mint(msg.sender, id);
 
-        trackedCars[tockenId] = Car({
-            vehicleId: tockenId,
+        trackedCars[id] = Car({
             licensePlate: licensePlate,
             carType: CarType(carTypeIndex),
             carState: CarState.FOR_SALE
         });
 
-        emit CarAdded(tockenId);
+        emit CarAdded(id);
     }
 
     function updateCarState(uint256 id, uint256 carStateIndex)

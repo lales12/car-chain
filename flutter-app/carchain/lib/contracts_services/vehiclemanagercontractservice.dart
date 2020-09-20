@@ -6,7 +6,6 @@ import 'package:carchain/contracts_services/erc721service.dart';
 import 'package:carchain/services/walletmanager.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
 

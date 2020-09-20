@@ -4,8 +4,8 @@ import "./interfaces/CarInterface.sol";
 import "./BaseManager.sol";
 
 
-contract ITVManager is BaseManager {
-    string constant UPDATE_METHOD = "updateITV(uint256,uint256)";
+contract ITVManager  is BaseManager {
+    string constant UPDATE_METHOD = 'updateITV(uint256,uint256)';
 
     enum ITVState {PASSED, NOT_PASSED, NEGATIVE}
 
@@ -18,17 +18,20 @@ contract ITVManager is BaseManager {
 
     event ITVInspectionEvent(uint256 carID, ITVState state);
 
-    constructor(address authorizerContractAddress)
-        public
-        BaseManager(authorizerContractAddress)
-    {}
+    constructor(
+        address authorizerContractAddress,
+        address carAssetContractAddress
+    ) BaseManager(authorizerContractAddress, carAssetContractAddress) public {}
 
-    function updateITV(uint256 carId, ITVState itvStateIndex)
+    function updateITV(uint256 carId, ITVState itvStateIndex) 
         public
-        onlyAuthorized(UPDATE_METHOD, msg.sender)
+        onlyAuthorized (UPDATE_METHOD, msg.sender)
     {
-        ITVs[carId].push(ITVInspection(itvStateIndex, now));
-
+        ITVs[carId].push(
+            ITVInspection(itvStateIndex, now)
+        );
+        
         emit ITVInspectionEvent(carId, itvStateIndex);
     }
+
 }
