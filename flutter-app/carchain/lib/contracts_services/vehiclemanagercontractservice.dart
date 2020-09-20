@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:carchain/contracts_services/erc721service.dart';
 import 'package:carchain/services/walletmanager.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:web3dart/web3dart.dart';
@@ -31,7 +31,7 @@ class CarStateUpdatedEvent {
 }
 
 // contract class
-class CarManager extends ERC721 {
+class CarManager extends ChangeNotifier {
   // private variables
   Web3Client _client;
   String _abiCode;
@@ -55,7 +55,7 @@ class CarManager extends ERC721 {
   EthereumAddress contractAddress;
   EthereumAddress userAddress;
   bool doneLoading = false;
-  BigInt usersOwnedVehicles;
+  // BigInt usersOwnedVehicles;
 
   CarManager(WalletManager walletManager) {
     _initiateSetup(walletManager);
@@ -70,7 +70,7 @@ class CarManager extends ERC721 {
     await _getAbi(walletManager);
     await _getCredentials(walletManager.appUserWallet.privkey);
     await _getDeployedContract();
-    await _userOwnedVehicles();
+    // await _userOwnedVehicles();
     // public variable
     doneLoading = true;
     notifyListeners();
@@ -109,19 +109,20 @@ class CarManager extends ERC721 {
     // _updateITV = _contract.function('updateITV');
     _getCar = _contract.function('getCar');
 
+    log('VehicleManager: list of functions:' + _contract.functions.map((e) => e.name).toList().toString());
     // set functions list
     contractFunctionsList = [_addCar, _updateCarState];
 
     // set functions from ERC721
-    _balanceOf = _contract.function('balanceOf');
+    // _balanceOf = _contract.function('balanceOf');
   }
 
-  Future<void> _userOwnedVehicles() async {
-    List<dynamic> balance = await _client.call(contract: _contract, function: _balanceOf, params: [_userAddress]);
+  // Future<void> _userOwnedVehicles() async {
+  //   List<dynamic> balance = await _client.call(contract: _contract, function: _balanceOf, params: [_userAddress]);
 
-    usersOwnedVehicles = balance[0] as BigInt;
-    log('CarManager service: usersOwnedVehicles ' + usersOwnedVehicles.toString());
-  }
+  //   usersOwnedVehicles = balance[0] as BigInt;
+  //   log('CarManager service: usersOwnedVehicles ' + usersOwnedVehicles.toString());
+  // }
 
   // Stream Events
   Stream<List<CarAddedEvent>> get addcarAddedEventListStream {
@@ -209,20 +210,6 @@ class CarManager extends ERC721 {
     return controller.stream;
   }
 
-  // Stream<List<ITVInspectionEvent>> get iTVInspectionEventListStream {
-  //   print('iTVInspectionEventListStream from block: ' + contractDeployedBlockNumber.blockNum.toString());
-
-  //   return _client
-  //       .getLogs(FilterOptions.events(contract: _contract, event: _iTVInspectionEvent, fromBlock: contractDeployedBlockNumber))
-  //       .asStream()
-  //       .map((eventList) {
-  //     return eventList.map((event) {
-  //       final decoded = _iTVInspectionEvent.decodeResults(event.topics, event.data);
-  //       return ITVInspectionEvent(carId: decoded[0] as FixedBytes, date: decoded[1] as BigInt);
-  //     }).toList();
-  //   });
-  // }
-
   // Contract Calls
   Future<String> addCar(String licensePlate, BigInt carTypeIndex) async {
     String res = await _client.sendTransaction(
@@ -242,21 +229,21 @@ class CarManager extends ERC721 {
     return res;
   }
 
-  Future<BigInt> getTockenIdByIndex(BigInt index) async {
-    ContractFunction _tokenOfOwnerByIndex = _contract.function('tokenOfOwnerByIndex');
-    List<dynamic> ret = await _client.call(contract: _contract, function: _tokenOfOwnerByIndex, params: [_userAddress, index]);
-    return ret[0] as BigInt;
-  }
+  // Future<BigInt> getTockenIdByIndex(BigInt index) async {
+  //   ContractFunction _tokenOfOwnerByIndex = _contract.function('tokenOfOwnerByIndex');
+  //   List<dynamic> ret = await _client.call(contract: _contract, function: _tokenOfOwnerByIndex, params: [_userAddress, index]);
+  //   return ret[0] as BigInt;
+  // }
 
-  Future<Car> getCar(BigInt vehicleIndex) async {
-    BigInt tockenId = await getTockenIdByIndex(vehicleIndex);
-    List<dynamic> ret = await _client.call(contract: _contract, function: _getCar, params: [tockenId]);
+  // Future<Car> getCar(BigInt vehicleIndex) async {
+  //   BigInt tockenId = await getTockenIdByIndex(vehicleIndex);
+  //   List<dynamic> ret = await _client.call(contract: _contract, function: _getCar, params: [tockenId]);
 
-    return Car(
-      id: ret[0] as BigInt,
-      licensePlate: ret[1] as String,
-      carType: ret[2] as BigInt,
-      carState: ret[3] as BigInt,
-    );
-  }
+  //   return Car(
+  //     id: ret[0] as BigInt,
+  //     licensePlate: ret[1] as String,
+  //     carType: ret[2] as BigInt,
+  //     carState: ret[3] as BigInt,
+  //   );
+  // }
 }

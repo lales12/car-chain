@@ -342,7 +342,7 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                 DropdownButtonFormField(
                                   items: () {
                                     List<DropdownMenuItem> dropList = new List<DropdownMenuItem>();
-                                    for (var i = 0; i < vehicleManagerContract.usersOwnedVehicles.toInt(); i++) {
+                                    for (var i = 0; i < /*vehicleManagerContract.usersOwnedVehicles.toInt()*/ 2; i++) {
                                       dropList.add(DropdownMenuItem(value: i, child: Text('Vehicle No.' + (i + 1).toString())));
                                     }
                                     return dropList;
@@ -370,66 +370,66 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                   onPressed: () async {
                                     if (_formKeyGet.currentState.validate()) {
                                       print('button pressed: ' + _data[2].name);
-                                      setState(() {
-                                        stateCallSmartContractFunctionButton = ButtonState.loading;
-                                      });
-                                      try {
-                                        Car result = await vehicleManagerContract.getCar(BigInt.parse(tockenIndex.toString()));
-                                        if (result != null) {
-                                          final snackBar = SnackBar(
-                                            duration: Duration(seconds: 30),
-                                            content: Text('Your Vehicle \nid: ' +
-                                                result.id.toString() +
-                                                '\nLicense Plate: ' +
-                                                result.licensePlate +
-                                                '\nCar Type: ' +
-                                                vehicleTypes.keys.firstWhere((k) => vehicleTypes[k] == result.carType.toInt(), orElse: () => null) +
-                                                '\nCar State: ' +
-                                                vehicleStates.keys.firstWhere((k) => vehicleStates[k] == result.carState.toInt(), orElse: () => null)),
-                                            action: SnackBarAction(
-                                              textColor: Theme.of(context).buttonColor,
-                                              label: 'OK',
-                                              onPressed: () {
-                                                // Some code to undo the change.
-                                              },
-                                            ),
-                                          );
-                                          // Find the Scaffold in the widget tree and use
-                                          // it to show a SnackBar.
-                                          Scaffold.of(context).showSnackBar(snackBar);
+                                      // setState(() {
+                                      //   stateCallSmartContractFunctionButton = ButtonState.loading;
+                                      // });
+                                      // try {
+                                      //   Car result = await vehicleManagerContract.getCar(BigInt.parse(tockenIndex.toString()));
+                                      //   if (result != null) {
+                                      //     final snackBar = SnackBar(
+                                      //       duration: Duration(seconds: 30),
+                                      //       content: Text('Your Vehicle \nid: ' +
+                                      //           result.id.toString() +
+                                      //           '\nLicense Plate: ' +
+                                      //           result.licensePlate +
+                                      //           '\nCar Type: ' +
+                                      //           vehicleTypes.keys.firstWhere((k) => vehicleTypes[k] == result.carType.toInt(), orElse: () => null) +
+                                      //           '\nCar State: ' +
+                                      //           vehicleStates.keys.firstWhere((k) => vehicleStates[k] == result.carState.toInt(), orElse: () => null)),
+                                      //       action: SnackBarAction(
+                                      //         textColor: Theme.of(context).buttonColor,
+                                      //         label: 'OK',
+                                      //         onPressed: () {
+                                      //           // Some code to undo the change.
+                                      //         },
+                                      //       ),
+                                      //     );
+                                      //     // Find the Scaffold in the widget tree and use
+                                      //     // it to show a SnackBar.
+                                      //     Scaffold.of(context).showSnackBar(snackBar);
 
-                                          setState(() {
-                                            stateCallSmartContractFunctionButton = ButtonState.success;
-                                          });
-                                          Timer(Duration(seconds: 3), () {
-                                            setState(() {
-                                              stateCallSmartContractFunctionButton = ButtonState.idle;
-                                            });
-                                          });
-                                        }
-                                        print('Got a Car: ' + result.toString());
-                                      } catch (e) {
-                                        final snackBar = SnackBar(
-                                          duration: Duration(seconds: 10),
-                                          content: Text('error: ' + e.toString()),
-                                          action: SnackBarAction(
-                                            textColor: Theme.of(context).buttonColor,
-                                            label: 'OK',
-                                            onPressed: () {
-                                              // Some code to undo the change.
-                                            },
-                                          ),
-                                        );
-                                        Scaffold.of(context).showSnackBar(snackBar);
-                                        setState(() {
-                                          stateCallSmartContractFunctionButton = ButtonState.fail;
-                                        });
-                                        Timer(Duration(seconds: 3), () {
-                                          setState(() {
-                                            stateCallSmartContractFunctionButton = ButtonState.idle;
-                                          });
-                                        });
-                                      }
+                                      //     setState(() {
+                                      //       stateCallSmartContractFunctionButton = ButtonState.success;
+                                      //     });
+                                      //     Timer(Duration(seconds: 3), () {
+                                      //       setState(() {
+                                      //         stateCallSmartContractFunctionButton = ButtonState.idle;
+                                      //       });
+                                      //     });
+                                      //   }
+                                      //   print('Got a Car: ' + result.toString());
+                                      // } catch (e) {
+                                      //   final snackBar = SnackBar(
+                                      //     duration: Duration(seconds: 10),
+                                      //     content: Text('error: ' + e.toString()),
+                                      //     action: SnackBarAction(
+                                      //       textColor: Theme.of(context).buttonColor,
+                                      //       label: 'OK',
+                                      //       onPressed: () {
+                                      //         // Some code to undo the change.
+                                      //       },
+                                      //     ),
+                                      //   );
+                                      //   Scaffold.of(context).showSnackBar(snackBar);
+                                      //   setState(() {
+                                      //     stateCallSmartContractFunctionButton = ButtonState.fail;
+                                      //   });
+                                      //   Timer(Duration(seconds: 3), () {
+                                      //     setState(() {
+                                      //       stateCallSmartContractFunctionButton = ButtonState.idle;
+                                      //     });
+                                      //   });
+                                      // }
                                     } else {
                                       setState(() {
                                         stateCallSmartContractFunctionButton = ButtonState.idle;
