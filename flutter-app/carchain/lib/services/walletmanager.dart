@@ -82,6 +82,7 @@ class WalletManager with ChangeNotifier {
         isWalletLoading = false;
       }
     }
+    log('WalletManager: done loding wallet from pref: ' + _appUserWallet.pubKey.toString());
     notifyListeners();
   }
 
@@ -130,9 +131,8 @@ class WalletManager with ChangeNotifier {
   }
 
   Future<void> setupWalletFromMnemonic(String mnemonic, [bool setup = true]) async {
-    _appUserWallet = null;
     final privateKey = _getPrivateKeyFromMnemonic(mnemonic);
-    _appUserWallet = AppUserWallet(accountIndex: walletAccountIndex);
+    _appUserWallet = new AppUserWallet(accountIndex: walletAccountIndex);
     _appUserWallet.isMnemonic = true;
     final private = EthPrivateKey.fromHex(privateKey);
     log('privatekey from mnemonic: ' + privateKey);

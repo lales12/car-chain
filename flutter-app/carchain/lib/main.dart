@@ -1,3 +1,4 @@
+import 'package:carchain/models/AppUserWallet.dart';
 import 'package:carchain/services/appbluetoothservice.dart';
 import 'package:carchain/wrapper.dart';
 import 'package:carchain/services/walletmanager.dart';
@@ -16,8 +17,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<WalletManager>(
-          create: (context) => WalletManager(),
+        ChangeNotifierProvider<WalletManager>.value(
+          value: WalletManager(),
         ),
         StreamProvider<BluetoothState>.value(
           // gives u the state of device's bluetooth => if it is on/off
