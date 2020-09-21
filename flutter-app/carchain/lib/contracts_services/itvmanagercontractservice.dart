@@ -55,7 +55,7 @@ class ItvManager extends ChangeNotifier {
       return IOWebSocketChannel.connect(walletManager.activeNetwork.wsUrl).cast<String>();
     });
     await _getAbi(walletManager);
-    await _getCredentials(walletManager.appUserWallet.privkey);
+    await _getCredentials(walletManager.getAppUserWallet.privkey);
     await _getDeployedContract();
     // public variable
     doneLoading = true;

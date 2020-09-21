@@ -24,7 +24,7 @@ class _AccountProfileState extends State<AccountProfile> {
     // final RoundedLoadingButtonController _btnController =
     //     new RoundedLoadingButtonController();
     final walletManager = Provider.of<WalletManager>(context);
-    AppUserWallet appUserWallet = walletManager.appUserWallet;
+    AppUserWallet appUserWallet = walletManager.getAppUserWallet;
     int walletAccountIndex = 0;
     if (appUserWallet == null) {
       return Loading(

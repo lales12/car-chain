@@ -59,7 +59,7 @@ class AuthorizerContract extends ChangeNotifier {
     });
 
     await _getAbi(walletManager);
-    await _getCredentials(walletManager.appUserWallet.privkey);
+    await _getCredentials(walletManager.getAppUserWallet.privkey);
     await _getDeployedContract();
     // public variable
     await _getContractOwner();

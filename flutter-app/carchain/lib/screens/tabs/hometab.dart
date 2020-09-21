@@ -15,7 +15,7 @@ class HomeTab extends StatefulWidget {
 class _HomeTabState extends State<HomeTab> {
   @override
   Widget build(BuildContext context) {
-    final appUserWallet = Provider.of<WalletManager>(context).appUserWallet;
+    final appUserWallet = Provider.of<WalletManager>(context).getAppUserWallet;
     final vehicleManagerContract = Provider.of<CarManager>(context, listen: true);
     final vehicleAssetContract = Provider.of<VehicleAssetContractService>(context);
     if (appUserWallet != null &&
@@ -24,22 +24,31 @@ class _HomeTabState extends State<HomeTab> {
         vehicleManagerContract.doneLoading &&
         vehicleAssetContract.doneLoading) {
       return Scaffold(
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              IconCountCard(
-                cardTitle: 'Balance',
-                cardIcon: Icon(Icons.account_balance),
-                count: appUserWallet.balance.getValueInUnit(EtherUnit.ether).toStringAsFixed(4),
-                subTitle: appUserWallet.balance.getValueInUnit(EtherUnit.wei).toString() + ' Wei',
+        body: RefreshIndicator(
+          onRefresh: () async {
+            await vehicleAssetContract.updateUserOwnedVehicles();
+          },
+          child: SingleChildScrollView(
+            physics: AlwaysScrollableScrollPhysics(),
+            child: Container(
+              height: MediaQuery.of(context).size.height,
+              child: Column(
+                children: [
+                  IconCountCard(
+                    cardTitle: 'Balance',
+                    cardIcon: Icon(Icons.account_balance),
+                    count: appUserWallet.balance.getValueInUnit(EtherUnit.ether).toStringAsFixed(4),
+                    subTitle: appUserWallet.balance.getValueInUnit(EtherUnit.wei).toString() + ' Wei',
+                  ),
+                  IconCountCard(
+                    cardTitle: 'Vehicles',
+                    cardIcon: Icon(Icons.car_rental),
+                    count: vehicleAssetContract.usersOwnedVehicles.toString() ?? '??',
+                    subTitle: 'Total Number of Vehicles Owned',
+                  ),
+                ],
               ),
-              IconCountCard(
-                cardTitle: 'Vehicles',
-                cardIcon: Icon(Icons.car_rental),
-                count: vehicleAssetContract.usersOwnedVehicles.toString() ?? '??',
-                subTitle: 'Total Number of Vehicles Owned',
-              ),
-            ],
+            ),
           ),
         ),
       );

@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<WalletManager>(
-          create: (_) => WalletManager(),
+          create: (context) => WalletManager(),
         ),
         StreamProvider<BluetoothState>.value(
           // gives u the state of device's bluetooth => if it is on/off

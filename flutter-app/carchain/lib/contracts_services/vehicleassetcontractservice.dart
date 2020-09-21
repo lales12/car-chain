@@ -67,9 +67,9 @@ class VehicleAssetContractService extends ChangeNotifier {
       return IOWebSocketChannel.connect(_walletManager.activeNetwork.wsUrl).cast<String>();
     });
     await _getAbi();
-    await _getCredentials(_walletManager.appUserWallet.privkey);
+    await _getCredentials(_walletManager.getAppUserWallet.privkey);
     await _getDeployedContract();
-    await _userOwnedVehicles();
+    await updateUserOwnedVehicles();
     // public variable
     doneLoading = true;
     notifyListeners();
@@ -106,12 +106,13 @@ class VehicleAssetContractService extends ChangeNotifier {
     log('VehicleAssetContractService: List of functions ' + contractFunctionsList.map<String>((f) => f.name).toList().toString());
   }
 
-  Future<void> _userOwnedVehicles() async {
+  Future<void> updateUserOwnedVehicles() async {
     List<dynamic> balance = await _client.call(contract: _contract, function: _balanceOf, params: [_userAddress]);
 
     _usersOwnedVehicles = balance[0] as BigInt;
+    log('VehicleAssetContractService: useraddress ' + _userAddress.toString());
     log('VehicleAssetContractService: usersOwnedVehicles ' + _usersOwnedVehicles.toString());
-    // notifyListeners();
+    notifyListeners();
   }
 
   BigInt get usersOwnedVehicles => _usersOwnedVehicles;

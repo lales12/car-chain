@@ -65,7 +65,7 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
   @override
   Widget build(BuildContext context) {
     final vehicleManagerContract = Provider.of<CarManager>(context);
-    final appUserWallet = Provider.of<WalletManager>(context).appUserWallet;
+    final appUserWallet = Provider.of<WalletManager>(context).getAppUserWallet;
     final vehicleAssetContractService = Provider.of<VehicleAssetContractService>(context);
     if (appUserWallet != null && vehicleManagerContract.doneLoading && vehicleAssetContractService.usersOwnedVehicles != null) {
       //logs
@@ -478,7 +478,7 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                           ...snapShot.data.map(
                             (event) {
                               return ListTile(
-                                title: Text('Vehicle Id: ' + event.carId.toString()),
+                                title: SelectableText('Vehicle Id: ' + event.carId.toString()),
                                 subtitle: Text('Vehicle Registered'),
                               );
                             },
@@ -508,7 +508,7 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                           ...snapShot.data.map(
                             (event) {
                               return ListTile(
-                                title: Text('Vehicle Id: ' + event.carId.toString()),
+                                title: SelectableText('Vehicle Id: ' + event.carId.toString()),
                                 subtitle: Text('Vehicle Status Updated'),
                               );
                             },

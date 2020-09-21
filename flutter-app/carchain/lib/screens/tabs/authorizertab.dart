@@ -77,7 +77,7 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
     final authorizerContract = Provider.of<AuthorizerContract>(context);
     final carManagerContract = Provider.of<CarManager>(context);
     final itvManagerContract = Provider.of<ItvManager>(context);
-    final appUserWallet = Provider.of<WalletManager>(context).appUserWallet;
+    final appUserWallet = Provider.of<WalletManager>(context).getAppUserWallet;
 
     if (appUserWallet != null && authorizerContract.doneLoading && carManagerContract.doneLoading && itvManagerContract.doneLoading) {
       // set

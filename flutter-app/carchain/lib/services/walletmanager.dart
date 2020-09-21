@@ -26,7 +26,7 @@ class WalletManager with ChangeNotifier {
 
   bool isWalletTypeMnemonic = false;
   bool isWalletLoading = true;
-  AppUserWallet appUserWallet;
+  AppUserWallet _appUserWallet;
   int walletAccountIndex = 0;
 
   // network variables
@@ -50,7 +50,7 @@ class WalletManager with ChangeNotifier {
   }
 
   WalletManager() {
-    appUserWallet = null;
+    _appUserWallet = null;
     _loadWalletFromPrefs();
     _loadNetworkFromPrefs();
   }
@@ -70,7 +70,7 @@ class WalletManager with ChangeNotifier {
       if (mnemonic != null) {
         await setupWalletFromMnemonic(mnemonic, false);
       } else {
-        appUserWallet = null;
+        _appUserWallet = null;
         isWalletLoading = false;
       }
     } else {
@@ -78,7 +78,7 @@ class WalletManager with ChangeNotifier {
       if (privKey != null) {
         await setupWalletFromPrivKey(privKey, false);
       } else {
-        appUserWallet = null;
+        _appUserWallet = null;
         isWalletLoading = false;
       }
     }
@@ -104,14 +104,14 @@ class WalletManager with ChangeNotifier {
 
   // setuppers :)
   Future<void> setupWalletFromPrivKey(String privKey, [bool setup = true]) async {
-    appUserWallet = AppUserWallet(accountIndex: walletAccountIndex);
-    appUserWallet.isMnemonic = false;
+    _appUserWallet = AppUserWallet(accountIndex: walletAccountIndex);
+    _appUserWallet.isMnemonic = false;
     final privateKey = EthPrivateKey.fromHex(privKey);
     final address = await privateKey.extractAddress();
-    appUserWallet.privkey = privateKey;
-    appUserWallet.pubKey = address;
+    _appUserWallet.privkey = privateKey;
+    _appUserWallet.pubKey = address;
     Web3Client client = await _getClient();
-    appUserWallet.balance = await client.getBalance(address);
+    _appUserWallet.balance = await client.getBalance(address);
     if (setup) {
       await _setIsWalletTypeMnemonic(false);
       await _setPrivateKey(privKey);
@@ -130,16 +130,17 @@ class WalletManager with ChangeNotifier {
   }
 
   Future<void> setupWalletFromMnemonic(String mnemonic, [bool setup = true]) async {
+    _appUserWallet = null;
     final privateKey = _getPrivateKeyFromMnemonic(mnemonic);
-    appUserWallet = AppUserWallet(accountIndex: walletAccountIndex);
-    appUserWallet.isMnemonic = true;
+    _appUserWallet = AppUserWallet(accountIndex: walletAccountIndex);
+    _appUserWallet.isMnemonic = true;
     final private = EthPrivateKey.fromHex(privateKey);
     log('privatekey from mnemonic: ' + privateKey);
     final address = await private.extractAddress();
-    appUserWallet.privkey = private;
-    appUserWallet.pubKey = address;
+    _appUserWallet.privkey = private;
+    _appUserWallet.pubKey = address;
     Web3Client client = await _getClient();
-    appUserWallet.balance = await client.getBalance(appUserWallet.pubKey);
+    _appUserWallet.balance = await client.getBalance(_appUserWallet.pubKey);
     if (setup) {
       await _setIsWalletTypeMnemonic(true);
       await _setMnemonic(mnemonic);
@@ -156,11 +157,13 @@ class WalletManager with ChangeNotifier {
     notifyListeners();
   }
 
+  AppUserWallet get getAppUserWallet => _appUserWallet;
+
   // deleters :)
   Future<void> distroyWallet() async {
     await initPrefs();
     await _prefs.clear();
-    appUserWallet = null;
+    _appUserWallet = null;
     notifyListeners();
   }
 
@@ -190,15 +193,15 @@ class WalletManager with ChangeNotifier {
   //   await initPrefs();
   //   String privKey = prefs.getString(prefPrivKey) ?? null;
   //   if (privKey != null) {
-  //     appUserWallet = AppUserWallet(privkey: privKey);
+  //     _appUserWallet = AppUserWallet(privkey: privKey);
   //   }
-  //   if (appUserWallet != null) {
+  //   if (_appUserWallet != null) {
   //     final credentials =
-  //         await client.credentialsFromPrivateKey(appUserWallet.privkey);
+  //         await client.credentialsFromPrivateKey(_appUserWallet.privkey);
   //     final address = await credentials.extractAddress();
-  //     appUserWallet.pubKey = address;
-  //     appUserWallet.balance = await client.getBalance(address);
-  //     yield appUserWallet;
+  //     _appUserWallet.pubKey = address;
+  //     _appUserWallet.balance = await client.getBalance(address);
+  //     yield _appUserWallet;
   //   }
   // }
 }
