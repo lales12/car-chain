@@ -1,3 +1,4 @@
+import 'package:carchain/contracts_services/vehicleassetcontractservice.dart';
 import 'package:carchain/contracts_services/vehiclemanagercontractservice.dart';
 import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/util/cards.dart';
@@ -16,8 +17,12 @@ class _HomeTabState extends State<HomeTab> {
   Widget build(BuildContext context) {
     final appUserWallet = Provider.of<WalletManager>(context).appUserWallet;
     final vehicleManagerContract = Provider.of<CarManager>(context, listen: true);
-
-    if (appUserWallet != null && appUserWallet.balance != null && vehicleManagerContract != null && vehicleManagerContract.doneLoading) {
+    final vehicleAssetContract = Provider.of<VehicleAssetContractService>(context);
+    if (appUserWallet != null &&
+        appUserWallet.balance != null &&
+        vehicleManagerContract != null &&
+        vehicleManagerContract.doneLoading &&
+        vehicleAssetContract.doneLoading) {
       return Scaffold(
         body: SingleChildScrollView(
           child: Column(
@@ -31,7 +36,7 @@ class _HomeTabState extends State<HomeTab> {
               IconCountCard(
                 cardTitle: 'Vehicles',
                 cardIcon: Icon(Icons.car_rental),
-                count: /*vehicleManagerContract.usersOwnedVehicles.toString() ??*/ '??',
+                count: vehicleAssetContract.usersOwnedVehicles.toString() ?? '??',
                 subTitle: 'Total Number of Vehicles Owned',
               ),
             ],

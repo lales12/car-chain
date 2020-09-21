@@ -44,7 +44,7 @@ class CarManager extends ChangeNotifier {
   ContractFunction _updateCarState;
   ContractFunction _getCar;
   // functions from ERC721
-  ContractFunction _balanceOf;
+  // ContractFunction _balanceOf;
   // events
   ContractEvent _carAddedEvent;
   ContractEvent _carStateUpdatedEvent;
@@ -112,17 +112,7 @@ class CarManager extends ChangeNotifier {
     log('VehicleManager: list of functions:' + _contract.functions.map((e) => e.name).toList().toString());
     // set functions list
     contractFunctionsList = [_addCar, _updateCarState];
-
-    // set functions from ERC721
-    // _balanceOf = _contract.function('balanceOf');
   }
-
-  // Future<void> _userOwnedVehicles() async {
-  //   List<dynamic> balance = await _client.call(contract: _contract, function: _balanceOf, params: [_userAddress]);
-
-  //   usersOwnedVehicles = balance[0] as BigInt;
-  //   log('CarManager service: usersOwnedVehicles ' + usersOwnedVehicles.toString());
-  // }
 
   // Stream Events
   Stream<List<CarAddedEvent>> get addcarAddedEventListStream {
@@ -211,12 +201,14 @@ class CarManager extends ChangeNotifier {
   }
 
   // Contract Calls
-  Future<String> addCar(String licensePlate, BigInt carTypeIndex) async {
+  Future<String> addCar(String vehicleVIN, String licensePlate, BigInt carTypeIndex) async {
+    log('VehicleManagerContract: addcar ' + vehicleVIN + ' ,' + licensePlate);
     String res = await _client.sendTransaction(
       _credentials,
-      Transaction.callContract(contract: _contract, function: _addCar, maxGas: 6721975, parameters: [licensePlate, carTypeIndex]),
+      Transaction.callContract(contract: _contract, function: _addCar, maxGas: 6721975, parameters: [vehicleVIN, licensePlate, carTypeIndex]),
       fetchChainIdFromNetworkId: true,
     );
+    log('VehicleManagerContract: addCar result' + res);
     return res;
   }
 
@@ -229,21 +221,14 @@ class CarManager extends ChangeNotifier {
     return res;
   }
 
-  // Future<BigInt> getTockenIdByIndex(BigInt index) async {
-  //   ContractFunction _tokenOfOwnerByIndex = _contract.function('tokenOfOwnerByIndex');
-  //   List<dynamic> ret = await _client.call(contract: _contract, function: _tokenOfOwnerByIndex, params: [_userAddress, index]);
-  //   return ret[0] as BigInt;
-  // }
+  Future<Car> getCar(BigInt tockenId) async {
+    List<dynamic> ret = await _client.call(contract: _contract, function: _getCar, params: [tockenId]);
 
-  // Future<Car> getCar(BigInt vehicleIndex) async {
-  //   BigInt tockenId = await getTockenIdByIndex(vehicleIndex);
-  //   List<dynamic> ret = await _client.call(contract: _contract, function: _getCar, params: [tockenId]);
-
-  //   return Car(
-  //     id: ret[0] as BigInt,
-  //     licensePlate: ret[1] as String,
-  //     carType: ret[2] as BigInt,
-  //     carState: ret[3] as BigInt,
-  //   );
-  // }
+    return Car(
+      id: ret[0] as BigInt,
+      licensePlate: ret[1] as String,
+      carType: ret[2] as BigInt,
+      carState: ret[3] as BigInt,
+    );
+  }
 }

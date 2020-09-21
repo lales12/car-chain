@@ -50,8 +50,10 @@ flutter:
   assets:
     - assets/
     - abis/CarInterface.json
+    - abis/ICarAsset.json
     - abis/Authorizer.json
     - abis/BaseManager.json
+    - abis/CarAsset.json
     - abis/CarManager.json
     - abis/ITVManager.json
   #   - images/a_dot_ham.jpeg

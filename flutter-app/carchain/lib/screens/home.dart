@@ -1,4 +1,5 @@
 import 'package:carchain/contracts_services/itvmanagercontractservice.dart';
+import 'package:carchain/contracts_services/vehicleassetcontractservice.dart';
 import 'package:carchain/contracts_services/vehiclemanagercontractservice.dart';
 import 'package:carchain/contracts_services/authorizercontractservice.dart';
 import 'package:carchain/screens/accountprofile.dart';
@@ -65,6 +66,9 @@ class _HomeState extends State<Home> {
           ),
           ChangeNotifierProvider<ItvManager>.value(
             value: itvManager,
+          ),
+          ChangeNotifierProvider<VehicleAssetContractService>(
+            create: (context) => VehicleAssetContractService(walletManager),
           ),
         ],
         child: Scaffold(

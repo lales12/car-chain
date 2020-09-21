@@ -70,6 +70,7 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
   ButtonState stateCallSmartContractFunctionButton = ButtonState.idle;
   String inputToAddress = '';
   int selectedContractIndex = 0;
+  int selectedFunctionIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -146,6 +147,7 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                     onChanged: (InputContract val) {
                                       inputContractAddress = val.address;
                                       setState(() {
+                                        selectedFunctionIndex = 0;
                                         selectedContractIndex = contractsList.indexOf(val);
                                       });
                                       log('index of selected contract: ' + selectedContractIndex.toString());
@@ -153,6 +155,7 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                   ),
                                   SizedBox(height: 20.0),
                                   DropdownButtonFormField(
+                                    value: contractsList[selectedContractIndex].functionList[selectedFunctionIndex].encodeName(),
                                     items: contractsList[selectedContractIndex].functionList.map((func) {
                                       print('func: ' + func.encodeName());
                                       return DropdownMenuItem(value: func.encodeName(), child: Text(func.name));
@@ -297,16 +300,40 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                     _data[1].shortDiscribe,
                                   ),
                                   SizedBox(height: 20.0),
-                                  new TextFormField(
-                                      initialValue: inputContractAddress,
-                                      decoration: InputDecoration().copyWith(hintText: 'Contract Address'),
-                                      validator: (val) => val.isEmpty ? 'Enter a valid Contract Address' : null,
-                                      onChanged: (val) {
-                                        inputContractAddress = val;
-                                      }),
-                                  SizedBox(height: 20.0),
+                                  // new TextFormField(
+                                  //     initialValue: inputContractAddress,
+                                  //     decoration: InputDecoration().copyWith(hintText: 'Contract Address'),
+                                  //     validator: (val) => val.isEmpty ? 'Enter a valid Contract Address' : null,
+                                  //     onChanged: (val) {
+                                  //       inputContractAddress = val;
+                                  //     }),
                                   DropdownButtonFormField(
-                                    items: carManagerFunctionList.map((func) {
+                                    items: contractsList.map((inputContract) {
+                                      print('func: ' + inputContract.name);
+                                      return DropdownMenuItem(value: inputContract, child: Text(inputContract.name));
+                                    }).toList(),
+                                    decoration: InputDecoration().copyWith(hintText: 'Contract'),
+                                    onChanged: (InputContract val) {
+                                      inputContractAddress = val.address;
+                                      setState(() {
+                                        selectedFunctionIndex = 0;
+                                        selectedContractIndex = contractsList.indexOf(val);
+                                      });
+                                      log('index of selected contract: ' + selectedContractIndex.toString());
+                                    },
+                                  ),
+                                  SizedBox(height: 20.0),
+                                  // DropdownButtonFormField(
+                                  //   items: carManagerFunctionList.map((func) {
+                                  //     print('func: ' + func.encodeName());
+                                  //     return DropdownMenuItem(value: func.encodeName(), child: Text(func.name));
+                                  //   }).toList(),
+                                  //   decoration: InputDecoration().copyWith(hintText: 'Functions'),
+                                  //   onChanged: (val) => inputFunctionName = val,
+                                  // ),
+                                  DropdownButtonFormField(
+                                    value: contractsList[selectedContractIndex].functionList[selectedFunctionIndex].encodeName(),
+                                    items: contractsList[selectedContractIndex].functionList.map((func) {
                                       print('func: ' + func.encodeName());
                                       return DropdownMenuItem(value: func.encodeName(), child: Text(func.name));
                                     }).toList(),
@@ -445,16 +472,40 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                   _data[2].shortDiscribe,
                                 ),
                                 SizedBox(height: 20.0),
-                                new TextFormField(
-                                    initialValue: inputContractAddress,
-                                    decoration: InputDecoration().copyWith(hintText: 'Contract Address'),
-                                    validator: (val) => val.isEmpty ? 'Enter a valid Contract Address' : null,
-                                    onChanged: (val) {
-                                      inputContractAddress = val;
-                                    }),
-                                SizedBox(height: 20.0),
+                                // new TextFormField(
+                                //     initialValue: inputContractAddress,
+                                //     decoration: InputDecoration().copyWith(hintText: 'Contract Address'),
+                                //     validator: (val) => val.isEmpty ? 'Enter a valid Contract Address' : null,
+                                //     onChanged: (val) {
+                                //       inputContractAddress = val;
+                                //     }),
                                 DropdownButtonFormField(
-                                  items: carManagerFunctionList.map((func) {
+                                  items: contractsList.map((inputContract) {
+                                    print('func: ' + inputContract.name);
+                                    return DropdownMenuItem(value: inputContract, child: Text(inputContract.name));
+                                  }).toList(),
+                                  decoration: InputDecoration().copyWith(hintText: 'Contract'),
+                                  onChanged: (InputContract val) {
+                                    inputContractAddress = val.address;
+                                    setState(() {
+                                      selectedFunctionIndex = 0;
+                                      selectedContractIndex = contractsList.indexOf(val);
+                                    });
+                                    log('index of selected contract: ' + selectedContractIndex.toString());
+                                  },
+                                ),
+                                SizedBox(height: 20.0),
+                                // DropdownButtonFormField(
+                                //   items: carManagerFunctionList.map((func) {
+                                //     print('func: ' + func.encodeName());
+                                //     return DropdownMenuItem(value: func.encodeName(), child: Text(func.name));
+                                //   }).toList(),
+                                //   decoration: InputDecoration().copyWith(hintText: 'Functions'),
+                                //   onChanged: (val) => inputFunctionName = val,
+                                // ),
+                                DropdownButtonFormField(
+                                  value: contractsList[selectedContractIndex].functionList[selectedFunctionIndex].encodeName(),
+                                  items: contractsList[selectedContractIndex].functionList.map((func) {
                                     print('func: ' + func.encodeName());
                                     return DropdownMenuItem(value: func.encodeName(), child: Text(func.name));
                                   }).toList(),
