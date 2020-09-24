@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
@@ -10,25 +11,25 @@ import 'package:web_socket_channel/io.dart';
 
 // events
 // event classes (model)
-class Transfer {
+class TransferEvent {
   EthereumAddress from;
   EthereumAddress to;
-  UintType tokenId;
-  Transfer({this.from, this.to, this.tokenId});
+  BigInt tokenId;
+  TransferEvent({this.from, this.to, this.tokenId});
 }
 
-class Approval {
+class ApprovalEvent {
   EthereumAddress owner;
   EthereumAddress approved;
   UintType tokenId;
-  Approval({this.owner, this.approved, this.tokenId});
+  ApprovalEvent({this.owner, this.approved, this.tokenId});
 }
 
-class ApprovalForAll {
+class ApprovalForAllEvent {
   EthereumAddress owner;
   EthereumAddress theOperator;
   bool approved;
-  ApprovalForAll({this.owner, this.theOperator, this.approved});
+  ApprovalForAllEvent({this.owner, this.theOperator, this.approved});
 }
 
 class VehicleAssetContractService extends ChangeNotifier {
@@ -48,6 +49,7 @@ class VehicleAssetContractService extends ChangeNotifier {
   ContractFunction _tokenOfOwnerByIndex;
 
   // events
+  ContractEvent _transferEvent;
 
   // public variables
   BlockNum contractDeployedBlockNumber;
@@ -98,6 +100,7 @@ class VehicleAssetContractService extends ChangeNotifier {
   Future<void> _getDeployedContract() async {
     _contract = DeployedContract(ContractAbi.fromJson(_abiCode, "CarAsset"), _contractAddress);
     // set events
+    _transferEvent = _contract.event('Transfer');
     // set functions
     _balanceOf = _contract.function('balanceOf');
     _tokenOfOwnerByIndex = _contract.function('tokenOfOwnerByIndex');
@@ -106,6 +109,7 @@ class VehicleAssetContractService extends ChangeNotifier {
     log('VehicleAssetContractService: List of functions ' + contractFunctionsList.map<String>((f) => f.name).toList().toString());
   }
 
+  // functions
   Future<void> updateUserOwnedVehicles() async {
     List<dynamic> balance = await _client.call(contract: _contract, function: _balanceOf, params: [_userAddress]);
 
@@ -120,5 +124,47 @@ class VehicleAssetContractService extends ChangeNotifier {
   Future<BigInt> getTockenIdByIndex(BigInt index) async {
     List<dynamic> ret = await _client.call(contract: _contract, function: _tokenOfOwnerByIndex, params: [_userAddress, index]);
     return ret[0] as BigInt;
+  }
+
+  // Streams
+  Stream<List<TransferEvent>> get transferEventListStream {
+    print('iTVInspectionEventListStream from block: ' + contractDeployedBlockNumber.blockNum.toString());
+
+    StreamController<List<TransferEvent>> controller;
+    List<TransferEvent> temp = new List<TransferEvent>();
+    void start() {
+      // first get historical events
+      _client
+          .getLogs(
+        // filter,
+        FilterOptions.events(contract: _contract, event: _transferEvent, fromBlock: contractDeployedBlockNumber),
+      )
+          .then(
+        (List<FilterEvent> eventsList) {
+          eventsList.forEach(
+            (FilterEvent event) {
+              final decoded = _transferEvent.decodeResults(event.topics, event.data);
+              temp.add(
+                TransferEvent(from: decoded[0] as EthereumAddress, to: decoded[1] as EthereumAddress, tokenId: decoded[2] as BigInt),
+              );
+            },
+          );
+          controller.add(temp);
+        },
+      ); // end of then
+    }
+
+    void stop() {
+      controller.close();
+    }
+
+    controller = StreamController<List<TransferEvent>>(
+      onListen: start,
+      onPause: stop,
+      onResume: start,
+      onCancel: stop,
+    );
+
+    return controller.stream;
   }
 }

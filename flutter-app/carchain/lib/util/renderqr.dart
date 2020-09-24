@@ -41,7 +41,7 @@ class RenderQr extends StatelessWidget {
           ),
           SizedBox(height: 20.0),
           if (subTitle != '') ...[
-            Text(subTitle),
+            SelectableText(subTitle),
             SizedBox(height: 20.0),
           ],
         ],
