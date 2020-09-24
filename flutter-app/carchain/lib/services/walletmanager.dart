@@ -82,7 +82,7 @@ class WalletManager with ChangeNotifier {
         isWalletLoading = false;
       }
     }
-    log('WalletManager: done loding wallet from pref: ' + _appUserWallet.pubKey.toString());
+    _appUserWallet != null ? log('WalletManager: done loding wallet from pref: ' + _appUserWallet.pubKey.toString()) : log('_appUserWallet is null');
     notifyListeners();
   }
 
