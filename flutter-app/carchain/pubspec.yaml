@@ -31,7 +31,7 @@ dependencies:
   barcode_scan: ^1.0.0
   progress_state_button: ^1.0.1
   # flutter_blue: ^0.7.2
-  flutter_bluetooth_serial: ^0.2.2
+  # flutter_bluetooth_serial: ^0.2.2
   flutter_ble_lib: ^2.3.0
 
 dev_dependencies:

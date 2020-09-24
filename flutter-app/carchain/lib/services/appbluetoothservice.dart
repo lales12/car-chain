@@ -1,53 +1,25 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:flutter_ble_lib/flutter_ble_lib.dart';
 
 class AppBlueToothService {
-  // instance
-  FlutterBluetoothSerial bluetoothInstance = FlutterBluetoothSerial.instance;
-
-  // functions
-  Future<bool> enableBluetooth() async {
-    try {
-      return await bluetoothInstance.requestEnable();
-    } catch (e) {
-      log(e);
-      return false;
-    }
-  }
-
-  Future<bool> disableBluetooth() async {
-    try {
-      return await bluetoothInstance.requestDisable();
-    } catch (e) {
-      log(e);
-      return false;
-    }
-  }
-
-  Future<List<BluetoothDevice>> getPairedDevices() async {
-    return await bluetoothInstance.getBondedDevices();
-  }
-
-  Future<void> openSettings() {
-    return bluetoothInstance.openSettings();
-  }
-
+  BleManager bleManager = new BleManager();
   // Streams
   Stream<BluetoothState> get getBluetoothState {
     StreamController<BluetoothState> controller;
 
-    void start() {
-      bluetoothInstance.state.then((BluetoothState state) {
-        controller.add(state);
-      });
-      bluetoothInstance.onStateChanged().listen((BluetoothState state) {
-        controller.add(state);
+    void start() async {
+      await bleManager.createClient();
+      BluetoothState currentState = await bleManager.bluetoothState();
+      controller.add(currentState);
+      bleManager.observeBluetoothState().listen((btState) {
+        controller.add(btState);
       });
     }
 
     void stop() {
+      bleManager.destroyClient();
       controller.close();
     }
 
