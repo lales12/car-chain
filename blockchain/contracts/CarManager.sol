@@ -56,20 +56,21 @@ contract CarManager is BaseManager {
 
     function addCar(
         string calldata carId,
+        string calldata carIdHash,
         string calldata licensePlate,
         uint256 carTypeIndex
     ) external onlyAuthorized(ADD_CAR_METHOD, msg.sender) {
         uint256 id = uint256(keccak256(abi.encode(carId)));
 
-        carToken.mint(msg.sender, id);
+        // carToken.mint(msg.sender, id);
 
-        trackedCars[id] = Car({
-            licensePlate: licensePlate,
-            carType: CarType(carTypeIndex),
-            carState: CarState.FOR_SALE
-        });
+        // trackedCars[id] = Car({
+        //     licensePlate: licensePlate,
+        //     carType: CarType(carTypeIndex),
+        //     carState: CarState.FOR_SALE
+        // });
 
-        emit CarAdded(id);
+        // emit CarAdded(id);
     }
 
     function updateCarState(uint256 id, uint256 carStateIndex)

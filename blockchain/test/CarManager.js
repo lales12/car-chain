@@ -1,4 +1,6 @@
 const CarManager = artifacts.require("CarManager");
+const Authorizer = artifacts.require("Authorizer");
+const CarAsset = artifacts.require("CarAsset");
 
 contract("CarManager", (accounts) => {
     const root = accounts[0];
@@ -6,7 +8,10 @@ contract("CarManager", (accounts) => {
     const itvAccount = accounts[2];
     const userAccount = accounts[3];
 
-    const carID = web3.utils.asciiToHex("1G1YY25R695700001");
+    const ADD_CAR_METHOD = "addCar(bytes,string,uint256)";
+
+    const carId = "1G1YY25R695700001";
+    const carIdHash = "asdfasdfasdf";
     const licensePlate = "7610JBB";
 
     const carTypes = {
@@ -25,82 +30,32 @@ contract("CarManager", (accounts) => {
     };
 
     let carManager;
+    let carAsset;
+    let authorizer;
+
     beforeEach(async () => {
-        carManager = await CarManager.new();
+        authorizer = await Authorizer.new();
+        carAsset = await CarAsset.new();
+        carManager = await CarManager.new(authorizer.address, carAsset.address);
+
+        authorizer.addPermission(carManager.address, ADD_CAR_METHOD, brandAccount);
     });
 
     it("sets deploying account as root", async () => {
-        const rootAccount = await carManager.root();
+        const rootAccount = await carManager.owner();
         assert.equal(rootAccount, root, "Error: invalid root account");
     });
 
-    it("fails to add a new brand as non-root account", async () => {
+    it("Add new car from brand account", async () => {
+        await carManager.addCar(carId, carIdHash, licensePlate, carTypes.THREE_WHEEL, { from: brandAccount });
+    });
+
+    it("Add new car from invalid account", async () => {
         try {
-            await carManager.addBrand(brandAccount, { from: userAccount });
-        } catch (e) {
-            assert.equal(e.reason, "Only root can manage brands", "Error: invalid error reason");
+            await carManager.addCar(carId, carIdHash, licensePlate, carTypes.THREE_WHEEL, { from: userAccount });
+            assert.fail("This must fail");
+        } catch (error) {
+            assert.include(error.message, "transaction: revert Unauthorized");
         }
-    });
-
-    it("adds a new brand as root account", async () => {
-        await carManager.addBrand(brandAccount, { from: root });
-        const brand = await carManager.brands(brandAccount);
-        assert.isOk(brand, "failed to add brand");
-    });
-
-    it("fails to delete a brand from as non-root account", async () => {
-        await carManager.addBrand(brandAccount, { from: root });
-        try {
-            await carManager.deleteBrand(brandAccount, { from: userAccount });
-        } catch (e) {
-            assert.equal(e.reason, "Only root can manage brands", "Error: invalid error reason");
-        }
-    });
-
-    it("deletes a brand as root account", async () => {
-        await carManager.addBrand(brandAccount, { from: root });
-        await carManager.deleteBrand(brandAccount, { from: root });
-        const brand = await carManager.brands(brandAccount);
-        assert.isNotOk(brand, "failed to remove brand");
-    });
-
-    it("fails to add a new car as non-active brand", async () => {
-        await carManager.addBrand(brandAccount, { from: root });
-        try {
-            await carManager.addCar(carID, licensePlate, carTypes.FOUR_WHEEL, { from: root });
-        } catch (e) {
-            assert.equal(e.reason, "Only active brand can add a new car", "Error: invalid error reason");
-        }
-    });
-
-    it("adds a new car as an active brand", async () => {
-        const carType = carTypes.FOUR_WHEEL;
-        await carManager.addBrand(brandAccount, { from: root });
-        await carManager.addCar(carID, licensePlate, carType, { from: brandAccount });
-        const { ownerID, licensePlate: plate } = await carManager.getCar(carID);
-        assert.equal(ownerID, brandAccount, "Error: invalid ownerID");
-        assert.equal(licensePlate, plate, "Error: invalid license plate");
-    });
-
-    it("adds a new ITV as root account", async () => {
-        await carManager.addITV(brandAccount, { from: root });
-        const ITV = await carManager.ITVAuthorities(brandAccount);
-        assert.isOk(ITV, "Error: failed to add a new brand from root account");
-    });
-
-    it("deletes a ITV as root account", async () => {
-        await carManager.addITV(brandAccount, { from: root });
-        await carManager.deleteITV(brandAccount, { from: root });
-        const ITV = await carManager.ITVAuthorities(brandAccount);
-        assert.isNotOk(ITV, "Error: failed to delete brand from root account");
-    });
-
-    it("updates car ITV state", async () => {
-        await carManager.addBrand(brandAccount, { from: root });
-        await carManager.addCar(carID, licensePlate, carTypes.FOUR_WHEEL, { from: brandAccount });
-        await carManager.addITV(itvAccount, { from: root });
-        await carManager.updateITV(carID, itvStates.PASSED, { from: itvAccount });
-        const { itvState } = await carManager.getCar(carID);
-        assert.equal(itvStates.PASSED, itvState, "Error: carITVstate not updated");
     });
 });

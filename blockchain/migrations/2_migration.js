@@ -11,8 +11,8 @@ module.exports = async (deployer, networks, accounts) => {
             let authorizeContractAddress = authorizeContract.address;
 
             deployer.deploy(baseContract, authorizeContractAddress, authorizeContractAddress);
-            deployer.deploy(carManagerContract, authorizeContractAddress, authorizeContractAddress);
-            deployer.deploy(iTVManagerConctract, authorizeContractAddress, authorizeContractAddress);
+            deployer.deploy(carManagerContract, authorizeContractAddress, carAssetContractAddress);
+            deployer.deploy(iTVManagerConctract, authorizeContractAddress, carAssetContractAddress);
         });
     });
 };
