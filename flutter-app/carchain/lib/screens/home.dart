@@ -5,7 +5,9 @@ import 'package:carchain/contracts_services/authorizercontractservice.dart';
 import 'package:carchain/screens/accountprofile.dart';
 import 'package:carchain/screens/bluetoothmanager.dart';
 import 'package:carchain/screens/tabs/authorizertab.dart';
+import 'package:carchain/screens/tabs/itvtab.dart';
 import 'package:carchain/screens/tabs/vehiclemanagertab.dart';
+import 'package:carchain/services/appsettingservice.dart';
 import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/screens/settings.dart';
 import 'package:carchain/screens/tabs/hometab.dart';
@@ -20,36 +22,51 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int selectedIndex = 0;
-  // tabs
-  final tabs = [
-    Container(child: HomeTab()),
-    Container(child: VehicleManagerTab()),
-    Container(child: AuthorizerTab()),
-  ];
-  // Tab Items
-  final navItems = [
-    BottomNavigationBarItem(
-      label: 'Home',
-      icon: Icon(Icons.home),
-    ),
-    BottomNavigationBarItem(
-      label: 'Vehicles',
-      icon: Icon(Icons.car_repair),
-    ),
-    BottomNavigationBarItem(
-      label: 'Authorize',
-      icon: Icon(Icons.privacy_tip),
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
     final walletManager = Provider.of<WalletManager>(context);
-    if (walletManager == null) {
+    final appSetting = Provider.of<AppSettings>(context);
+    if (walletManager == null && appSetting.activeAppRole != null) {
       return Loading(
         loadingMessage: '',
       );
     } else {
+      // tabs
+      final tabs = [
+        Container(child: HomeTab()),
+        Container(child: VehicleManagerTab()),
+        if (['itv', 'admin'].contains(appSetting.activeAppRole.key)) ...[
+          Container(child: ItvTab()),
+        ],
+        if (['admin'].contains(appSetting.activeAppRole.key)) ...[
+          Container(child: AuthorizerTab()),
+        ],
+      ];
+      // Tab Items
+      final navItems = [
+        BottomNavigationBarItem(
+          label: 'Home',
+          icon: Icon(Icons.home),
+        ),
+        BottomNavigationBarItem(
+          label: 'Vehicles',
+          icon: Icon(Icons.car_rental),
+        ),
+        if (['itv', 'admin'].contains(appSetting.activeAppRole.key)) ...[
+          BottomNavigationBarItem(
+            label: 'ITV',
+            icon: Icon(Icons.car_repair),
+          ),
+        ],
+        if (['admin'].contains(appSetting.activeAppRole.key)) ...[
+          BottomNavigationBarItem(
+            label: 'Authorize',
+            icon: Icon(Icons.privacy_tip),
+          ),
+        ],
+      ];
+
       // re-initialize
       AuthorizerContract authContract = AuthorizerContract(walletManager);
       CarManager vehicleManagerContract = CarManager(walletManager);
@@ -110,6 +127,7 @@ class _HomeState extends State<Home> {
             ],
           ),
           bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
             currentIndex: selectedIndex,
             items: navItems,
             onTap: (index) {

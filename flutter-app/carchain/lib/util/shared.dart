@@ -1,3 +1,4 @@
+import 'package:carchain/services/walletmanager.dart';
 import 'package:flutter/material.dart';
 
 // **** To change color for themes, modify these variables ****
@@ -47,3 +48,22 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
   ),
   inputDecorationTheme: InputDecorationTheme(contentPadding: EdgeInsets.all(5.0)),
 );
+
+Map<String, AppNetConfig> networkConfigs = {
+  'dev': AppNetConfig(name: 'dev', rpcUrl: 'http://192.168.0.17:7545', wsUrl: 'ws://192.168.0.17:7545/', networkId: '5777'),
+  'ropsten': AppNetConfig(
+      name: 'ropsten',
+      rpcUrl: 'https://ropsten.infura.io/v3/901529b147734743b907456f78d890cb',
+      wsUrl: 'wss://ropsten.infura.io/ws/v3/901529b147734743b907456f78d890cb',
+      networkId: '3'),
+};
+
+Map<String, String> appRoles = {
+  'user': 'User',
+  'manufacturer': 'Manufacturer',
+  'concessionaire': 'Concessionaire',
+  'mechanic': 'Mechanic',
+  'itv': 'ITV',
+  'insurance': 'Insurance',
+  'admin': 'Admin'
+};

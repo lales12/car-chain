@@ -47,6 +47,7 @@ class VehicleAssetContractService extends ChangeNotifier {
   List<ContractFunction> contractFunctionsList;
   ContractFunction _balanceOf;
   ContractFunction _tokenOfOwnerByIndex;
+  ContractFunction _transferFrom;
 
   // events
   ContractEvent _transferEvent;
@@ -104,12 +105,24 @@ class VehicleAssetContractService extends ChangeNotifier {
     // set functions
     _balanceOf = _contract.function('balanceOf');
     _tokenOfOwnerByIndex = _contract.function('tokenOfOwnerByIndex');
+    _transferFrom = _contract.function('transferFrom');
 
     contractFunctionsList = _contract.functions;
     log('VehicleAssetContractService: List of functions ' + contractFunctionsList.map<String>((f) => f.name).toList().toString());
   }
 
-  // functions
+  // Contract Calls
+  Future<String> transferFrom(EthereumAddress to, BigInt tokenId) async {
+    log('VehicleAssetContractService: transferFrom ' + tokenId.toString() + ' ,from ' + _userAddress.toString() + ' ,to' + to.toString());
+    String res = await _client.sendTransaction(
+      _credentials,
+      Transaction.callContract(contract: _contract, function: _transferFrom, maxGas: 6721975, parameters: [_userAddress, to, tokenId]),
+      fetchChainIdFromNetworkId: true,
+    );
+    log('VehicleAssetContractService: transferFrom result' + res);
+    return res;
+  }
+
   Future<void> updateUserOwnedVehicles() async {
     List<dynamic> balance = await _client.call(contract: _contract, function: _balanceOf, params: [_userAddress]);
 

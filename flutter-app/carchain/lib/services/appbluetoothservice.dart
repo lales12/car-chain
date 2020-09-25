@@ -4,7 +4,11 @@ import 'dart:developer';
 import 'package:flutter_ble_lib/flutter_ble_lib.dart';
 
 class AppBlueToothService {
+  // states
   BleManager bleManager = new BleManager();
+
+  // functions
+
   // Streams
   Stream<BluetoothState> get getBluetoothState {
     StreamController<BluetoothState> controller;

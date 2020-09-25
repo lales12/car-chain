@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:carchain/services/walletmanager.dart';
+import 'package:carchain/util/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:progress_state_button/iconed_button.dart';
@@ -43,7 +44,7 @@ class _ImportWalletState extends State<ImportWallet> {
               ),
               SizedBox(height: 20.0),
               DropdownButtonFormField(
-                items: walletManager.networkConfigs.entries.map<DropdownMenuItem<String>>((entry) {
+                items: networkConfigs.entries.map<DropdownMenuItem<String>>((entry) {
                   return DropdownMenuItem<String>(
                     value: entry.key,
                     child: Text(entry.key),

@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:carchain/models/AppUserWallet.dart';
+import 'package:carchain/util/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:hex/hex.dart';
 import 'package:http/http.dart';
@@ -31,14 +32,7 @@ class WalletManager with ChangeNotifier {
 
   // network variables
   String _prefActiveNetworkKey = "activeNetwork";
-  Map<String, AppNetConfig> networkConfigs = {
-    'dev': AppNetConfig(name: 'dev', rpcUrl: 'http://192.168.0.17:7545', wsUrl: 'ws://192.168.0.17:7545/', networkId: '5777'),
-    'ropsten': AppNetConfig(
-        name: 'ropsten',
-        rpcUrl: 'https://ropsten.infura.io/v3/901529b147734743b907456f78d890cb',
-        wsUrl: 'wss://ropsten.infura.io/ws/v3/901529b147734743b907456f78d890cb',
-        networkId: '3'),
-  };
+
   AppNetConfig activeNetwork;
 
   SharedPreferences _prefs;

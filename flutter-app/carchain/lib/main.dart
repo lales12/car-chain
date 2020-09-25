@@ -1,4 +1,5 @@
 import 'package:carchain/services/appbluetoothservice.dart';
+import 'package:carchain/services/appsettingservice.dart';
 import 'package:carchain/wrapper.dart';
 import 'package:carchain/services/walletmanager.dart';
 import 'package:carchain/util/shared.dart';
@@ -15,6 +16,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider<AppSettings>.value(
+          value: AppSettings(),
+        ),
         ChangeNotifierProvider<WalletManager>.value(
           value: WalletManager(),
         ),
