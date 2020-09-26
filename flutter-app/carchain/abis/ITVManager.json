@@ -1864,6 +1864,32 @@
     "version": "0.6.6+commit.6c089d02.Emscripten.clang"
   },
   "networks": {
+    "3": {
+      "events": {
+        "0x817b4362f0d8ae5bacc61027db96b810feac7b953e33679c3d1979e46d8c4945": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "carID",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "internalType": "enum ITVManager.ITVState",
+              "name": "state",
+              "type": "uint8"
+            }
+          ],
+          "name": "ITVInspectionEvent",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0xb91cdbD74bC3C2efA6033F52dd397948590123AB",
+      "transactionHash": "0x828b9ba193fcce5e8657fb752bcfa6911db9773dfd4d00385b1d61d21e92ed83"
+    },
     "5777": {
       "events": {
         "0x817b4362f0d8ae5bacc61027db96b810feac7b953e33679c3d1979e46d8c4945": {
@@ -1891,8 +1917,8 @@
       "transactionHash": "0x62309199e2571acae440758f098577ddfbe020f7b05a371b35d7c958f2725db8"
     }
   },
-  "schemaVersion": "3.2.3",
-  "updatedAt": "2020-09-21T12:08:34.600Z",
+  "schemaVersion": "3.2.5",
+  "updatedAt": "2020-09-26T02:17:08.956Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {}

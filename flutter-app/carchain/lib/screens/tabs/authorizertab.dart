@@ -81,7 +81,7 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
 
     if (appUserWallet != null && authorizerContract.doneLoading && carManagerContract.doneLoading && itvManagerContract.doneLoading) {
       // set
-      List<ContractFunction> carManagerFunctionList = carManagerContract.contractFunctionsList;
+      // List<ContractFunction> carManagerFunctionList = carManagerContract.contractFunctionsList;
       inputContractAddress = carManagerContract.contractAddress.toString();
       contractsList[0].address = carManagerContract.contractAddress.toString();
       contractsList[1].address = itvManagerContract.contractAddress.toString();

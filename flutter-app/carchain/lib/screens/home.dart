@@ -39,7 +39,7 @@ class _HomeState extends State<Home> {
         if (['itv', 'admin'].contains(appSetting.activeAppRole.key)) ...[
           Container(child: ItvTab()),
         ],
-        if (['admin'].contains(appSetting.activeAppRole.key)) ...[
+        if (!['user'].contains(appSetting.activeAppRole.key)) ...[
           Container(child: AuthorizerTab()),
         ],
       ];
@@ -59,7 +59,7 @@ class _HomeState extends State<Home> {
             icon: Icon(Icons.car_repair),
           ),
         ],
-        if (['admin'].contains(appSetting.activeAppRole.key)) ...[
+        if (!['user'].contains(appSetting.activeAppRole.key)) ...[
           BottomNavigationBarItem(
             label: 'Authorize',
             icon: Icon(Icons.privacy_tip),

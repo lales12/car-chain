@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter_ble_lib/flutter_ble_lib.dart';
 
