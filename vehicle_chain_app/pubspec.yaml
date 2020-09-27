@@ -45,7 +45,7 @@ dependencies:
   # flutter_blue: ^0.7.2
   # flutter_bluetooth_serial: ^0.2.2
   flutter_ble_lib: ^2.3.0
-  flutter_nfc_kit: ^2.0.2
+  # flutter_nfc_kit: ^2.0.2
 
 dev_dependencies:
   flutter_test:

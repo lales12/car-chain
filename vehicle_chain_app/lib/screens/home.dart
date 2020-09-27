@@ -4,7 +4,7 @@ import 'package:vehicle_chain_app/contracts_services/vehiclemanagercontractservi
 import 'package:vehicle_chain_app/contracts_services/authorizercontractservice.dart';
 import 'package:vehicle_chain_app/screens/accountprofile.dart';
 // import 'package:vehicle_chain_app/screens/bluetoothmanager.dart';
-import 'package:vehicle_chain_app/screens/nfcmanager.dart';
+// import 'package:vehicle_chain_app/screens/nfcmanager.dart';
 import 'package:vehicle_chain_app/screens/tabs/authorizertab.dart';
 import 'package:vehicle_chain_app/screens/tabs/itvtab.dart';
 import 'package:vehicle_chain_app/screens/tabs/vehiclemanagertab.dart';
@@ -97,12 +97,12 @@ class _HomeState extends State<Home> {
               IconButton(
                 icon: Icon(Icons.nfc),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => NfcManager(),
-                    ),
-                  );
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => NfcManager(),
+                  //   ),
+                  // );
                 },
               ),
               IconButton(
