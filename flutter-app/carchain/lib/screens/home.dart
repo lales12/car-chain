@@ -3,7 +3,8 @@ import 'package:carchain/contracts_services/vehicleassetcontractservice.dart';
 import 'package:carchain/contracts_services/vehiclemanagercontractservice.dart';
 import 'package:carchain/contracts_services/authorizercontractservice.dart';
 import 'package:carchain/screens/accountprofile.dart';
-import 'package:carchain/screens/bluetoothmanager.dart';
+// import 'package:carchain/screens/bluetoothmanager.dart';
+import 'package:carchain/screens/nfcmanager.dart';
 import 'package:carchain/screens/tabs/authorizertab.dart';
 import 'package:carchain/screens/tabs/itvtab.dart';
 import 'package:carchain/screens/tabs/vehiclemanagertab.dart';
@@ -94,12 +95,12 @@ class _HomeState extends State<Home> {
             title: Text('Car Chain'),
             actions: [
               IconButton(
-                icon: Icon(Icons.bluetooth),
+                icon: Icon(Icons.nfc),
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => BluetoothManager(),
+                      builder: (context) => NfcManager(),
                     ),
                   );
                 },
