@@ -1,9 +1,9 @@
 // import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
-// import 'package:flutter_nfc_kit/flutter_nfc_kit.dart';
+// // import 'package:flutter_nfc_kit/flutter_nfc_kit.dart';
 // import 'dart:async';
-// import 'dart:io' show Platform, sleep;
-// import 'package:ndef/ndef.dart' as ndef;
+// // import 'dart:io' show Platform, sleep;
+// // import 'package:ndef/ndef.dart' as ndef;
 
 // class NfcManager extends StatefulWidget {
 //   @override
