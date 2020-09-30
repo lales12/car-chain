@@ -8,9 +8,14 @@ import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
+import io.flutter.plugin.common.EventChannel;
+import io.flutter.plugin.common.EventChannel.EventSink;
+import io.flutter.plugin.common.EventChannel.StreamHandler;
 import io.flutter.plugin.common.MethodChannel;
-import im.status.keycard.android.LedgerBLEManager;
-// import im.status.keycard.demo.R;
+import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
+import io.flutter.plugin.common.MethodChannel.Result;
+import io.flutter.plugin.common.MethodCall;
+import io.flutter.plugins.GeneratedPluginRegistrant;
 import im.status.keycard.io.CardChannel;
 import im.status.keycard.io.CardListener;
 import im.status.keycard.android.NFCCardManager;
@@ -21,18 +26,20 @@ import android.util.Log;
 public class MainActivity extends FlutterActivity {
 
     private static final String TAG = "MainActivity";
+    private EventChannel eventChannel;
 
     private NfcAdapter nfcAdapter;
     private NFCCardManager cardManager;
 
-    private static final String CHANNEL = "samples.flutter.dev/keycard";
+    private static final String METHODCHANNEL = "samples.flutter.dev/keycard";
+    private static final String EVENTCHANNEL = "samples.flutter.dev/keycardEevent";
 
     // functions
     private String response;
     private String getKeycardApplicationInfo() {
         // String[] response = new String[6];
          
-
+        
         cardManager.setCardListener(new CardListener() {
             @Override
             public void onDisconnected() {
@@ -88,9 +95,45 @@ public class MainActivity extends FlutterActivity {
 
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
+        GeneratedPluginRegistrant.registerWith(flutterEngine);
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         cardManager = new NFCCardManager();
+        new MethodChannel(flutterEngine.getDartExecutor(), METHODCHANNEL).setMethodCallHandler(
+                new MethodCallHandler() {
+                    @Override
+                    public void onMethodCall(MethodCall call, Result result) {
+                        if (call.method.equals("getNfcStatus")) {
+                            if (nfcAdapter != null) {
+                                result.success(nfcAdapter.isEnabled());
+                            } else {
+                                result.error("UNAVAILABLE", "NfcAdapter not available.", null);
+                            }
+                        } else {
+                            result.notImplemented();
+                        }
+                    }
+                }
+        );
 
+
+    /*new EventChannel(flutterEngine.getDartExecutor(), EVENTCHANNEL).setStreamHandler(
+      new StreamHandler() {
+        private BroadcastReceiver chargingStateChangeReceiver;
+        @Override
+        public void onListen(Object arguments, EventSink events) {
+            chargingStateChangeReceiver = createChargingStateChangeReceiver(events);
+            registerReceiver(
+                    chargingStateChangeReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        }
+
+        @Override
+        public void onCancel(Object arguments) {
+            unregisterReceiver(chargingStateChangeReceiver);
+            chargingStateChangeReceiver = null;
+        }
+      }
+    );*/
+/*
     super.configureFlutterEngine(flutterEngine);
         new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL)
             .setMethodCallHandler(
@@ -109,6 +152,7 @@ public class MainActivity extends FlutterActivity {
                     result.notImplemented();
                 }
             }
-            );
+        );
+*/
     }
 }
