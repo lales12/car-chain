@@ -38,8 +38,8 @@ public class MainActivity extends FlutterActivity {
     private String response;
     private String getKeycardApplicationInfo() {
         // String[] response = new String[6];
-         
-        
+
+
         cardManager.setCardListener(new CardListener() {
             @Override
             public void onDisconnected() {
@@ -48,8 +48,8 @@ public class MainActivity extends FlutterActivity {
             @Override
             public void onConnected(CardChannel cardChannel) {
                 try {
-                    // Applet-specific code
-                    KeycardCommandSet cmdSet = new KeycardCommandSet(cardChannel);
+                    // Applet-specific code we only use CashApplet
+                    CashCommandSet cmdSet = new CashCommandSet(cardChannel);
 
                     Log.i(TAG, "Applet selection successful");
 
