@@ -1,6 +1,8 @@
 package com.example.vehicle_chain_app;
 
 import androidx.annotation.NonNull;
+
+import android.app.Activity;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -21,10 +23,14 @@ import im.status.keycard.io.CardListener;
 import im.status.keycard.android.NFCCardManager;
 import im.status.keycard.applet.*;
 import org.bouncycastle.util.encoders.Hex;
+
+import android.os.Handler;
 import android.util.Log;
 
-public class MainActivity extends FlutterActivity {
+import java.nio.charset.StandardCharsets;
 
+public class MainActivity extends FlutterActivity {
+    FlutterActivity activity = this;
     private static final String TAG = "MainActivity";
     private EventChannel eventChannel;
 
@@ -35,15 +41,15 @@ public class MainActivity extends FlutterActivity {
     private static final String EVENTCHANNEL = "samples.flutter.dev/keycardEevent";
 
     // functions
-    private String response;
-    private String getKeycardApplicationInfo() {
-        // String[] response = new String[6];
+    String[] response = new String[4];
 
+    private void getKeycardApplicationInfo(final EventSink events) {
 
         cardManager.setCardListener(new CardListener() {
             @Override
             public void onDisconnected() {
                 Log.i(TAG, "Card disconnected.");
+                events.endOfStream();
             }
             @Override
             public void onConnected(CardChannel cardChannel) {
@@ -65,13 +71,12 @@ public class MainActivity extends FlutterActivity {
                     // }
 
                     Log.i(TAG, "Instance UID: " + Hex.toHexString(info.getInstanceUID()));
-                    response = new String("Instance UID: " + Hex.toHexString(info.getInstanceUID()));
+                    response[0] = new String("Instance UID: " + Hex.toHexString(info.getInstanceUID()));
                     Log.i(TAG, "Secure channel public key: " + Hex.toHexString(info.getSecureChannelPubKey()));
-                    // response[1] = Hex.toHexString(info.getSecureChannelPubKey());
+                    response[1] = Hex.toHexString(info.getSecureChannelPubKey());
                     Log.i(TAG, "Application version: " + info.getAppVersionString());
-                    // response[2] = info.getAppVersionString();
-                    Log.i(TAG, "Free pairing slots: " + info.getFreePairingSlots());
-                    // response[3] = info.getFreePairingSlots();
+                    response[2] = info.getAppVersionString();
+
                     // if (info.hasMasterKey()) {
                     //     Log.i(TAG, "Key UID: " + Hex.toHexString(info.getKeyUID()));
                     //     response[4] = Hex.toHexString(info.getKeyUID());
@@ -79,17 +84,16 @@ public class MainActivity extends FlutterActivity {
                     //     Log.i(TAG, "The card has no master key");
                     //     response[4] = "The card has no master key";
                     // }
-                    // response[5] = "all read succes";
+                    response[3] = "all read success";
+                    events.success(response);
                 } catch (Exception e) {
-                    response =  new String(e.getMessage());
+                    events.error("failed to listen", e.getMessage(), e.getCause());
                 }
             }
         });
+
         cardManager.start();
-        if (response == null) {
-            response = new String("nothing...");
-        }
-        return response;
+
     }
 
 
@@ -114,45 +118,29 @@ public class MainActivity extends FlutterActivity {
                     }
                 }
         );
+        Handler uiThreadHandler = new Handler(activity.getMainLooper());
+        uiThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                new EventChannel(flutterEngine.getDartExecutor(), EVENTCHANNEL).setStreamHandler(
+                        new StreamHandler() {
+                            @Override
+                            public void onListen(Object arguments, EventSink events) {
+                                getKeycardApplicationInfo(events);
+                                nfcAdapter.enableReaderMode(activity, cardManager, NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK, null);
+
+                            }
+
+                            @Override
+                            public void onCancel(Object arguments) {
+                                if (nfcAdapter != null) {
+                                    nfcAdapter.disableReaderMode(activity);
+                                }
+                            }
+                        }
+                );
+            }});
 
 
-    /*new EventChannel(flutterEngine.getDartExecutor(), EVENTCHANNEL).setStreamHandler(
-      new StreamHandler() {
-        private BroadcastReceiver chargingStateChangeReceiver;
-        @Override
-        public void onListen(Object arguments, EventSink events) {
-            chargingStateChangeReceiver = createChargingStateChangeReceiver(events);
-            registerReceiver(
-                    chargingStateChangeReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        }
-
-        @Override
-        public void onCancel(Object arguments) {
-            unregisterReceiver(chargingStateChangeReceiver);
-            chargingStateChangeReceiver = null;
-        }
-      }
-    );*/
-/*
-    super.configureFlutterEngine(flutterEngine);
-        new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), CHANNEL)
-            .setMethodCallHandler(
-            (call, result) -> {
-                // Note: this method is invoked on the main thread.
-                // TODO
-                if (call.method.equals("getNfcStatus")) {
-                    if (nfcAdapter != null) {
-                        result.success(nfcAdapter.isEnabled());
-                    } else {
-                        result.error("UNAVAILABLE", "NfcAdapter not available.", null);
-                    }
-                } else if (call.method.equals("getKeycardApplicationInfo")) {
-                    result.success(getKeycardApplicationInfo());
-                } else {
-                    result.notImplemented();
-                }
-            }
-        );
-*/
     }
 }

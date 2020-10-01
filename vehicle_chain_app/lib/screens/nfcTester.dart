@@ -9,14 +9,15 @@ class NfcTester extends StatefulWidget {
 }
 
 class _NfcTesterState extends State<NfcTester> {
-  static const platform = const MethodChannel('samples.flutter.dev/keycard');
+  static const platformMethods = const MethodChannel('samples.flutter.dev/keycard');
+  static const platformEvents = const EventChannel('samples.flutter.dev/keycardEevent');
   String _isNfcAdapterEnabled = 'Unknown Nfc Status Yet.';
-  String _nfcApplicationInfo;
+  List<String> _nfcApplicationInfo;
 
   Future<void> _getNfcAdapterStatus() async {
     String isNfcAdapterEnabled;
     try {
-      final bool result = await platform.invokeMethod('getNfcStatus');
+      final bool result = await platformMethods.invokeMethod('getNfcStatus');
       isNfcAdapterEnabled = 'Nfc Status: $result .';
     } on PlatformException catch (e) {
       isNfcAdapterEnabled = "Failed to get battery level: '${e.message}'.";
@@ -27,17 +28,22 @@ class _NfcTesterState extends State<NfcTester> {
     });
   }
 
-  Future<void> _getKeycardApplicationInfo() async {
-    String nfcApplicationInfo;
-    try {
-      final String result = await platform.invokeMethod('getKeycardApplicationInfo');
-      nfcApplicationInfo = result;
-    } on PlatformException catch (e) {
-      log(e.toString());
-    }
+  @override
+  void initState() {
+    super.initState();
+    platformEvents.receiveBroadcastStream().listen(_onEvent, onError: _onError);
+  }
 
+  void _onEvent(Object event) {
+    log(event);
+    // setState(() {
+    //   _nfcApplicationInfo = event;
+    // });
+  }
+
+  void _onError(Object error) {
     setState(() {
-      _nfcApplicationInfo = nfcApplicationInfo;
+      _nfcApplicationInfo = [error.toString()];
     });
   }
 
@@ -60,13 +66,13 @@ class _NfcTesterState extends State<NfcTester> {
           Center(
             child: Text(_isNfcAdapterEnabled),
           ),
-          SizedBox(height: 20.0),
-          RaisedButton(
-            child: Text('Call Keycard Info'),
-            onPressed: () async {
-              await _getKeycardApplicationInfo();
-            },
-          ),
+          // SizedBox(height: 20.0),
+          // RaisedButton(
+          //   child: Text('Call Keycard Info'),
+          //   onPressed: () async {
+          //     await _getCashApplicationInfo();
+          //   },
+          // ),
           SizedBox(height: 20.0),
           Center(
             child: Text(_nfcApplicationInfo.toString()),
