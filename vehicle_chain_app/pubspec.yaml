@@ -42,6 +42,7 @@ dependencies:
   barcode_scan: ^1.0.0
   progress_state_button: ^1.0.1
   flutter_ble_lib: ^2.3.0
+  ethereum_address: ^1.0.1
 
 dev_dependencies:
   flutter_test:

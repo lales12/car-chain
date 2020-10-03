@@ -54,6 +54,7 @@ flutter {
 }
 
 dependencies {
+    implementation 'org.web3j:core:4.6.0-android'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.65'
     implementation 'com.github.status-im.status-keycard-java:android:3.0.2'
 }
