@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 interface ICarAsset is IERC721 {
     function mint(
         address to,
-        uint256 carId,
+        bytes32 carId,
         address carAddress
     ) external;
 

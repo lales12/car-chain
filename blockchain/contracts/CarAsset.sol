@@ -6,19 +6,24 @@ contract CarAsset is ERC721 {
     mapping(uint256 => address) carMapping;
 
     constructor () public ERC721('CarAsset', 'car') {}
-
+ 
     function mint(
         address to,
-        uint256  carId,
+        bytes32 carId,
         address carAddress
     ) public  {
-        carMapping[carId] = carAddress;
+        uint256 carIdUint = uint256(carId);
+        carMapping[carIdUint] = carAddress;
 
-        _mint(to, carId);
+        _mint(to, carIdUint);
     }
 
     function burn(uint256 tokenId) public {
         _burn(tokenId);
+    }
+
+    function transfer (address from, address to, uint256 tokenId) public {
+        transferFrom(from, to, tokenId);
     }
 
     function getCarAddress(

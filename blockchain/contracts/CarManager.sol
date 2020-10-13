@@ -1,11 +1,16 @@
 pragma solidity >=0.5.16;
 
+import { ECDSA } from  "./libraries/ECDSA.sol";
+
 import "./interfaces/CarInterface.sol";
 import "./Authorizer.sol";
 import "./BaseManager.sol";
 
 
+
 contract CarManager is BaseManager {
+    using ECDSA for bytes32;
+
     string constant ADD_CAR_METHOD = "addCar(bytes,string,uint256)";
     string constant UPDATE_CAR_METHOD = "updateCarState(bytes,uint256)";
     /*
@@ -40,11 +45,11 @@ contract CarManager is BaseManager {
         CarState carState;
     }
 
-    mapping(uint256 => Car) trackedCars;
+    mapping(address => Car) trackedCars;
     uint256[] registeredCars;
 
-    event CarAdded(uint256 indexed carID); // probably we need carOwner's address in the event
-    event CarStateUpdated(uint256 indexed carID);
+    event CarAdded(address indexed carAddress); // probably we need carOwner's address in the event
+    event CarStateUpdated(address indexed carID);
     event ITVInspection(uint256 indexed carID);
 
     constructor(
@@ -55,47 +60,54 @@ contract CarManager is BaseManager {
     {}
 
     function addCar(
-        string calldata carId,
-        string calldata carIdHash,
+        bytes32 carIdHash,
+        bytes calldata signature,
         string calldata licensePlate,
         uint256 carTypeIndex
     ) external onlyAuthorized(ADD_CAR_METHOD, msg.sender) {
-        uint256 id = uint256(keccak256(abi.encode(carId)));
+        address carAddress = carIdHash.recover(signature);
 
-        // carToken.mint(msg.sender, id);
+        carToken.mint(
+            msg.sender,
+            carIdHash,
+            carAddress
+        );
 
-        // trackedCars[id] = Car({
-        //     licensePlate: licensePlate,
-        //     carType: CarType(carTypeIndex),
-        //     carState: CarState.FOR_SALE
-        // });
+        trackedCars[carAddress] = Car({
+            licensePlate: licensePlate,
+            carType: CarType(carTypeIndex),
+            carState: CarState.FOR_SALE
+        });
 
-        // emit CarAdded(id);
+        emit CarAdded(carAddress);
     }
 
-    function updateCarState(uint256 id, uint256 carStateIndex)
+    function updateCarState(
+        address carAddress,
+        uint256 carStateIndex
+    )
         external
         onlyAuthorized(UPDATE_CAR_METHOD, msg.sender)
     {
-        trackedCars[id].carState = CarState(carStateIndex);
+        trackedCars[carAddress].carState = CarState(carStateIndex);
 
-        emit CarStateUpdated(id);
+        emit CarStateUpdated(carAddress);
     }
 
-    function getCar(uint256 carId)
+    function getCar(address carAddress)
         external
         view
         returns (
-            uint256 ID,
+            address id,
             string memory licensePlate,
             uint256 carType,
             uint256 carState
         )
     {
-        Car memory car = trackedCars[carId];
+        Car memory car = trackedCars[carAddress];
 
         return (
-            carId,
+            carAddress,
             car.licensePlate,
             uint256(car.carType),
             uint256(car.carState)
