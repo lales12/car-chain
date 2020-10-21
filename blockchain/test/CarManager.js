@@ -142,7 +142,6 @@ contract("CarManager", (accounts) => {
 
     it("Add new car from brand account, this must throw error", async () => {
         try {
-
             await createCar(brandAddress)
         } catch {
             assert.ok('This account cant perform this action');
