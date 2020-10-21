@@ -10,9 +10,22 @@ contract BaseManager {
 
     address public owner;
 
-    modifier onlyAuthorized(string memory _method, address _account) {
+    modifier onlyAuthorized(
+        string memory _method,
+        address _account
+    ) {
         bool hasAccess = auth.requestAccess(address(this), _method, _account);
         require(hasAccess, "Unauthorized");
+        _;
+    }
+
+    modifier onlyAssetOwner(
+        address _carAddress,
+        address _account
+    ) {
+        uint256 carId = carToken.getCarToken(_carAddress);
+
+        require(_account == carToken.ownerOf(carId), "Only the owner can perfom this action");
         _;
     }
 
