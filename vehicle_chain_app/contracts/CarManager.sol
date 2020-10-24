@@ -1,13 +1,19 @@
 pragma solidity >=0.5.16;
 
+import { ECDSA } from  "./libraries/ECDSA.sol";
+
 import "./interfaces/CarInterface.sol";
 import "./Authorizer.sol";
 import "./BaseManager.sol";
 
-
 contract CarManager is BaseManager {
-    string constant ADD_CAR_METHOD = "addCar(string,string,uint256)";
-    string constant UPDATE_CAR_METHOD = "updateCarState(uint256,uint256)";
+    using ECDSA for bytes32;
+
+    string public constant CREATE_CAR_METHOD = "create(bytes32,bytes,uint256)";
+    string public constant DELIVER_CAR_METHOD = "deliverCar(address)";
+    string public constant SELL_CAR_METHOD = "sellCar(address)";
+    string public constant REGISTER_CAR_METHOD = "registerCar()";
+    string public constant UPDATE_CAR_METHOD = "updateCarState(bytes,uint256)";
     /*
      * At the moment this state adds nothing to the contract - it doesn't give the users relevant information,
      * and it doesn't modify functions. We must update this to include relevant information or remove it.
@@ -15,9 +21,7 @@ contract CarManager is BaseManager {
     enum CarState {
         SHIPPED,
         FOR_SALE,
-        PROCESSING_SALE,
         SOLD,
-        PROCESSING_REGISTER,
         REGISTERED
     }
 
@@ -40,11 +44,11 @@ contract CarManager is BaseManager {
         CarState carState;
     }
 
-    mapping(uint256 => Car) trackedCars;
+    mapping(address => Car) trackedCars;
     uint256[] registeredCars;
 
-    event CarAdded(uint256 indexed carID); // probably we need carOwner's address in the event
-    event CarStateUpdated(uint256 indexed carID);
+    event CarAdded(address indexed carAddress); // probably we need carOwner's address in the event
+    event CarStateUpdated(address indexed carID);
     event ITVInspection(uint256 indexed carID);
 
     constructor(
@@ -54,50 +58,124 @@ contract CarManager is BaseManager {
         BaseManager(authorizerContractAddress, carTokenContractAddress)
     {}
 
-    function addCar(
-        string calldata carId,
-        string calldata licensePlate,
+    function createCar(
+        bytes32 carIdHash,
+        bytes calldata signature,
         uint256 carTypeIndex
-    ) external onlyAuthorized(ADD_CAR_METHOD, msg.sender) {
-        uint256 id = uint256(keccak256(abi.encode(carId)));
+    ) external onlyAuthorized(CREATE_CAR_METHOD, msg.sender) {
+        address carAddress = carIdHash.recover(signature);
 
-        carToken.mint(msg.sender, id);
+        carToken.mint(
+            msg.sender,
+            carIdHash,
+            carAddress
+        );
 
-        trackedCars[id] = Car({
-            licensePlate: licensePlate,
+        trackedCars[carAddress] = Car({
+            licensePlate: '',
             carType: CarType(carTypeIndex),
-            carState: CarState.FOR_SALE
+            carState: CarState.SHIPPED
         });
 
-        emit CarAdded(id);
+        emit CarAdded(carAddress);
     }
 
-    function updateCarState(uint256 id, uint256 carStateIndex)
-        external
-        onlyAuthorized(UPDATE_CAR_METHOD, msg.sender)
+    function deliverCar(
+        address carAddress
+    )
+        public
+        onlyAuthorized(DELIVER_CAR_METHOD, msg.sender)
     {
-        trackedCars[id].carState = CarState(carStateIndex);
+        require(
+            CarState.SHIPPED == trackedCars[carAddress].carState,
+            "This car is not shipped"
+        );
 
-        emit CarStateUpdated(id);
+        _updateCarState(
+            carAddress,
+            uint256(CarState.FOR_SALE)
+        );
     }
 
-    function getCar(uint256 carId)
+    function sellCar(
+        address carAddress
+    )
+        public
+        onlyAuthorized(SELL_CAR_METHOD, msg.sender)
+        onlyAssetOwner(carAddress, msg.sender)
+    {
+        require(
+            CarState.FOR_SALE == trackedCars[carAddress].carState,
+            "This car is not for sale"
+        );
+
+        _updateCarState(
+            carAddress,
+            uint256(CarState.SOLD)
+        );
+        // This is an attemp to do in the same call the token transfer and update the status
+        // (bool success, bytes memory result) = carTokenAddress.delegatecall(
+        //     abi.encodeWithSignature(
+        //         'transferFrom(address,address,uint256)',
+        //         msg.sender,
+        //         to,
+        //         carAddress
+        //     )
+        // );
+        // require(success, "Error transfering token");
+        // carToken.transferFrom(msg.sender, to, carId);
+        // END_COMMENT
+    }
+
+    function registerCar(
+        address carAddress,
+        string memory licensePlate
+    )
+        public
+        onlyAuthorized(SELL_CAR_METHOD, msg.sender)
+        onlyAssetOwner(carAddress, msg.sender)
+    {
+        require(
+            CarState.SOLD == trackedCars[carAddress].carState,
+            "This car is not sold"
+        );
+
+        trackedCars[carAddress].licensePlate = licensePlate;
+
+        _updateCarState(
+            carAddress,
+            uint256(CarState.REGISTERED)
+        );
+    }
+
+    function getCar(address carAddress)
         external
         view
         returns (
-            uint256 ID,
+            address id,
             string memory licensePlate,
             uint256 carType,
             uint256 carState
         )
     {
-        Car memory car = trackedCars[carId];
+        Car memory car = trackedCars[carAddress];
 
         return (
-            carId,
+            carAddress,
             car.licensePlate,
             uint256(car.carType),
             uint256(car.carState)
         );
+    }
+
+    function _updateCarState(
+        address carAddress,
+        uint256 carStateIndex
+    )
+        internal
+    {
+        trackedCars[carAddress].carState = CarState(carStateIndex);
+
+        emit CarStateUpdated(carAddress);
     }
 }

@@ -1,28 +1,20 @@
 module.exports = async (deployer, networks, accounts) => {
-	const authorizeContract = artifacts.require("Authorizer");
-	const baseContract = artifacts.require("BaseManager");
-	const carAssetContract = artifacts.require("CarAsset");
-	const carManagerContract = artifacts.require("CarManager");
-	const iTVManagerConctract = artifacts.require("ITVManager");
+    const authorizeContract = artifacts.require("Authorizer");
+    const baseContract = artifacts.require("BaseManager");
+    const carAssetContract = artifacts.require("CarAsset");
+    const carManagerContract = artifacts.require("CarManager");
+    const iTVManagerConctract = artifacts.require("ITVManager");
 
-	let carAssetContractAddress;
-	let authorizeContractAddress;
+    deployer.deploy(carAssetContract).then(function (carAssetContract) {
+        let carAssetContractAddress = carAssetContract.address;
+        deployer.deploy(authorizeContract).then(function (authorizeContract) {
+            let authorizeContractAddress = authorizeContract.address;
 
-	deployer.deploy(carAssetContract).then(function (carAssetContract) {
-		carAssetContractAddress = carAssetContract.address;
-
-		return deployer.deploy(authorizeContract).then(function (authorizeContract) {
-			authorizeContractAddress = authorizeContract.address;
-
-			return deployer.deploy(baseContract, authorizeContractAddress, carAssetContractAddress).then(function (baseContract) {
-				return deployer
-					.deploy(carManagerContract, authorizeContractAddress, carAssetContractAddress)
-					.then(function (carManagerContract) {
-						return deployer.deploy(iTVManagerConctract, authorizeContractAddress, carAssetContractAddress);
-					});
-			});
-		});
-	});
+            deployer.deploy(baseContract, authorizeContractAddress, authorizeContractAddress);
+            deployer.deploy(carManagerContract, authorizeContractAddress, carAssetContractAddress);
+            deployer.deploy(iTVManagerConctract, authorizeContractAddress, carAssetContractAddress);
+        });
+    });
 };
 
 /* another example
