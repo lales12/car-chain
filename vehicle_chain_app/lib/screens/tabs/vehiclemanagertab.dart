@@ -1,6 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:barcode_scan/barcode_scan.dart';
+import 'package:ethereum_address/ethereum_address.dart';
 import 'package:vehicle_chain_app/contracts_services/vehicleassetcontractservice.dart';
 import 'package:vehicle_chain_app/contracts_services/vehiclemanagercontractservice.dart';
 import 'package:vehicle_chain_app/services/appsettingservice.dart';
@@ -12,6 +16,9 @@ import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
 import 'package:provider/provider.dart';
 import 'package:web3dart/credentials.dart';
+import 'package:web3dart/crypto.dart';
+
+import 'package:flutter/services.dart';
 
 class Item {
   Item({this.name, this.shortDiscribe, this.isExpanded = false});
@@ -27,6 +34,92 @@ class VehicleManagerTab extends StatefulWidget {
 }
 
 class _VehicleManagerTabState extends State<VehicleManagerTab> {
+  // nfc
+  static const platformMethods = const MethodChannel('carChain.com/methodsChannel');
+  static const platformEvents = const EventChannel('carChain.com/getCardInfoEvent');
+  static const platformSignEvents = const EventChannel('carChain.com/signEvent');
+
+  String _isNfcAdapterEnabled = 'Unknown Nfc Status.';
+  String _nfcCardPubKeyError = 'no error yet';
+  String _nfcCardPubKey;
+  String _nfcCardSigniture;
+  dynamic _nfcCardSignitureList;
+
+  Future<void> _getNfcAdapterStatus() async {
+    String isNfcAdapterEnabled;
+    try {
+      final bool result = await platformMethods.invokeMethod('getNfcStatus');
+      isNfcAdapterEnabled = 'Nfc Status: $result ';
+    } on PlatformException catch (e) {
+      isNfcAdapterEnabled = "Failed to get Nfc Status: '${e.message}'.";
+    }
+
+    setState(() {
+      _isNfcAdapterEnabled = isNfcAdapterEnabled;
+    });
+  }
+
+  Future<void> _runCardInfoStreamOnPlatform() async {
+    try {
+      final bool result = await platformMethods.invokeMethod('runCardInfoStream');
+      setState(() {
+        _nfcCardPubKey = result ? 'Please attach your KeyCard to your device.' : 'Somthing is wrong...';
+      });
+      result ? _listenForCardInfo() : log('somthing is wrong');
+    } on PlatformException catch (e) {
+      log("Failed to launch a new stream for card info: '${e.message}'.");
+    }
+  }
+
+  Future<bool> _runCardSignerOnPlatform(String hash) async {
+    try {
+      final bool result = await platformMethods.invokeMethod('runSignStream', {"hash": hash});
+      setState(() {
+        _nfcCardSigniture = result ? 'Please attach your KeyCard to your device to Sign.' : 'Somthing is wrong...';
+      });
+      result ? _listenSignedHash() : log('somthing is wrong');
+      return true;
+    } on PlatformException catch (e) {
+      log("Failed to launch a new stream for card info: '${e.message}'.");
+      return false;
+    }
+  }
+
+  void _listenForCardInfo() {
+    platformEvents.receiveBroadcastStream().listen(_onEvent, onError: _onError);
+  }
+
+  void _listenSignedHash() {
+    platformSignEvents.receiveBroadcastStream().listen(_onSignEvent, onError: _onError);
+  }
+
+  void _onSignEvent(Object event) {
+    log(event.toString());
+    log(event.toString().length.toString());
+    // log(ethereumAddressFromPublicKey(event));
+    setState(() {
+      _nfcCardSigniture = event.toString();
+      _nfcCardSignitureList = json.decode(event);
+    });
+  }
+
+  void _onEvent(Object event) {
+    // log(event.toString());
+    // log(event.toString().length.toString());
+    // log(ethereumAddressFromPublicKey(event));
+    setState(() {
+      _nfcCardPubKey = ethereumAddressFromPublicKey(event);
+    });
+  }
+
+  void _onError(Object error) {
+    log(error.toString());
+    setState(() {
+      _nfcCardPubKeyError = error.toString();
+    });
+  }
+  ////////////////////////////////////////////////
+
   final _formKeyAdd = GlobalKey<FormState>();
   final _formKeyUpdate = GlobalKey<FormState>();
   final _formKeyGet = GlobalKey<FormState>();
@@ -46,11 +139,12 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
   String toAddress;
 
   ButtonState stateCallSmartContractFunctionButton = ButtonState.idle;
+  ButtonState stateNFCButton = ButtonState.idle;
 
   List<Item> _data = [
     Item(
-      name: 'Add Vehicle',
-      shortDiscribe: 'Register a new vehicle on the blockchain.',
+      name: 'Create Vehicle',
+      shortDiscribe: 'Create a new vehicle on the blockchain. \nPlease make sure you have proximity to the \nAwsome Car Card.',
       isExpanded: false,
     ),
     Item(
@@ -132,14 +226,14 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                       vehicleVIN = val;
                                     },
                                   ),
-                                  TextFormField(
-                                    initialValue: licensePlate,
-                                    decoration: InputDecoration().copyWith(hintText: 'License Plate'),
-                                    validator: (val) => val.isEmpty ? 'Enter a valid License Plate' : null,
-                                    onChanged: (val) {
-                                      licensePlate = val;
-                                    },
-                                  ),
+                                  // TextFormField(
+                                  //   initialValue: licensePlate,
+                                  //   decoration: InputDecoration().copyWith(hintText: 'License Plate'),
+                                  //   validator: (val) => val.isEmpty ? 'Enter a valid License Plate' : null,
+                                  //   onChanged: (val) {
+                                  //     licensePlate = val;
+                                  //   },
+                                  // ),
                                   DropdownButtonFormField(
                                     items: () {
                                       List<DropdownMenuItem> tempList = new List<DropdownMenuItem>();
@@ -151,6 +245,85 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                     }(),
                                     decoration: InputDecoration().copyWith(hintText: 'Vehicle Type'),
                                     onChanged: (val) => vehicleType = val,
+                                  ),
+                                  SizedBox(height: 20.0),
+                                  Text(_nfcCardSigniture != null ? 'Car Signiture: ' + _nfcCardSignitureList.toString() : ''),
+
+                                  SizedBox(height: 20.0),
+                                  new ProgressButton.icon(
+                                    iconedButtons: {
+                                      ButtonState.idle: IconedButton(
+                                          text: 'Get Car Signiture', icon: Icon(Icons.credit_card, color: Colors.white), color: Theme.of(context).buttonColor),
+                                      ButtonState.loading: IconedButton(text: "Changing", color: Theme.of(context).buttonColor),
+                                      ButtonState.fail:
+                                          IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
+                                      ButtonState.success: IconedButton(
+                                          text: "Success",
+                                          icon: Icon(
+                                            Icons.check_circle,
+                                            color: Colors.white,
+                                          ),
+                                          color: Theme.of(context).buttonColor)
+                                    },
+                                    state: stateNFCButton,
+                                    onPressed: () async {
+                                      if (_formKeyAdd.currentState.validate()) {
+                                        print('button pressed: Get Car Signiture');
+                                        print(vehicleType);
+                                        print(vehicleVIN);
+                                        setState(() {
+                                          stateNFCButton = ButtonState.loading;
+                                        });
+                                        try {
+                                          // log('creating hash of card ID: ' + vehicleVIN);
+                                          // List<int> list = vehicleVIN.codeUnits;
+                                          // Uint8List bytes = Uint8List.fromList(list);
+                                          // Uint8List carIdHash = keccak256(bytes);
+                                          // log('created hash: ' + carIdHash.toString());
+                                          // "\x19Ethereum Signed Message:\n" + message.length + message
+
+                                          await _runCardSignerOnPlatform(vehicleVIN);
+                                          if (_nfcCardSignitureList != null) {
+                                            Timer(Duration(seconds: 2), () {
+                                              setState(() {
+                                                stateNFCButton = ButtonState.success;
+                                              });
+                                              Timer(Duration(seconds: 2), () {
+                                                setState(() {
+                                                  stateNFCButton = ButtonState.idle;
+                                                });
+                                              });
+                                            });
+                                          }
+                                          print('done NFC signing: ' + _nfcCardSignitureList.toString());
+                                        } catch (e) {
+                                          final snackBar = SnackBar(
+                                            duration: Duration(seconds: 10),
+                                            content: Text('error: ' + e.toString()),
+                                            action: SnackBarAction(
+                                              textColor: Theme.of(context).buttonColor,
+                                              label: 'OK',
+                                              onPressed: () {
+                                                // Some code to undo the change.
+                                              },
+                                            ),
+                                          );
+                                          Scaffold.of(context).showSnackBar(snackBar);
+                                          setState(() {
+                                            stateNFCButton = ButtonState.fail;
+                                          });
+                                          // Timer(Duration(seconds: 3), () {
+                                          //   setState(() {
+                                          //     stateNFCButton = ButtonState.idle;
+                                          //   });
+                                          // });
+                                        }
+                                      } else {
+                                        setState(() {
+                                          stateNFCButton = ButtonState.idle;
+                                        });
+                                      }
+                                    },
                                   ),
                                   SizedBox(height: 20.0),
                                   new ProgressButton.icon(
@@ -170,16 +343,19 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                     },
                                     state: stateCallSmartContractFunctionButton,
                                     onPressed: () async {
-                                      if (_formKeyAdd.currentState.validate()) {
+                                      if (_formKeyAdd.currentState.validate() && _nfcCardSigniture != null) {
                                         print('button pressed: ' + _data[0].name);
-                                        print(licensePlate);
+                                        // print(licensePlate);
                                         print(vehicleType);
                                         print(vehicleVIN);
+                                        log('signiture object');
+                                        log(_nfcCardSignitureList.toString());
                                         setState(() {
                                           stateCallSmartContractFunctionButton = ButtonState.loading;
                                         });
                                         try {
-                                          String result = await vehicleManagerContract.addCar(vehicleVIN, licensePlate, BigInt.parse(vehicleType.toString()));
+                                          String result = null;
+                                          // await vehicleManagerContract.createCar(vehicleVIN, _nfcCardSignitureList, BigInt.parse(vehicleType.toString()));
                                           if (result != null) {
                                             Timer(Duration(seconds: 2), () {
                                               setState(() {
@@ -196,7 +372,7 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                         } catch (e) {
                                           final snackBar = SnackBar(
                                             duration: Duration(seconds: 10),
-                                            content: Text('error: ' + e.toString()),
+                                            content: Text('error create car button: ' + e.toString()),
                                             action: SnackBarAction(
                                               textColor: Theme.of(context).buttonColor,
                                               label: 'OK',
@@ -292,8 +468,8 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                           stateCallSmartContractFunctionButton = ButtonState.loading;
                                         });
                                         try {
-                                          String result =
-                                              await vehicleManagerContract.updateCarState(inputVehicleTockenId, BigInt.parse(vehicleState.toString()));
+                                          String result = null;
+                                          // await vehicleManagerContract.updateCarState(inputVehicleTockenId, BigInt.parse(vehicleState.toString()));
                                           if (result != null) {
                                             Timer(Duration(seconds: 2), () {
                                               setState(() {
@@ -397,12 +573,12 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                       });
                                       try {
                                         BigInt tokenId = await vehicleAssetContractService.getTockenIdByIndex(BigInt.parse(tockenIndex.toString()));
-                                        Car result = await vehicleManagerContract.getCar(tokenId);
+                                        Car result = null; //await vehicleManagerContract.getCar(tokenId);
                                         if (result != null) {
                                           final snackBar = SnackBar(
                                             duration: Duration(seconds: 30),
                                             content: Text('Your Vehicle \nid: ' +
-                                                result.id.toString() +
+                                                result.address.toString() +
                                                 '\nLicense Plate: ' +
                                                 result.licensePlate +
                                                 '\nCar Type: ' +
@@ -618,65 +794,65 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                   ),
                 ),
                 Divider(thickness: 2.0, height: 40.0),
-                StreamBuilder(
-                  stream: vehicleManagerContract.addcarAddedEventListStream,
-                  builder: (context, AsyncSnapshot<List<CarAddedEvent>> snapShot) {
-                    if (snapShot.hasError) {
-                      return Text('error: ' + snapShot.toString());
-                    } else if (snapShot.connectionState == ConnectionState.waiting) {
-                      return Text('Add Vehicle Event waiting...');
-                    } else {
-                      return Column(
-                        children: [
-                          Center(
-                            child: Text(
-                              'Added Vehicle History',
-                              style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorLight),
-                            ),
-                          ),
-                          ...snapShot.data.map(
-                            (event) {
-                              return ListTile(
-                                title: SelectableText('Vehicle Id: ' + event.carId.toString()),
-                                subtitle: Text('Vehicle Registered'),
-                              );
-                            },
-                          ).toList(),
-                        ],
-                      );
-                    }
-                  },
-                ),
-                Divider(thickness: 2.0, height: 40.0),
-                StreamBuilder(
-                  stream: vehicleManagerContract.carStateUpdatedEventListStream,
-                  builder: (context, AsyncSnapshot<List<CarStateUpdatedEvent>> snapShot) {
-                    if (snapShot.hasError) {
-                      return Text('error: ' + snapShot.toString());
-                    } else if (snapShot.connectionState == ConnectionState.waiting) {
-                      return Text('RemovePermisionEvent waiting...');
-                    } else {
-                      return Column(
-                        children: [
-                          Center(
-                            child: Text(
-                              'Update Vehicle History',
-                              style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorLight),
-                            ),
-                          ),
-                          ...snapShot.data.map(
-                            (event) {
-                              return ListTile(
-                                title: SelectableText('Vehicle Id: ' + event.carId.toString()),
-                                subtitle: Text('Vehicle Status Updated'),
-                              );
-                            },
-                          ).toList(),
-                        ],
-                      );
-                    }
-                  },
-                ),
+                // StreamBuilder(
+                //   stream: vehicleManagerContract.addcarAddedEventListStream,
+                //   builder: (context, AsyncSnapshot<List<CarAddedEvent>> snapShot) {
+                //     if (snapShot.hasError) {
+                //       return Text('error: ' + snapShot.toString());
+                //     } else if (snapShot.connectionState == ConnectionState.waiting) {
+                //       return Text('Add Vehicle Event waiting...');
+                //     } else {
+                //       return Column(
+                //         children: [
+                //           Center(
+                //             child: Text(
+                //               'Added Vehicle History',
+                //               style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorLight),
+                //             ),
+                //           ),
+                //           ...snapShot.data.map(
+                //             (event) {
+                //               return ListTile(
+                //                 title: SelectableText('Vehicle Id: ' + event.carId.toString()),
+                //                 subtitle: Text('Vehicle Registered'),
+                //               );
+                //             },
+                //           ).toList(),
+                //         ],
+                //       );
+                //     }
+                //   },
+                // ),
+                // Divider(thickness: 2.0, height: 40.0),
+                // StreamBuilder(
+                //   stream: vehicleManagerContract.carStateUpdatedEventListStream,
+                //   builder: (context, AsyncSnapshot<List<CarStateUpdatedEvent>> snapShot) {
+                //     if (snapShot.hasError) {
+                //       return Text('error: ' + snapShot.toString());
+                //     } else if (snapShot.connectionState == ConnectionState.waiting) {
+                //       return Text('RemovePermisionEvent waiting...');
+                //     } else {
+                //       return Column(
+                //         children: [
+                //           Center(
+                //             child: Text(
+                //               'Update Vehicle History',
+                //               style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorLight),
+                //             ),
+                //           ),
+                //           ...snapShot.data.map(
+                //             (event) {
+                //               return ListTile(
+                //                 title: SelectableText('Vehicle Id: ' + event.carId.toString()),
+                //                 subtitle: Text('Vehicle Status Updated'),
+                //               );
+                //             },
+                //           ).toList(),
+                //         ],
+                //       );
+                //     }
+                //   },
+                // ),
               ],
             ),
           ),

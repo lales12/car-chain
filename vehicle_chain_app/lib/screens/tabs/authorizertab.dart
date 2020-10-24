@@ -87,6 +87,7 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
       contractsList[1].address = itvManagerContract.contractAddress.toString();
       contractsList[0].functionList = carManagerContract.contractFunctionsList;
       contractsList[1].functionList = itvManagerContract.contractFunctionsList;
+      log('list of carManager funcs: ' + carManagerContract.contractFunctionsList.toString());
       return Scaffold(
         body: SingleChildScrollView(
           child: Padding(

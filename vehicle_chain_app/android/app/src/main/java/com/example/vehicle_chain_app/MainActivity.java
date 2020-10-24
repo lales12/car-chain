@@ -23,6 +23,7 @@ import im.status.keycard.io.CardListener;
 import im.status.keycard.android.NFCCardManager;
 import im.status.keycard.applet.*;
 import org.bouncycastle.util.encoders.Hex;
+import org.json.JSONObject;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -50,7 +51,8 @@ class SignStreamHandler implements EventChannel.StreamHandler {
         hash = iHash;
     }
 
-    String response;
+    // String[] response = new String[4];
+    JSONObject response = new JSONObject();
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Runnable runnable = new Runnable() {
         @Override
@@ -66,6 +68,7 @@ class SignStreamHandler implements EventChannel.StreamHandler {
                 }
                 @Override
                 public void onConnected(CardChannel cardChannel) {
+
                     try {
 
                         // Applet-specific code we only use CashApplet
@@ -102,10 +105,16 @@ class SignStreamHandler implements EventChannel.StreamHandler {
                         Log.i(TAG, "R: " + Hex.toHexString(signature.getR()));
                         Log.i(TAG, "S: " + Hex.toHexString(signature.getS()));
 
-                        response = Arrays.toString(byteHash);
+                        response.put("hash", Hex.toHexString(byteHash)); // Arrays.toString(byteHash);
+                        response.put("v",String.valueOf(signature.getRecId())); // V ??
+                        response.put("r",Hex.toHexString(signature.getR())); // R
+                        response.put("s",Hex.toHexString(signature.getS())); // S
+
 
                         activity.runOnUiThread(() -> {
-                            eventSink.success(response);
+                            eventSink.success(
+                                    response.toString()
+                            );
                         });
                     } catch (Exception e) {
                         activity.runOnUiThread(() -> {
@@ -266,7 +275,7 @@ public class MainActivity extends FlutterActivity {
                             case "runSignStream":
                                 try {
                                     Log.i(TAG, "Creating Sign event channel Stream...");
-                                    Log.i(TAG, "method param" + call.arguments.toString());
+                                    Log.i(TAG, "method param: " + call.arguments.toString());
                                     new EventChannel(flutterEngine.getDartExecutor(), SIGNCHANNEL).setStreamHandler(
                                             new SignStreamHandler(cardManager, nfcAdapter, activity, call.argument("hash"))
                                     );

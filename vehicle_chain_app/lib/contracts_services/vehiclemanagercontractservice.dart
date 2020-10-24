@@ -1,33 +1,35 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:vehicle_chain_app/services/walletmanager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
+import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
 
 // object classes (model)
 class Car {
-  BigInt id;
+  EthereumAddress address;
   String licensePlate;
   BigInt carType;
   BigInt carState;
 
-  Car({this.id, this.licensePlate, this.carType, this.carState});
+  Car({this.address, this.licensePlate, this.carType, this.carState});
 }
 
 // event classes (model)
 class CarAddedEvent {
-  BigInt carId;
-  CarAddedEvent({this.carId});
+  EthereumAddress carAddress;
+  CarAddedEvent({this.carAddress});
 }
 
 class CarStateUpdatedEvent {
-  BigInt carId;
-  CarStateUpdatedEvent({this.carId});
+  EthereumAddress carAddress;
+  CarStateUpdatedEvent({this.carAddress});
 }
 
 // contract class
@@ -40,7 +42,10 @@ class CarManager extends ChangeNotifier {
   EthereumAddress _userAddress;
   DeployedContract _contract;
   // contract functions
-  ContractFunction _addCar;
+  ContractFunction _createCar;
+  ContractFunction _deliverCar;
+  ContractFunction _sellCar;
+  ContractFunction _registerCar;
   ContractFunction _updateCarState;
   ContractFunction _getCar;
   // functions from ERC721
@@ -86,17 +91,19 @@ class CarManager extends ChangeNotifier {
     String _deplyTxHash = jsonAbi["networks"][walletManager.activeNetwork.networkId]["transactionHash"];
     TransactionInformation txInfo = await _client.getTransactionByHash(_deplyTxHash);
     contractDeployedBlockNumber = txInfo.blockNumber;
+    log('VehicleManager: contract address: ' + contractAddress.toString());
   }
 
   Future<void> _getCredentials(EthPrivateKey privateKey) async {
     _credentials = privateKey;
     _userAddress = await _credentials.extractAddress();
     userAddress = _userAddress;
-    log('CarManager: useraddress from privkey: ' + _userAddress.toString());
+    log('VehicleManager: useraddress from privkey: ' + _userAddress.toString());
     notifyListeners();
   }
 
   Future<void> _getDeployedContract() async {
+    log('VehicleManager: start loading abis');
     _contract = DeployedContract(ContractAbi.fromJson(_abiCode, "CarManager"), _contractAddress);
     // set events
     _carAddedEvent = _contract.event('CarAdded');
@@ -104,14 +111,16 @@ class CarManager extends ChangeNotifier {
     // _iTVInspectionEvent = _contract.event('ITVInspection');
 
     // set functions
-    _addCar = _contract.function('addCar');
-    _updateCarState = _contract.function('updateCarState');
-    // _updateITV = _contract.function('updateITV');
+    _createCar = _contract.function('createCar');
+    _deliverCar = _contract.function('deliverCar');
+    _sellCar = _contract.function('sellCar');
+    _registerCar = _contract.function('registerCar');
+    // _updateCarState = _contract.function('updateCarState');
     _getCar = _contract.function('getCar');
 
     log('VehicleManager: list of functions:' + _contract.functions.map((e) => e.name).toList().toString());
     // set functions list
-    contractFunctionsList = [_addCar, _updateCarState];
+    contractFunctionsList = [_createCar, _deliverCar, _sellCar, _registerCar];
   }
 
   // Stream Events
@@ -133,7 +142,7 @@ class CarManager extends ChangeNotifier {
               final decoded = _carAddedEvent.decodeResults(event.topics, event.data);
               temp.add(
                 CarAddedEvent(
-                  carId: decoded[0] as BigInt,
+                  carAddress: decoded[0] as EthereumAddress,
                 ),
               );
             },
@@ -176,7 +185,7 @@ class CarManager extends ChangeNotifier {
               final decoded = _carAddedEvent.decodeResults(event.topics, event.data);
               temp.add(
                 CarStateUpdatedEvent(
-                  carId: decoded[0] as BigInt,
+                  carAddress: decoded[0] as EthereumAddress,
                 ),
               );
             },
@@ -201,31 +210,64 @@ class CarManager extends ChangeNotifier {
   }
 
   // Contract Calls
-  Future<String> addCar(String vehicleVIN, String licensePlate, BigInt carTypeIndex) async {
-    log('VehicleManagerContract: addcar ' + vehicleVIN + ' ,' + licensePlate);
+  Future<String> createCar(String carIdHash, Uint8List signature, BigInt carTypeIndex) async {
+    log('VehicleManagerContract: addcar ' + carIdHash + ' ,' + signature.toString() + ' ,' + carTypeIndex.toString());
     String res = await _client.sendTransaction(
       _credentials,
-      Transaction.callContract(contract: _contract, function: _addCar, maxGas: 6721975, parameters: [vehicleVIN, licensePlate, carTypeIndex]),
+      Transaction.callContract(contract: _contract, function: _createCar, maxGas: 6721975, parameters: [carIdHash, signature, carTypeIndex]),
       fetchChainIdFromNetworkId: true,
     );
     log('VehicleManagerContract: addCar result' + res);
     return res;
   }
 
-  Future<String> updateCarState(BigInt carID, BigInt carStateIndex) async {
+  Future<String> deliverCar(EthereumAddress carAddress) async {
+    log('VehicleManagerContract: deliverCar ' + carAddress.toString());
     String res = await _client.sendTransaction(
       _credentials,
-      Transaction.callContract(contract: _contract, function: _updateCarState, parameters: [carID, carStateIndex]),
+      Transaction.callContract(contract: _contract, function: _deliverCar, maxGas: 6721975, parameters: [carAddress]),
       fetchChainIdFromNetworkId: true,
     );
+    log('VehicleManagerContract: deliverCar result' + res);
     return res;
   }
+
+  Future<String> sellCar(EthereumAddress carAddress) async {
+    log('VehicleManagerContract: sellCar ' + carAddress.toString());
+    String res = await _client.sendTransaction(
+      _credentials,
+      Transaction.callContract(contract: _contract, function: _sellCar, maxGas: 6721975, parameters: [carAddress]),
+      fetchChainIdFromNetworkId: true,
+    );
+    log('VehicleManagerContract: sellCar result' + res);
+    return res;
+  }
+
+  Future<String> registerCar(EthereumAddress carAddress, String licensePlate) async {
+    log('VehicleManagerContract: sellCar ' + carAddress.toString() + ' , ' + licensePlate);
+    String res = await _client.sendTransaction(
+      _credentials,
+      Transaction.callContract(contract: _contract, function: _registerCar, maxGas: 6721975, parameters: [carAddress]),
+      fetchChainIdFromNetworkId: true,
+    );
+    log('VehicleManagerContract: sellCar result' + res);
+    return res;
+  }
+
+  // Future<String> updateCarState(BigInt carID, BigInt carStateIndex) async {
+  //   String res = await _client.sendTransaction(
+  //     _credentials,
+  //     Transaction.callContract(contract: _contract, function: _updateCarState, parameters: [carID, carStateIndex]),
+  //     fetchChainIdFromNetworkId: true,
+  //   );
+  //   return res;
+  // }
 
   Future<Car> getCar(BigInt tockenId) async {
     List<dynamic> ret = await _client.call(contract: _contract, function: _getCar, params: [tockenId]);
 
     return Car(
-      id: ret[0] as BigInt,
+      address: ret[0] as EthereumAddress,
       licensePlate: ret[1] as String,
       carType: ret[2] as BigInt,
       carState: ret[3] as BigInt,
