@@ -1,6 +1,6 @@
 import React, { FC, ReactElement, createContext, useContext, useState, useEffect, useRef } from "react";
 import SocketIO, { Socket } from "socket.io-client";
-import { config } from "../config";
+import { config } from "../configs/env.dev";
 
 interface ISocketContext {
     //receiveChallenge: () => void;

@@ -1,9 +1,33 @@
-const EnjoyPass = artifacts.require("SimpleStorage");
+module.exports = async (deployer, networks, accounts) => {
+    const authorizeContract = artifacts.require("Authorizer");
+    const baseContract = artifacts.require("BaseManager");
+    const carAssetContract = artifacts.require("CarAsset");
+    const carManagerContract = artifacts.require("CarManager");
+    const iTVManagerConctract = artifacts.require("ITVManager");
 
-module.exports = function(deployer, network, accounts) {
-    deployer.deploy(EnjoyPass)
-        .then(async (contract) => {
-            await contract.addRoot(accounts[1], {from: accounts[0]});
-            await contract.addDoctor(accounts[2], {from: accounts[1]});
+    deployer.deploy(carAssetContract).then(function (carAssetContract) {
+        let carAssetContractAddress = carAssetContract.address;
+        deployer.deploy(authorizeContract).then(function (authorizeContract) {
+            let authorizeContractAddress = authorizeContract.address;
+
+            deployer.deploy(baseContract, authorizeContractAddress, authorizeContractAddress);
+            deployer.deploy(carManagerContract, authorizeContractAddress, carAssetContractAddress);
+            deployer.deploy(iTVManagerConctract, authorizeContractAddress, carAssetContractAddress);
         });
+    });
 };
+
+/* another example
+var One = artifacts.require('./One.sol');
+var Two = artifacts.require('./Two.sol');
+
+module.exports = async(deployer) => {
+    let deployOne = await deployer.deploy(One);
+    let deployTwo = await deployer.deploy(Two);
+    contractTwo = await Two.deployed()
+    let setAddress = await contractTwo.setAddress(
+        One.address,
+        { gas: 200000 }
+    );
+  };
+*/
