@@ -42,9 +42,10 @@ class SignStreamHandler implements EventChannel.StreamHandler {
     private NFCCardManager cardManager;
     private NfcAdapter nfcAdapter;
     private FlutterActivity activity;
-    String hash;
+    //String hash;
+    byte[] hash;
 
-    public SignStreamHandler(NFCCardManager iCardManager, NfcAdapter iNfcAdapter, FlutterActivity iActivity, String iHash) {
+    public SignStreamHandler(NFCCardManager iCardManager, NfcAdapter iNfcAdapter, FlutterActivity iActivity, byte[] iHash) {
         cardManager = iCardManager;
         nfcAdapter = iNfcAdapter;
         activity = iActivity;
@@ -87,9 +88,10 @@ class SignStreamHandler implements EventChannel.StreamHandler {
                         // byte[] byteHash = hash.getBytes();
 
                         //attempt 3
+                        /*
                         byte[] byteHash = sha3(hash.getBytes());
-
-                        Log.i(TAG, "UnSigned byte[]: " + Hex.toHexString(byteHash));
+                        */
+                        Log.i(TAG, "UnSigned byte[]: " + Hex.toHexString(hash));
 
                         // First thing to do is selecting the applet on the card.
                         CashApplicationInfo info = new CashApplicationInfo(cmdSet.select().checkOK().getData());
@@ -98,18 +100,29 @@ class SignStreamHandler implements EventChannel.StreamHandler {
 
                         // hash is the hash to sign, for example the Keccak-256 hash of an Ethereum transaction
                         // the signature object contains r, s, recId and the public key associated to this signature
-                        RecoverableSignature signature = new RecoverableSignature(byteHash, cmdSet.sign(byteHash).checkOK().getData());
+                        RecoverableSignature signature = new RecoverableSignature(hash, cmdSet.sign(hash).checkOK().getData());
 
-                        Log.i(TAG, "Signed hash: " + Hex.toHexString(byteHash));
+                        Log.i(TAG, "Signed hash: " + Hex.toHexString(hash));
                         Log.i(TAG, "Recovery ID: " + signature.getRecId());
                         Log.i(TAG, "R: " + Hex.toHexString(signature.getR()));
                         Log.i(TAG, "S: " + Hex.toHexString(signature.getS()));
 
-                        response.put("hash", Hex.toHexString(byteHash)); // Arrays.toString(byteHash);
+                        response.put("pubkey", Hex.toHexString(signature.getPublicKey()));
+                        response.put("msg", hash);
+                        // response.put("hashArray", Arrays.toString(byteHash));
+                        response.put("hash", Hex.toHexString(hash)); // Arrays.toString(byteHash);
                         response.put("v",String.valueOf(signature.getRecId())); // V ??
                         response.put("r",Hex.toHexString(signature.getR())); // R
                         response.put("s",Hex.toHexString(signature.getS())); // S
 
+                        /*
+                        response.put("bhash", Arrays.toString(byteHash)); // Arrays.toString(byteHash);
+                        response.put("bv",String.valueOf(signature.getRecId())); // V ??
+                        response.put("br",Arrays.toString(signature.getR())); // R
+                        response.put("bs",Arrays.toString(signature.getS())); // S
+
+                        response.put("bvh",Integer.toHexString(signature.getRecId())); // V ??
+                        */
 
                         activity.runOnUiThread(() -> {
                             eventSink.success(

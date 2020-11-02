@@ -5,6 +5,8 @@ import 'dart:typed_data';
 
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:ethereum_address/ethereum_address.dart';
+import 'package:hex/hex.dart';
+import 'package:tweetnacl/tweetnacl.dart';
 import 'package:vehicle_chain_app/contracts_services/vehicleassetcontractservice.dart';
 import 'package:vehicle_chain_app/contracts_services/vehiclemanagercontractservice.dart';
 import 'package:vehicle_chain_app/services/appsettingservice.dart';
@@ -71,7 +73,7 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
     }
   }
 
-  Future<bool> _runCardSignerOnPlatform(String hash) async {
+  Future<bool> _runCardSignerOnPlatform(Uint8List hash) async {
     try {
       final bool result = await platformMethods.invokeMethod('runSignStream', {"hash": hash});
       setState(() {
@@ -100,6 +102,10 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
     setState(() {
       _nfcCardSigniture = event.toString();
       _nfcCardSignitureList = json.decode(event);
+      stateNFCButton = ButtonState.success;
+      Timer(Duration(seconds: 4), () {
+        stateNFCButton = ButtonState.idle;
+      });
     });
   }
 
@@ -175,6 +181,16 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
       print('vehicleManagerTab Contract address: ' + vehicleManagerContract.contractAddress.toString());
       print('vehicleManagerTab Contract User address: ' + vehicleManagerContract.userAddress.toString());
 
+      if (_nfcCardSignitureList != null) {
+        log('card address: ' + ethereumAddressFromPublicKey(hexToBytes(_nfcCardSignitureList['pubkey'])));
+        log('msg hash: ' + _nfcCardSignitureList['hash']);
+        MsgSignature sig = MsgSignature(
+            BigInt.parse('0x' + _nfcCardSignitureList['r']), BigInt.parse('0x' + _nfcCardSignitureList['s']), int.parse(_nfcCardSignitureList['v']) + 27);
+        Uint8List recovered = ecRecover(hexToBytes(_nfcCardSignitureList['hash']), sig);
+        log('recovered: ' + bytesToHex(recovered));
+        log('signer address: ' + ethereumAddressFromPublicKey(hexToBytes('0x04' + bytesToHex(recovered))));
+      }
+
       return Scaffold(
         body: SingleChildScrollView(
           child: Padding(
@@ -248,6 +264,11 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                   ),
                                   SizedBox(height: 20.0),
                                   Text(_nfcCardSigniture != null ? 'Car Signiture: ' + _nfcCardSignitureList.toString() : ''),
+                                  // if (_nfcCardSignitureList != null) ...[
+                                  //   Text(MsgSignature(BigInt.parse('0x' + _nfcCardSignitureList['r']), BigInt.parse('0x' + _nfcCardSignitureList['s']),
+                                  //           int.parse(_nfcCardSignitureList['v']))
+                                  //       .toString())
+                                  // ],
 
                                   SizedBox(height: 20.0),
                                   new ProgressButton.icon(
@@ -282,19 +303,14 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                           // log('created hash: ' + carIdHash.toString());
                                           // "\x19Ethereum Signed Message:\n" + message.length + message
 
-                                          await _runCardSignerOnPlatform(vehicleVIN);
-                                          if (_nfcCardSignitureList != null) {
-                                            Timer(Duration(seconds: 2), () {
-                                              setState(() {
-                                                stateNFCButton = ButtonState.success;
-                                              });
-                                              Timer(Duration(seconds: 2), () {
-                                                setState(() {
-                                                  stateNFCButton = ButtonState.idle;
-                                                });
-                                              });
-                                            });
-                                          }
+                                          // String message = "\x19Ethereum Signed Message:\n32" + bytesToHex(keccak256(Uint8List.fromList(vehicleVIN.codeUnits)));
+
+                                          Uint8List vinHash = keccak256(Uint8List.fromList(vehicleVIN.codeUnits));
+                                          log('hash of vin in flutter: ' + vinHash.toString());
+                                          log('hash of vin in hex: ' + bytesToHex(vinHash));
+
+                                          await _runCardSignerOnPlatform(vinHash);
+
                                           print('done NFC signing: ' + _nfcCardSignitureList.toString());
                                         } catch (e) {
                                           final snackBar = SnackBar(
@@ -349,13 +365,18 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                         print(vehicleType);
                                         print(vehicleVIN);
                                         log('signiture object');
-                                        log(_nfcCardSignitureList.toString());
+                                        // log(_nfcCardSignitureList.toString());
                                         setState(() {
                                           stateCallSmartContractFunctionButton = ButtonState.loading;
                                         });
                                         try {
-                                          String result = null;
-                                          // await vehicleManagerContract.createCar(vehicleVIN, _nfcCardSignitureList, BigInt.parse(vehicleType.toString()));
+                                          Uint8List vinHash = keccak256(Uint8List.fromList(vehicleVIN.codeUnits));
+                                          String result = await vehicleManagerContract.createCar(
+                                              vinHash,
+                                              BigInt.from(int.parse(_nfcCardSignitureList['v']) + 27),
+                                              hexToBytes('0x' + _nfcCardSignitureList['r']),
+                                              hexToBytes('0x' + _nfcCardSignitureList['s']),
+                                              BigInt.parse(vehicleType.toString()));
                                           if (result != null) {
                                             Timer(Duration(seconds: 2), () {
                                               setState(() {

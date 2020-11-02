@@ -9,7 +9,8 @@ import "./BaseManager.sol";
 contract CarManager is BaseManager {
     using ECDSA for bytes32;
 
-    string public constant CREATE_CAR_METHOD = "create(bytes32,bytes,uint256)";
+    string public constant CREATE_CAR_METHOD = "createCar(bytes32,bytes,uint256)";
+    string public constant CREATE_CAR_RAW_METHOD = "createCarRaw(bytes32,uint8, bytes32, bytes32,uint256)";
     string public constant DELIVER_CAR_METHOD = "deliverCar(address)";
     string public constant SELL_CAR_METHOD = "sellCar(address)";
     string public constant REGISTER_CAR_METHOD = "registerCar()";
@@ -64,6 +65,31 @@ contract CarManager is BaseManager {
         uint256 carTypeIndex
     ) external onlyAuthorized(CREATE_CAR_METHOD, msg.sender) {
         address carAddress = carIdHash.recover(signature);
+
+        carToken.mint(
+            msg.sender,
+            carIdHash,
+            carAddress
+        );
+
+        trackedCars[carAddress] = Car({
+            licensePlate: '',
+            carType: CarType(carTypeIndex),
+            carState: CarState.SHIPPED
+        });
+
+        emit CarAdded(carAddress);
+    }
+
+    function createCarRaw(
+        bytes32 carIdHash,
+        uint8 v, bytes32 r, bytes32 s,
+        uint256 carTypeIndex
+    ) external onlyAuthorized(CREATE_CAR_RAW_METHOD, msg.sender) {
+        //address carAddress = carIdHash.recover(signature);
+        address carAddress = ecrecover(carIdHash, v, r, s);
+
+        require(carAddress != address(0), "car address not found.");
 
         carToken.mint(
             msg.sender,

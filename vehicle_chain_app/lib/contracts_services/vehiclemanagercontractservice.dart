@@ -111,7 +111,7 @@ class CarManager extends ChangeNotifier {
     // _iTVInspectionEvent = _contract.event('ITVInspection');
 
     // set functions
-    _createCar = _contract.function('createCar');
+    _createCar = _contract.function('createCarRaw');
     _deliverCar = _contract.function('deliverCar');
     _sellCar = _contract.function('sellCar');
     _registerCar = _contract.function('registerCar');
@@ -210,11 +210,11 @@ class CarManager extends ChangeNotifier {
   }
 
   // Contract Calls
-  Future<String> createCar(String carIdHash, Uint8List signature, BigInt carTypeIndex) async {
-    log('VehicleManagerContract: addcar ' + carIdHash + ' ,' + signature.toString() + ' ,' + carTypeIndex.toString());
+  Future<String> createCar(Uint8List carIdHash, BigInt v, Uint8List r, Uint8List s, BigInt carTypeIndex) async {
+    log('VehicleManagerContract: addcar ' + carIdHash.toString() + ' ,' + v.toString() + r.toString() + s.toString() + ' ,' + carTypeIndex.toString());
     String res = await _client.sendTransaction(
       _credentials,
-      Transaction.callContract(contract: _contract, function: _createCar, maxGas: 6721975, parameters: [carIdHash, signature, carTypeIndex]),
+      Transaction.callContract(contract: _contract, function: _createCar, maxGas: 6721975, parameters: [carIdHash, v, r, s, carTypeIndex]),
       fetchChainIdFromNetworkId: true,
     );
     log('VehicleManagerContract: addCar result' + res);
