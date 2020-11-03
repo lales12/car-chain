@@ -7,7 +7,6 @@ import 'package:vehicle_chain_app/services/walletmanager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
-import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -24,12 +23,16 @@ class CarGot {
 // event classes (model)
 class CarAddedEvent {
   EthereumAddress carAddress;
-  CarAddedEvent({this.carAddress});
+  int blockNumber;
+  String transactionHash;
+  CarAddedEvent({this.carAddress, this.blockNumber, this.transactionHash});
 }
 
 class CarStateUpdatedEvent {
   EthereumAddress carAddress;
-  CarStateUpdatedEvent({this.carAddress});
+  int blockNumber;
+  String transactionHash;
+  CarStateUpdatedEvent({this.carAddress, this.blockNumber, this.transactionHash});
 }
 
 // contract class
@@ -41,17 +44,15 @@ class CarManager extends ChangeNotifier {
   EthereumAddress _contractAddress;
   EthereumAddress _userAddress;
   DeployedContract _contract;
+
   // contract functions
   ContractFunction _createCar;
   // ContractFunction _createCarRaw;
   ContractFunction _deliverCar;
   ContractFunction _sellCar;
   ContractFunction _registerCar;
-  // ContractFunction _updateCarStatef;
   ContractFunction _getCar;
-  // ContractFunction _getAddress;
-  // functions from ERC721
-  // ContractFunction _balanceOf;
+
   // events
   ContractEvent _carAddedEvent;
   ContractEvent _carStateUpdatedEvent;
@@ -62,7 +63,6 @@ class CarManager extends ChangeNotifier {
   EthereumAddress contractAddress;
   EthereumAddress userAddress;
   bool doneLoading = false;
-  // BigInt usersOwnedVehicles;
 
   CarManager(WalletManager walletManager) {
     _initiateSetup(walletManager);
@@ -77,8 +77,6 @@ class CarManager extends ChangeNotifier {
     await _getAbi(walletManager);
     await _getCredentials(walletManager.getAppUserWallet.privkey);
     await _getDeployedContract();
-    // await _userOwnedVehicles();
-    // public variable
     doneLoading = true;
     notifyListeners();
   }
@@ -111,18 +109,13 @@ class CarManager extends ChangeNotifier {
     // set events
     _carAddedEvent = _contract.event('CarAdded');
     _carStateUpdatedEvent = _contract.event('CarStateUpdated');
-    // _iTVInspectionEvent = _contract.event('ITVInspection');
 
     // set functions
     _createCar = _contract.function('createCar');
-    // _createCarRaw = _contract.function('createCarRaw');
     _deliverCar = _contract.function('deliverCar');
     _sellCar = _contract.function('sellCar');
     _registerCar = _contract.function('registerCar');
-    // _updateCarStatef = _contract.function('updateCarState');
     _getCar = _contract.function('getCar');
-
-    // _getAddress = _contract.function('getAddress');
 
     log('VehicleManager: list of functions:' + _contract.functions.map((e) => e.name).toList().toString());
     // set functions list
@@ -132,6 +125,7 @@ class CarManager extends ChangeNotifier {
     const String SELL_CAR_METHOD = "sellCar(address)";
     const String REGISTER_CAR_METHOD = "registerCar()";
     const String UPDATE_CAR_METHOD = "updateCarState(bytes,uint256)";
+
     contractFunctionsList = [CREATE_CAR_METHOD, CREATE_CAR_RAW_METHOD, DELIVER_CAR_METHOD, SELL_CAR_METHOD, REGISTER_CAR_METHOD, UPDATE_CAR_METHOD];
   }
 
@@ -153,9 +147,7 @@ class CarManager extends ChangeNotifier {
             (FilterEvent event) {
               final decoded = _carAddedEvent.decodeResults(event.topics, event.data);
               temp.add(
-                CarAddedEvent(
-                  carAddress: decoded[0] as EthereumAddress,
-                ),
+                CarAddedEvent(carAddress: decoded[0] as EthereumAddress, blockNumber: event.blockNum, transactionHash: event.transactionHash),
               );
             },
           );
@@ -196,9 +188,7 @@ class CarManager extends ChangeNotifier {
             (FilterEvent event) {
               final decoded = _carAddedEvent.decodeResults(event.topics, event.data);
               temp.add(
-                CarStateUpdatedEvent(
-                  carAddress: decoded[0] as EthereumAddress,
-                ),
+                CarStateUpdatedEvent(carAddress: decoded[0] as EthereumAddress, blockNumber: event.blockNum, transactionHash: event.transactionHash),
               );
             },
           );
@@ -233,22 +223,6 @@ class CarManager extends ChangeNotifier {
     return res;
   }
 
-  // Future<String> createCarRaw(Uint8List carIdHash, BigInt v, Uint8List r, Uint8List s, BigInt carTypeIndex) async {
-  //   log('VehicleManagerContract: addcar ' + carIdHash.toString() + ' ,' + v.toString() + r.toString() + s.toString() + ' ,' + carTypeIndex.toString());
-  //   String res = await _client.sendTransaction(
-  //     _credentials,
-  //     Transaction.callContract(
-  //         contract: _contract,
-  //         function: _createCarRaw,
-  //         maxGas: 9000000,
-  //         gasPrice: EtherAmount.inWei(BigInt.from(1)),
-  //         parameters: [carIdHash, v, r, s, carTypeIndex]),
-  //     fetchChainIdFromNetworkId: true,
-  //   );
-  //   log('VehicleManagerContract: addCar result' + res);
-  //   return res;
-  // }
-
   Future<String> deliverCar(EthereumAddress carAddress) async {
     log('VehicleManagerContract: deliverCar ' + carAddress.toString());
     String res = await _client.sendTransaction(
@@ -281,15 +255,6 @@ class CarManager extends ChangeNotifier {
     log('VehicleManagerContract: registerCar result' + res);
     return res;
   }
-
-  // Future<String> updateCarState(EthereumAddress carAddress, BigInt carStateIndex) async {
-  //   String res = await _client.sendTransaction(
-  //     _credentials,
-  //     Transaction.callContract(contract: _contract, function: _updateCarStatef, parameters: [carAddress, carStateIndex]),
-  //     fetchChainIdFromNetworkId: true,
-  //   );
-  //   return res;
-  // }
 
   Future<CarGot> getCar(EthereumAddress carAddress) async {
     log('recieved address: ' + carAddress.toString());
