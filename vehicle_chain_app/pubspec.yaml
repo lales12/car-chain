@@ -68,7 +68,6 @@ flutter:
     - abis/CarAsset.json
     - abis/CarManager.json
     - abis/ITVManager.json
-    - abis/Test.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

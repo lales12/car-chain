@@ -74,7 +74,7 @@ class _HomeState extends State<Home> {
       AuthorizerContract authContract = AuthorizerContract(walletManager);
       CarManager vehicleManagerContract = CarManager(walletManager);
       ItvManager itvManager = ItvManager(walletManager);
-      TestContract testContract = TestContract(walletManager);
+      // TestContract testContract = TestContract(walletManager);
       VehicleAssetContractService vehicleAsset = VehicleAssetContractService(walletManager);
       return MultiProvider(
         // we use this multi provider to provide smart contracts to all child widgets
@@ -92,10 +92,10 @@ class _HomeState extends State<Home> {
           ChangeNotifierProvider<VehicleAssetContractService>.value(
             value: vehicleAsset,
           ),
-          ChangeNotifierProvider<TestContract>.value(
-            // create: (context) => vehicleManagerContract,
-            value: testContract,
-          ),
+          // ChangeNotifierProvider<TestContract>.value(
+          //   // create: (context) => vehicleManagerContract,
+          //   value: testContract,
+          // ),
         ],
         child: Scaffold(
           appBar: AppBar(

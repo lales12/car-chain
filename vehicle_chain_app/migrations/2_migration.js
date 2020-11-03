@@ -5,14 +5,15 @@ module.exports = async (deployer, networks, accounts) => {
     const carManagerContract = artifacts.require("CarManager");
     const iTVManagerConctract = artifacts.require("ITVManager");
 
-    deployer.deploy(carAssetContract).then(function (carAssetContract) {
-        let carAssetContractAddress = carAssetContract.address;
-        deployer.deploy(authorizeContract).then(function (authorizeContract) {
-            let authorizeContractAddress = authorizeContract.address;
+    deployer.deploy(carAssetContract).then(async function (carAssetContract) {
+		let carAssetContractAddress = carAssetContract.address;
+		
+		let authContract = await deployer.deploy(authorizeContract);
 
-            deployer.deploy(baseContract, authorizeContractAddress, authorizeContractAddress);
-            deployer.deploy(carManagerContract, authorizeContractAddress, carAssetContractAddress);
-            deployer.deploy(iTVManagerConctract, authorizeContractAddress, carAssetContractAddress);
-        });
+		let authorizeContractAddress = authContract.address;
+
+		await deployer.deploy(baseContract, authorizeContractAddress, authorizeContractAddress);
+		await deployer.deploy(carManagerContract, authorizeContractAddress, carAssetContractAddress);
+		await deployer.deploy(iTVManagerConctract, authorizeContractAddress, carAssetContractAddress);
     });
 };

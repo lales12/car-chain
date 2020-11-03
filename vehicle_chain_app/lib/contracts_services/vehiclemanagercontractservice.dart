@@ -43,13 +43,13 @@ class CarManager extends ChangeNotifier {
   DeployedContract _contract;
   // contract functions
   ContractFunction _createCar;
-  ContractFunction _createCarRaw;
+  // ContractFunction _createCarRaw;
   ContractFunction _deliverCar;
   ContractFunction _sellCar;
   ContractFunction _registerCar;
   ContractFunction _updateCarState;
   ContractFunction _getCar;
-  ContractFunction _getAddress;
+  // ContractFunction _getAddress;
   // functions from ERC721
   // ContractFunction _balanceOf;
   // events
@@ -115,14 +115,14 @@ class CarManager extends ChangeNotifier {
 
     // set functions
     _createCar = _contract.function('createCar');
-    _createCarRaw = _contract.function('createCarRaw');
+    // _createCarRaw = _contract.function('createCarRaw');
     _deliverCar = _contract.function('deliverCar');
     _sellCar = _contract.function('sellCar');
     _registerCar = _contract.function('registerCar');
     // _updateCarState = _contract.function('updateCarState');
     _getCar = _contract.function('getCar');
 
-    _getAddress = _contract.function('getAddress');
+    // _getAddress = _contract.function('getAddress');
 
     log('VehicleManager: list of functions:' + _contract.functions.map((e) => e.name).toList().toString());
     // set functions list
@@ -132,20 +132,7 @@ class CarManager extends ChangeNotifier {
     const String SELL_CAR_METHOD = "sellCar(address)";
     const String REGISTER_CAR_METHOD = "registerCar()";
     const String UPDATE_CAR_METHOD = "updateCarState(bytes,uint256)";
-    contractFunctionsList = [
-      CREATE_CAR_METHOD,
-      CREATE_CAR_RAW_METHOD,
-      DELIVER_CAR_METHOD,
-      SELL_CAR_METHOD,
-      REGISTER_CAR_METHOD,
-      UPDATE_CAR_METHOD
-    ]; // [_createCar, _deliverCar, _sellCar, _registerCar];
-  }
-
-  Future<EthereumAddress> getAddress(Uint8List carIdHash, BigInt v, Uint8List r, Uint8List s) async {
-    List listRes = await _client.call(contract: _contract, function: _getAddress, params: [carIdHash, v, r, s]);
-
-    return listRes[0] as EthereumAddress;
+    contractFunctionsList = [CREATE_CAR_METHOD, CREATE_CAR_RAW_METHOD, DELIVER_CAR_METHOD, SELL_CAR_METHOD, REGISTER_CAR_METHOD, UPDATE_CAR_METHOD];
   }
 
   // Stream Events
@@ -246,21 +233,21 @@ class CarManager extends ChangeNotifier {
     return res;
   }
 
-  Future<String> createCarRaw(Uint8List carIdHash, BigInt v, Uint8List r, Uint8List s, BigInt carTypeIndex) async {
-    log('VehicleManagerContract: addcar ' + carIdHash.toString() + ' ,' + v.toString() + r.toString() + s.toString() + ' ,' + carTypeIndex.toString());
-    String res = await _client.sendTransaction(
-      _credentials,
-      Transaction.callContract(
-          contract: _contract,
-          function: _createCarRaw,
-          maxGas: 9000000,
-          gasPrice: EtherAmount.inWei(BigInt.from(1)),
-          parameters: [carIdHash, v, r, s, carTypeIndex]),
-      fetchChainIdFromNetworkId: true,
-    );
-    log('VehicleManagerContract: addCar result' + res);
-    return res;
-  }
+  // Future<String> createCarRaw(Uint8List carIdHash, BigInt v, Uint8List r, Uint8List s, BigInt carTypeIndex) async {
+  //   log('VehicleManagerContract: addcar ' + carIdHash.toString() + ' ,' + v.toString() + r.toString() + s.toString() + ' ,' + carTypeIndex.toString());
+  //   String res = await _client.sendTransaction(
+  //     _credentials,
+  //     Transaction.callContract(
+  //         contract: _contract,
+  //         function: _createCarRaw,
+  //         maxGas: 9000000,
+  //         gasPrice: EtherAmount.inWei(BigInt.from(1)),
+  //         parameters: [carIdHash, v, r, s, carTypeIndex]),
+  //     fetchChainIdFromNetworkId: true,
+  //   );
+  //   log('VehicleManagerContract: addCar result' + res);
+  //   return res;
+  // }
 
   Future<String> deliverCar(EthereumAddress carAddress) async {
     log('VehicleManagerContract: deliverCar ' + carAddress.toString());

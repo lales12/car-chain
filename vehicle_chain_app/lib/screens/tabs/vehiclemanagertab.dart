@@ -184,16 +184,12 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
 
   @override
   Widget build(BuildContext context) {
-    final testContract = Provider.of<TestContract>(context);
+    // final testContract = Provider.of<TestContract>(context);
     final vehicleManagerContract = Provider.of<CarManager>(context);
     final appUserWallet = Provider.of<WalletManager>(context).getAppUserWallet;
     final vehicleAssetContractService = Provider.of<VehicleAssetContractService>(context);
     final appSetting = Provider.of<AppSettings>(context);
-    if (appUserWallet != null &&
-        vehicleManagerContract.doneLoading &&
-        vehicleAssetContractService.usersOwnedVehicles != null &&
-        appSetting != null &&
-        testContract.doneLoading) {
+    if (appUserWallet != null && vehicleManagerContract.doneLoading && vehicleAssetContractService.usersOwnedVehicles != null && appSetting != null) {
       //logs
       print('vehicleManagerTab Contract address: ' + vehicleManagerContract.contractAddress.toString());
       print('vehicleManagerTab Contract User address: ' + vehicleManagerContract.userAddress.toString());
@@ -387,8 +383,8 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                           Uint8List signiture = Uint8List.fromList(rsv);
 
                                           log('vin has to send: 0x' + bytesToHex(vinHash));
-                                          String result = await vehicleManagerContract.createCarRaw(vinHash, v, r, s, BigInt.parse(vehicleType.toString()));
-                                          // String result = await vehicleManagerContract.createCar(vinHash, signiture, BigInt.parse(vehicleType.toString()));
+                                          // String result = await vehicleManagerContract.createCarRaw(vinHash, v, r, s, BigInt.parse(vehicleType.toString()));
+                                          String result = await vehicleManagerContract.createCar(vinHash, signiture, BigInt.parse(vehicleType.toString()));
                                           // EthereumAddress result = await vehicleManagerContract.getAddress(vinHash, v, r, s);
                                           log('result: ' + result.toString());
                                           if (result != null) {
