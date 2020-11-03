@@ -92,8 +92,19 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
     platformEvents.receiveBroadcastStream().listen(_onEvent, onError: _onError);
   }
 
+  StreamSubscription signitureSubscription;
+
   void _listenSignedHash() {
-    platformSignEvents.receiveBroadcastStream().listen(_onSignEvent, onError: _onError);
+    signitureSubscription = platformSignEvents.receiveBroadcastStream().listen(_onSignEvent, onError: _onError);
+  }
+
+  @override
+  void dispose() {
+    log('vehicleManager Tab dispose');
+    super.dispose();
+    if (signitureSubscription != null) {
+      signitureSubscription.cancel();
+    }
   }
 
   void _onSignEvent(Object event) {
@@ -302,17 +313,8 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                           stateNFCButton = ButtonState.loading;
                                         });
                                         try {
-                                          // log('creating hash of card ID: ' + vehicleVIN);
-                                          // List<int> list = vehicleVIN.codeUnits;
-                                          // Uint8List bytes = Uint8List.fromList(list);
-                                          // Uint8List carIdHash = keccak256(bytes);
-                                          // log('created hash: ' + carIdHash.toString());
-                                          // "\x19Ethereum Signed Message:\n" + message.length + message
-
-                                          // String message = "\x19Ethereum Signed Message:\n32" + bytesToHex(keccak256(Uint8List.fromList(vehicleVIN.codeUnits)));
-
                                           Uint8List vinHash = keccak256(Uint8List.fromList(vehicleVIN.codeUnits));
-                                          log('hash of vin in flutter: ' + vinHash.toString());
+                                          // log('hash of vin in flutter: ' + vinHash.toString());
                                           log('hash of vin in hex: ' + bytesToHex(vinHash));
 
                                           await _runCardSignerOnPlatform(vinHash);

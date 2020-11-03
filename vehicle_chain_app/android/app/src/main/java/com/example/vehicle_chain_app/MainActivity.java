@@ -62,10 +62,10 @@ class SignStreamHandler implements EventChannel.StreamHandler {
                 @Override
                 public void onDisconnected() {
                     Log.i(TAG, "Card disconnected.");
-                    /*activity.runOnUiThread(() -> {
+                    activity.runOnUiThread(() -> {
                         Log.i(TAG, "Ending stream.");
-                        eventSink.endOfStream();
-                    });*/
+                        // eventSink.endOfStream();
+                    });
                 }
                 @Override
                 public void onConnected(CardChannel cardChannel) {
@@ -160,6 +160,11 @@ class SignStreamHandler implements EventChannel.StreamHandler {
             nfcAdapter.disableReaderMode(activity);
         }
         handler.removeCallbacks(runnable);
+        if (this.eventSink != null) {
+            //this.eventSink.endOfStream();
+        }
+        cardManager.stop();
+
     }
 }
 
@@ -261,7 +266,6 @@ public class MainActivity extends FlutterActivity {
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine);
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-        cardManager = new NFCCardManager();
         new MethodChannel(flutterEngine.getDartExecutor(), METHODCHANNEL).setMethodCallHandler(
                 new MethodCallHandler() {
                     @Override
@@ -277,6 +281,7 @@ public class MainActivity extends FlutterActivity {
                             case "runCardInfoStream":
                                 try {
                                     Log.i(TAG, "Creating event channel Stream...");
+                                    cardManager = new NFCCardManager();
                                     new EventChannel(flutterEngine.getDartExecutor(), EVENTCHANNEL).setStreamHandler(
                                             new InfoStreamHandler(cardManager, nfcAdapter, activity)
                                     );
@@ -288,12 +293,14 @@ public class MainActivity extends FlutterActivity {
                             case "runSignStream":
                                 try {
                                     Log.i(TAG, "Creating Sign event channel Stream...");
-                                    Log.i(TAG, "method param: " + call.arguments.toString());
+                                    Log.i(TAG, "method param: " + Hex.toHexString(call.argument("hash")));
+                                    cardManager = new NFCCardManager();
                                     new EventChannel(flutterEngine.getDartExecutor(), SIGNCHANNEL).setStreamHandler(
                                             new SignStreamHandler(cardManager, nfcAdapter, activity, call.argument("hash"))
                                     );
                                     result.success(true);
                                 } catch (Exception e) {
+                                    Log.i(TAG, "failed on exception");
                                     result.error("SIGNER", "Failed to launch a new stream for Signing", e.toString());
                                 }
                                 break;

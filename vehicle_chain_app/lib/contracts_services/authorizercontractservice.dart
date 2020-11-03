@@ -72,6 +72,7 @@ class AuthorizerContract extends ChangeNotifier {
     var jsonAbi = jsonDecode(abiStringFile);
     _abiCode = jsonEncode(jsonAbi["abi"]);
     _contractAddress = EthereumAddress.fromHex(jsonAbi["networks"][walletManager.activeNetwork.networkId]["address"]);
+    // _contractAddress = EthereumAddress.fromHex('0xCB882401f659C649829F9F6758CD07796798C020');
     contractAddress = _contractAddress;
     log('AuthorizerContract Service: contract address: ' + contractAddress.toString());
     // gettting contractDeployedBlockNumber

@@ -88,6 +88,7 @@ class CarManager extends ChangeNotifier {
     var jsonAbi = jsonDecode(abiStringFile);
     _abiCode = jsonEncode(jsonAbi["abi"]);
     _contractAddress = EthereumAddress.fromHex(jsonAbi["networks"][walletManager.activeNetwork.networkId]["address"]);
+    // _contractAddress = EthereumAddress.fromHex('0x1DD65062Db2DEf96bcC765573dd8B36E97273417');
     contractAddress = _contractAddress;
     // gettting contractDeployedBlockNumber
     String _deplyTxHash = jsonAbi["networks"][walletManager.activeNetwork.networkId]["transactionHash"];

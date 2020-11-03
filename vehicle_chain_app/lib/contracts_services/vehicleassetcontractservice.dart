@@ -83,6 +83,7 @@ class VehicleAssetContractService extends ChangeNotifier {
     var jsonAbi = jsonDecode(abiStringFile);
     _abiCode = jsonEncode(jsonAbi["abi"]);
     _contractAddress = EthereumAddress.fromHex(jsonAbi["networks"][_walletManager.activeNetwork.networkId]["address"]);
+    // _contractAddress = EthereumAddress.fromHex('0x9B34b92D5C38BCa9E9cE788984Df3321Ad555d78');
     contractAddress = _contractAddress;
     // gettting contractDeployedBlockNumber
     String _deplyTxHash = jsonAbi["networks"][_walletManager.activeNetwork.networkId]["transactionHash"];
