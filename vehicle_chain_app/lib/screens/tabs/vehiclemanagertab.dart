@@ -7,6 +7,7 @@ import 'package:barcode_scan/barcode_scan.dart';
 import 'package:ethereum_address/ethereum_address.dart';
 import 'package:hex/hex.dart';
 import 'package:tweetnacl/tweetnacl.dart';
+import 'package:vehicle_chain_app/contracts_services/test.dart';
 import 'package:vehicle_chain_app/contracts_services/vehicleassetcontractservice.dart';
 import 'package:vehicle_chain_app/contracts_services/vehiclemanagercontractservice.dart';
 import 'package:vehicle_chain_app/services/appsettingservice.dart';
@@ -172,11 +173,16 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
 
   @override
   Widget build(BuildContext context) {
+    final testContract = Provider.of<TestContract>(context);
     final vehicleManagerContract = Provider.of<CarManager>(context);
     final appUserWallet = Provider.of<WalletManager>(context).getAppUserWallet;
     final vehicleAssetContractService = Provider.of<VehicleAssetContractService>(context);
     final appSetting = Provider.of<AppSettings>(context);
-    if (appUserWallet != null && vehicleManagerContract.doneLoading && vehicleAssetContractService.usersOwnedVehicles != null && appSetting != null) {
+    if (appUserWallet != null &&
+        vehicleManagerContract.doneLoading &&
+        vehicleAssetContractService.usersOwnedVehicles != null &&
+        appSetting != null &&
+        testContract.doneLoading) {
       //logs
       print('vehicleManagerTab Contract address: ' + vehicleManagerContract.contractAddress.toString());
       print('vehicleManagerTab Contract User address: ' + vehicleManagerContract.userAddress.toString());
@@ -371,12 +377,18 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                         });
                                         try {
                                           Uint8List vinHash = keccak256(Uint8List.fromList(vehicleVIN.codeUnits));
-                                          String result = await vehicleManagerContract.createCar(
-                                              vinHash,
-                                              BigInt.from(int.parse(_nfcCardSignitureList['v']) + 27),
-                                              hexToBytes('0x' + _nfcCardSignitureList['r']),
-                                              hexToBytes('0x' + _nfcCardSignitureList['s']),
-                                              BigInt.parse(vehicleType.toString()));
+                                          Uint8List r = hexToBytes(_nfcCardSignitureList['r']);
+                                          Uint8List s = hexToBytes(_nfcCardSignitureList['s']);
+                                          BigInt v = BigInt.from(int.parse(_nfcCardSignitureList['v']) + 27);
+                                          int vInt = int.parse(_nfcCardSignitureList['v']) + 27;
+                                          List<int> rsv = [...r, ...s, vInt];
+                                          Uint8List signiture = Uint8List.fromList(rsv);
+
+                                          log('vin has to send: 0x' + bytesToHex(vinHash));
+                                          String result = await vehicleManagerContract.createCarRaw(vinHash, v, r, s, BigInt.parse(vehicleType.toString()));
+                                          // String result = await vehicleManagerContract.createCar(vinHash, signiture, BigInt.parse(vehicleType.toString()));
+                                          // EthereumAddress result = await vehicleManagerContract.getAddress(vinHash, v, r, s);
+                                          log('result: ' + result.toString());
                                           if (result != null) {
                                             Timer(Duration(seconds: 2), () {
                                               setState(() {
@@ -389,8 +401,9 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                               });
                                             });
                                           }
-                                          print('done call tx: ' + result);
+                                          print('done call tx: ' + result.toString());
                                         } catch (e) {
+                                          log(e.toString());
                                           final snackBar = SnackBar(
                                             duration: Duration(seconds: 10),
                                             content: Text('error create car button: ' + e.toString()),

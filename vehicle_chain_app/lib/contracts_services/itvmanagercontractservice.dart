@@ -33,7 +33,7 @@ class ItvManager extends ChangeNotifier {
 
   // contract functions
   ContractFunction _updateITV;
-  List<ContractFunction> contractFunctionsList;
+  List<String> contractFunctionsList;
 
   // events
   ContractEvent _iTVInspectionEvent;
@@ -88,8 +88,11 @@ class ItvManager extends ChangeNotifier {
     _iTVInspectionEvent = _contract.event('ITVInspectionEvent');
     // set functions
     _updateITV = _contract.function('updateITV');
+
+    const String UPDATE_METHOD = 'updateITV(uint256,uint256)';
+
     contractFunctionsList = [
-      _updateITV,
+      UPDATE_METHOD,
     ];
     // contractFunctionsList = _contract.functions;
     // log('ItvManager: List of functions ' + contractFunctionsList.map<String>((f) => f.name).toList().toString());

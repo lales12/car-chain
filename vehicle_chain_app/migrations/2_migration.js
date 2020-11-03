@@ -4,15 +4,26 @@ module.exports = async (deployer, networks, accounts) => {
 	const carAssetContract = artifacts.require("CarAsset");
 	const carManagerContract = artifacts.require("CarManager");
 	const iTVManagerConctract = artifacts.require("ITVManager");
+	const test = artifacts.require("Test");
 
 	let carAssetContractAddress;
 	let authorizeContractAddress;
 
-	deployer.deploy(carAssetContract).then(function (carAssetContract) {
-		carAssetContractAddress = carAssetContract.address;
+	// let instance_carAssetContract = await deployer.deploy(carAssetContract);
+	// let instance_authorizeContract = await deployer.deploy(authorizeContract);
 
-		return deployer.deploy(authorizeContract).then(function (authorizeContract) {
-			authorizeContractAddress = authorizeContract.address;
+	// let deployed_carAssetContract =  await instance_carAssetContract.deployed();
+	// let deployed_authorizeContract =  await instance_authorizeContract.deployed();
+	
+	// deployer.deploy(baseContract, deployed_authorizeContract.address, deployed_carAssetContract.address);
+	// deployer.deploy(carManagerContract, deployed_authorizeContract.address, deployed_carAssetContract.address);
+	// deployer.deploy(iTVManagerConctract, deployed_authorizeContract.address, deployed_carAssetContract.address);
+
+	deployer.deploy(carAssetContract).then(function (carAssetContract_deployed) {
+		carAssetContractAddress = carAssetContract_deployed.address;
+
+		return deployer.deploy(authorizeContract).then(function (authorizeContract_deployed) {
+			authorizeContractAddress = authorizeContract_deployed.address;
 
 			return deployer.deploy(baseContract, authorizeContractAddress, carAssetContractAddress).then(function (baseContract) {
 				return deployer
@@ -23,6 +34,8 @@ module.exports = async (deployer, networks, accounts) => {
 			});
 		});
 	});
+
+	deployer.deploy(test);
 };
 
 /* another example

@@ -30,7 +30,7 @@ class ExpandingItem {
 class InputContract {
   String name;
   String address;
-  List<ContractFunction> functionList;
+  List<String> functionList;
   InputContract({this.name, this.address});
 }
 
@@ -156,10 +156,10 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                   ),
                                   SizedBox(height: 20.0),
                                   DropdownButtonFormField(
-                                    value: contractsList[selectedContractIndex].functionList[selectedFunctionIndex].encodeName(),
+                                    value: contractsList[selectedContractIndex].functionList[selectedFunctionIndex],
                                     items: contractsList[selectedContractIndex].functionList.map((func) {
-                                      print('func: ' + func.encodeName());
-                                      return DropdownMenuItem(value: func.encodeName(), child: Text(func.name));
+                                      print('func: ' + func);
+                                      return DropdownMenuItem(value: func, child: Text(func));
                                     }).toList(),
                                     decoration: InputDecoration().copyWith(hintText: 'Functions'),
                                     onChanged: (val) => inputFunctionName = val,
@@ -333,10 +333,10 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                   //   onChanged: (val) => inputFunctionName = val,
                                   // ),
                                   DropdownButtonFormField(
-                                    value: contractsList[selectedContractIndex].functionList[selectedFunctionIndex].encodeName(),
+                                    value: contractsList[selectedContractIndex].functionList[selectedFunctionIndex],
                                     items: contractsList[selectedContractIndex].functionList.map((func) {
-                                      print('func: ' + func.encodeName());
-                                      return DropdownMenuItem(value: func.encodeName(), child: Text(func.name));
+                                      print('func: ' + func);
+                                      return DropdownMenuItem(value: func, child: Text(func));
                                     }).toList(),
                                     decoration: InputDecoration().copyWith(hintText: 'Functions'),
                                     onChanged: (val) => inputFunctionName = val,
@@ -505,10 +505,10 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                 //   onChanged: (val) => inputFunctionName = val,
                                 // ),
                                 DropdownButtonFormField(
-                                  value: contractsList[selectedContractIndex].functionList[selectedFunctionIndex].encodeName(),
+                                  value: contractsList[selectedContractIndex].functionList[selectedFunctionIndex],
                                   items: contractsList[selectedContractIndex].functionList.map((func) {
-                                    print('func: ' + func.encodeName());
-                                    return DropdownMenuItem(value: func.encodeName(), child: Text(func.name));
+                                    print('func: ' + func);
+                                    return DropdownMenuItem(value: func, child: Text(func));
                                   }).toList(),
                                   decoration: InputDecoration().copyWith(hintText: 'Functions'),
                                   onChanged: (val) => inputFunctionName = val,
