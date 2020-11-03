@@ -57,6 +57,8 @@ class VehicleAssetContractService extends ChangeNotifier {
   ContractFunction _tokenOfOwnerByIndex;
   ContractFunction _transferFrom;
   ContractFunction _getCarAddress;
+  ContractFunction _transferFromAddress;
+  ContractFunction _burnCar;
 
   // events
   ContractEvent _transferEvent;
@@ -117,6 +119,8 @@ class VehicleAssetContractService extends ChangeNotifier {
     _tokenOfOwnerByIndex = _contract.function('tokenOfOwnerByIndex');
     _transferFrom = _contract.function('transferFrom');
     _getCarAddress = _contract.function('getCarAddress');
+    _transferFromAddress = _contract.function('transferFromAddress');
+    _burnCar = _contract.function('burn');
 
     contractFunctionsList = _contract.functions;
     log('VehicleAssetContractService: List of functions ' + contractFunctionsList.map<String>((f) => f.name).toList().toString());
@@ -131,6 +135,28 @@ class VehicleAssetContractService extends ChangeNotifier {
       fetchChainIdFromNetworkId: true,
     );
     log('VehicleAssetContractService: transferFrom result' + res);
+    return res;
+  }
+
+  Future<String> transferFromAddress(EthereumAddress from, EthereumAddress to, EthereumAddress carAddress) async {
+    log('VehicleAssetContractService: transferFromAddress: carAddress ' + carAddress.toString() + ' ,from ' + from.toString() + ' ,to ' + to.toString());
+    String res = await _client.sendTransaction(
+      _credentials,
+      Transaction.callContract(contract: _contract, function: _transferFromAddress, maxGas: 6721975, parameters: [from, to, carAddress]),
+      fetchChainIdFromNetworkId: true,
+    );
+    log('VehicleAssetContractService: transferFromAddress result' + res);
+    return res;
+  }
+
+  Future<String> burnCar(BigInt id) async {
+    log('VehicleAssetContractService: burnCar: id ' + id.toString());
+    String res = await _client.sendTransaction(
+      _credentials,
+      Transaction.callContract(contract: _contract, function: _burnCar, maxGas: 6721975, parameters: [id]),
+      fetchChainIdFromNetworkId: true,
+    );
+    log('VehicleAssetContractService: burnCar result' + res);
     return res;
   }
 
