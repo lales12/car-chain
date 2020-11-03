@@ -139,10 +139,11 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
   ////////////////////////////////////////////////
 
   final _formKeyAdd = GlobalKey<FormState>();
-  final _formKeyUpdate = GlobalKey<FormState>();
-  final _formKeyGet = GlobalKey<FormState>();
-  final _formKeyTransfer = GlobalKey<FormState>();
-  final Map<String, int> vehicleStates = {'SHIPPED': 1, 'FOR_SALE': 2, 'PROCESSING_SALE': 3, 'SOLD': 4, 'PROCESSING_REGISTER': 5, 'REGISTERED': 6};
+  final _formKeyDeliver = GlobalKey<FormState>();
+  final _formKeySell = GlobalKey<FormState>();
+  final _formKeyRegister = GlobalKey<FormState>();
+  final _formKeyGett = GlobalKey<FormState>();
+  final Map<String, int> vehicleStates = {'SHIPPED': 1, 'FOR_SALE': 2, 'SOLD': 3, 'REGISTERED': 4};
   final Map<String, int> vehicleTypes = {'TWO_WHEEL': 1, 'THREE_WHEEL': 2, 'FOUR_WHEEL': 3, 'HEAVY': 4, 'AGRICULTURE': 5, 'SERVICE': 6};
   // input for function add Vehicle
   String vehicleVIN;
@@ -154,7 +155,7 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
   BigInt inputVehicleTockenId;
   int vehicleState;
   // input transfer vehicle
-  String toAddress;
+  String inputLicensePlate;
 
   ButtonState stateCallSmartContractFunctionButton = ButtonState.idle;
   ButtonState stateNFCButton = ButtonState.idle;
@@ -166,18 +167,23 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
       isExpanded: false,
     ),
     Item(
-      name: 'Update State',
-      shortDiscribe: 'Update the status of a vehicle on the blockchain.',
+      name: 'Deliver Vehicle',
+      shortDiscribe: 'Deliver the Vehicle to Agency and set it for sale.',
       isExpanded: false,
     ),
     Item(
-      name: 'Get Status',
-      shortDiscribe: 'Read the Status of a Vehicle',
+      name: 'Sell Vehicle',
+      shortDiscribe: 'Set Vehicle as Sold',
       isExpanded: false,
     ),
     Item(
-      name: 'Transfer Vehicle',
-      shortDiscribe: 'Transfer the ownership of your vehicle to another address',
+      name: 'Register Vehicle',
+      shortDiscribe: "Register Vehicle's License Plate",
+      isExpanded: false,
+    ),
+    Item(
+      name: 'Get Vehicle',
+      shortDiscribe: "Get Vehicle's current status",
       isExpanded: false,
     ),
   ];
@@ -189,7 +195,10 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
     final appUserWallet = Provider.of<WalletManager>(context).getAppUserWallet;
     final vehicleAssetContractService = Provider.of<VehicleAssetContractService>(context);
     final appSetting = Provider.of<AppSettings>(context);
-    if (appUserWallet != null && vehicleManagerContract.doneLoading && vehicleAssetContractService.usersOwnedVehicles != null && appSetting != null) {
+    if (appUserWallet != null &&
+        vehicleManagerContract.doneLoading &&
+        vehicleAssetContractService.usersTotalNumberOwnedVehicles != null &&
+        appSetting != null) {
       //logs
       print('vehicleManagerTab Contract address: ' + vehicleManagerContract.contractAddress.toString());
       print('vehicleManagerTab Contract User address: ' + vehicleManagerContract.userAddress.toString());
@@ -228,6 +237,9 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                     },
                     children: [
                       if (['manufacturer', 'concessionaire', 'admin'].contains(appSetting.activeAppRole.key)) ...[
+                        ///////////////////////////////////////////////////////////////////////////////
+                        ////////////////////////////// Create Vehicle /////////////////////////////////
+                        ///////////////////////////////////////////////////////////////////////////////
                         ExpansionPanel(
                           isExpanded: _data[0].isExpanded,
                           canTapOnHeader: true,
@@ -435,6 +447,10 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                             ),
                           ),
                         ),
+
+                        ///////////////////////////////////////////////////////////////////////////////
+                        ////////////////////////////// Deliver Vehicle ////////////////////////////////
+                        ///////////////////////////////////////////////////////////////////////////////
                         ExpansionPanel(
                           isExpanded: _data[1].isExpanded,
                           canTapOnHeader: true,
@@ -444,7 +460,7 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                             );
                           },
                           body: Form(
-                            key: _formKeyUpdate,
+                            key: _formKeyDeliver,
                             child: Padding(
                               padding: const EdgeInsets.all(20.0),
                               child: Column(
@@ -454,31 +470,23 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                     _data[1].shortDiscribe,
                                   ),
                                   SizedBox(height: 20.0),
-                                  new TextFormField(
-                                    decoration: InputDecoration().copyWith(hintText: 'Vehicle Id'),
-                                    validator: (val) => val.isEmpty ? 'Enter a valid Vehicle Id' : null,
-                                    onChanged: (val) {
-                                      inputVehicleTockenId = BigInt.parse(val);
-                                    },
-                                  ),
-                                  SizedBox(height: 20.0),
                                   DropdownButtonFormField(
                                     items: () {
-                                      List<DropdownMenuItem> tempList = new List<DropdownMenuItem>();
-                                      vehicleStates.forEach((key, value) {
-                                        // print('add vehicle key: ' + key + 'add vehicle value: ' + value.toString());
-                                        tempList.add(DropdownMenuItem(value: value, child: Text(key)));
-                                      });
-                                      return tempList;
+                                      List<DropdownMenuItem> dropList = new List<DropdownMenuItem>();
+                                      for (var i = 0; i < vehicleAssetContractService.usersTotalNumberOwnedVehicles.toInt(); i++) {
+                                        String shortCarAddr = vehicleAssetContractService.usersListOwnedVehicles[i].address.toString().substring(0, 8);
+                                        dropList.add(DropdownMenuItem(value: i, child: Text('Vehicle No.' + (i + 1).toString() + ', ' + shortCarAddr)));
+                                      }
+                                      return dropList;
                                     }(),
-                                    decoration: InputDecoration().copyWith(hintText: 'Vehicle Sate'),
-                                    onChanged: (val) => vehicleState = val,
+                                    decoration: InputDecoration().copyWith(hintText: 'Car Index'),
+                                    onChanged: (val) => tockenIndex = val,
                                   ),
                                   SizedBox(height: 20.0),
                                   new ProgressButton.icon(
                                     iconedButtons: {
                                       ButtonState.idle: IconedButton(
-                                          text: _data[1].name, icon: Icon(Icons.update, color: Colors.white), color: Theme.of(context).buttonColor),
+                                          text: _data[1].name, icon: Icon(Icons.delivery_dining, color: Colors.white), color: Theme.of(context).buttonColor),
                                       ButtonState.loading: IconedButton(text: "Changing", color: Theme.of(context).buttonColor),
                                       ButtonState.fail:
                                           IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
@@ -492,7 +500,7 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                     },
                                     state: stateCallSmartContractFunctionButton,
                                     onPressed: () async {
-                                      if (_formKeyUpdate.currentState.validate()) {
+                                      if (_formKeyDeliver.currentState.validate()) {
                                         print('button pressed: ' + _data[1].name);
                                         print(inputVehicleTockenId);
                                         print(vehicleState);
@@ -500,8 +508,9 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                           stateCallSmartContractFunctionButton = ButtonState.loading;
                                         });
                                         try {
-                                          String result = null;
-                                          // await vehicleManagerContract.updateCarState(inputVehicleTockenId, BigInt.parse(vehicleState.toString()));
+                                          OwnedVehicle selectedVehicle = vehicleAssetContractService.usersListOwnedVehicles[tockenIndex];
+                                          log('DeliverCar button: ' + selectedVehicle.address.toString());
+                                          String result = await vehicleManagerContract.deliverCar(selectedVehicle.address);
                                           if (result != null) {
                                             Timer(Duration(seconds: 2), () {
                                               setState(() {
@@ -550,6 +559,10 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                           ),
                         ),
                       ],
+
+                      ///////////////////////////////////////////////////////////////////////////////
+                      /////////////////////////////// Sell Vehicle //////////////////////////////////
+                      ///////////////////////////////////////////////////////////////////////////////
                       ExpansionPanel(
                         isExpanded: _data[2].isExpanded,
                         canTapOnHeader: true,
@@ -559,7 +572,7 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                           );
                         },
                         body: Form(
-                          key: _formKeyGet,
+                          key: _formKeySell,
                           child: Padding(
                             padding: const EdgeInsets.all(20.0),
                             child: Column(
@@ -572,8 +585,9 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                 DropdownButtonFormField(
                                   items: () {
                                     List<DropdownMenuItem> dropList = new List<DropdownMenuItem>();
-                                    for (var i = 0; i < vehicleAssetContractService.usersOwnedVehicles.toInt(); i++) {
-                                      dropList.add(DropdownMenuItem(value: i, child: Text('Vehicle No.' + (i + 1).toString())));
+                                    for (var i = 0; i < vehicleAssetContractService.usersTotalNumberOwnedVehicles.toInt(); i++) {
+                                      String shortCarAddr = vehicleAssetContractService.usersListOwnedVehicles[i].address.toString().substring(0, 8);
+                                      dropList.add(DropdownMenuItem(value: i, child: Text('Vehicle No.' + (i + 1).toString() + ', ' + shortCarAddr)));
                                     }
                                     return dropList;
                                   }(),
@@ -598,25 +612,19 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                   },
                                   state: stateCallSmartContractFunctionButton,
                                   onPressed: () async {
-                                    if (_formKeyGet.currentState.validate()) {
+                                    if (_formKeySell.currentState.validate()) {
                                       print('button pressed: ' + _data[2].name);
                                       setState(() {
                                         stateCallSmartContractFunctionButton = ButtonState.loading;
                                       });
                                       try {
-                                        BigInt tokenId = await vehicleAssetContractService.getTockenIdByIndex(BigInt.parse(tockenIndex.toString()));
-                                        Car result = null; //await vehicleManagerContract.getCar(tokenId);
+                                        OwnedVehicle selectedVehicle = vehicleAssetContractService.usersListOwnedVehicles[tockenIndex];
+                                        log('SellCar button: ' + selectedVehicle.address.toString());
+                                        String result = await vehicleManagerContract.sellCar(selectedVehicle.address);
                                         if (result != null) {
                                           final snackBar = SnackBar(
-                                            duration: Duration(seconds: 30),
-                                            content: Text('Your Vehicle \nid: ' +
-                                                result.address.toString() +
-                                                '\nLicense Plate: ' +
-                                                result.licensePlate +
-                                                '\nCar Type: ' +
-                                                vehicleTypes.keys.firstWhere((k) => vehicleTypes[k] == result.carType.toInt(), orElse: () => null) +
-                                                '\nCar State: ' +
-                                                vehicleStates.keys.firstWhere((k) => vehicleStates[k] == result.carState.toInt(), orElse: () => null)),
+                                            duration: Duration(seconds: 5),
+                                            content: Text('Transaction Id: ' + result),
                                             action: SnackBarAction(
                                               textColor: Theme.of(context).buttonColor,
                                               label: 'OK',
@@ -673,6 +681,10 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                           ),
                         ),
                       ),
+
+                      ///////////////////////////////////////////////////////////////////////////////
+                      ///////////////////////////// Register Vehicle ////////////////////////////////
+                      ///////////////////////////////////////////////////////////////////////////////
                       ExpansionPanel(
                         isExpanded: _data[3].isExpanded,
                         canTapOnHeader: true,
@@ -682,7 +694,7 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                           );
                         },
                         body: Form(
-                          key: _formKeyTransfer,
+                          key: _formKeyRegister,
                           child: Padding(
                             padding: const EdgeInsets.all(20.0),
                             child: Column(
@@ -695,8 +707,9 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                 DropdownButtonFormField(
                                   items: () {
                                     List<DropdownMenuItem> dropList = new List<DropdownMenuItem>();
-                                    for (var i = 0; i < vehicleAssetContractService.usersOwnedVehicles.toInt(); i++) {
-                                      dropList.add(DropdownMenuItem(value: i, child: Text('Vehicle No.' + (i + 1).toString())));
+                                    for (var i = 0; i < vehicleAssetContractService.usersTotalNumberOwnedVehicles.toInt(); i++) {
+                                      String shortCarAddr = vehicleAssetContractService.usersListOwnedVehicles[i].address.toString().substring(0, 8);
+                                      dropList.add(DropdownMenuItem(value: i, child: Text('Vehicle No.' + (i + 1).toString() + ', ' + shortCarAddr)));
                                     }
                                     return dropList;
                                   }(),
@@ -704,53 +717,14 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                   onChanged: (val) => tockenIndex = val,
                                 ),
                                 SizedBox(height: 20.0),
-                                // new TextFormField(
-                                //   decoration: InputDecoration().copyWith(hintText: 'To Ethereum address'),
-                                //   validator: (val) => val.isEmpty ? 'Enter a valid Vehicle Id' : null,
-                                //   onChanged: (val) {
-                                //     toAddress = EthereumAddress.fromHex(val);
-                                //   },
-                                // ),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextFormField(
-                                          key: Key(toAddress.toString()),
-                                          initialValue: toAddress,
-                                          decoration: InputDecoration().copyWith(hintText: 'To Address'),
-                                          validator: (val) => val.isEmpty ? 'Enter a valid To Address' : null,
-                                          onChanged: (val) {
-                                            toAddress = val;
-                                          }),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.qr_code_scanner),
-                                      onPressed: () async {
-                                        try {
-                                          String qrResult = await BarcodeScanner.scan();
-                                          print('qrResult: ' + qrResult);
-                                          setState(() {
-                                            toAddress = qrResult;
-                                          });
-                                        } on PlatformException catch (ex) {
-                                          if (ex.code == BarcodeScanner.CameraAccessDenied) {
-                                            toAddress = "Camera permission was denied";
-                                            print('qrResult: ' + toAddress);
-                                          } else {
-                                            toAddress = "Unknown Error $ex";
-                                            print('qrResult: ' + toAddress);
-                                          }
-                                        } on FormatException {
-                                          toAddress = "You pressed the back button before scanning anything";
-                                          print('qrResult: ' + toAddress);
-                                        } catch (ex) {
-                                          toAddress = "Unknown Error $ex";
-                                          print('qrResult: ' + toAddress);
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                ),
+                                new TextFormField(
+                                    key: Key(inputLicensePlate),
+                                    initialValue: inputLicensePlate,
+                                    decoration: InputDecoration().copyWith(hintText: 'License Plate'),
+                                    validator: (val) => val.isEmpty ? 'Enter a valid License Plate' : null,
+                                    onChanged: (val) {
+                                      inputLicensePlate = val;
+                                    }),
                                 SizedBox(height: 20.0),
                                 new ProgressButton.icon(
                                   iconedButtons: {
@@ -769,14 +743,15 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                   },
                                   state: stateCallSmartContractFunctionButton,
                                   onPressed: () async {
-                                    if (_formKeyGet.currentState.validate()) {
+                                    if (_formKeyRegister.currentState.validate()) {
                                       print('button pressed: ' + _data[3].name);
                                       setState(() {
                                         stateCallSmartContractFunctionButton = ButtonState.loading;
                                       });
                                       try {
-                                        BigInt tokenId = await vehicleAssetContractService.getTockenIdByIndex(BigInt.parse(tockenIndex.toString()));
-                                        String result = await vehicleAssetContractService.transferFrom(EthereumAddress.fromHex(toAddress), tokenId);
+                                        OwnedVehicle selectedVehicle = vehicleAssetContractService.usersListOwnedVehicles[tockenIndex];
+                                        log('getCar button: ' + selectedVehicle.address.toString());
+                                        String result = await vehicleManagerContract.registerCar(selectedVehicle.address, inputLicensePlate);
                                         if (result != null) {
                                           setState(() {
                                             stateCallSmartContractFunctionButton = ButtonState.success;
@@ -792,6 +767,140 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                         final snackBar = SnackBar(
                                           duration: Duration(seconds: 10),
                                           content: Text('error: ' + e.toString()),
+                                          action: SnackBarAction(
+                                            textColor: Theme.of(context).buttonColor,
+                                            label: 'OK',
+                                            onPressed: () {
+                                              // Some code to undo the change.
+                                            },
+                                          ),
+                                        );
+                                        Scaffold.of(context).showSnackBar(snackBar);
+                                        setState(() {
+                                          stateCallSmartContractFunctionButton = ButtonState.fail;
+                                        });
+                                        Timer(Duration(seconds: 3), () {
+                                          setState(() {
+                                            stateCallSmartContractFunctionButton = ButtonState.idle;
+                                          });
+                                        });
+                                      }
+                                    } else {
+                                      setState(() {
+                                        stateCallSmartContractFunctionButton = ButtonState.idle;
+                                      });
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      ///////////////////////////////////////////////////////////////////////////////
+                      //////////////////////////////// Get Vehicle //////////////////////////////////
+                      ///////////////////////////////////////////////////////////////////////////////
+                      ExpansionPanel(
+                        isExpanded: _data[4].isExpanded,
+                        canTapOnHeader: true,
+                        headerBuilder: (BuildContext context, bool isExpanded) {
+                          return ListTile(
+                            title: Text(_data[4].name),
+                          );
+                        },
+                        body: Form(
+                          key: _formKeyGett,
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              children: [
+                                SizedBox(height: 20.0),
+                                Text(
+                                  _data[4].shortDiscribe,
+                                ),
+                                SizedBox(height: 20.0),
+                                DropdownButtonFormField(
+                                  items: () {
+                                    List<DropdownMenuItem> dropList = new List<DropdownMenuItem>();
+                                    for (var i = 0; i < vehicleAssetContractService.usersTotalNumberOwnedVehicles.toInt(); i++) {
+                                      String shortCarAddr = vehicleAssetContractService.usersListOwnedVehicles[i].address.toString().substring(0, 8);
+                                      dropList.add(DropdownMenuItem(value: i, child: Text('Vehicle No.' + (i + 1).toString() + ', ' + shortCarAddr)));
+                                    }
+                                    return dropList;
+                                  }(),
+                                  decoration: InputDecoration().copyWith(hintText: 'Car Index'),
+                                  onChanged: (val) => tockenIndex = val,
+                                ),
+                                SizedBox(height: 20.0),
+                                new ProgressButton.icon(
+                                  iconedButtons: {
+                                    ButtonState.idle: IconedButton(
+                                        text: _data[4].name, icon: Icon(Icons.car_rental, color: Colors.white), color: Theme.of(context).buttonColor),
+                                    ButtonState.loading: IconedButton(text: "Loading", color: Theme.of(context).buttonColor),
+                                    ButtonState.fail:
+                                        IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
+                                    ButtonState.success: IconedButton(
+                                        text: "Success",
+                                        icon: Icon(
+                                          Icons.check_circle,
+                                          color: Colors.white,
+                                        ),
+                                        color: Theme.of(context).buttonColor)
+                                  },
+                                  state: stateCallSmartContractFunctionButton,
+                                  onPressed: () async {
+                                    if (_formKeyGett.currentState.validate()) {
+                                      print('button pressed: ' + _data[4].name);
+                                      setState(() {
+                                        stateCallSmartContractFunctionButton = ButtonState.loading;
+                                      });
+                                      try {
+                                        OwnedVehicle selectedVehicle = vehicleAssetContractService.usersListOwnedVehicles[tockenIndex];
+                                        log('getCar button: ' + selectedVehicle.address.toString());
+                                        CarGot result = await vehicleManagerContract.getCar(selectedVehicle.address);
+                                        if (result != null) {
+                                          final snackBar = SnackBar(
+                                            duration: Duration(seconds: 30),
+                                            content: Text(
+                                              'Your Vehicle \naddress: ' +
+                                                  result.address.toString() +
+                                                  '\nLicense Plate: ' +
+                                                  ((result.licensePlate == '' ? 'Not Set Yet' : result.licensePlate)) +
+                                                  '\nCar Type: ' +
+                                                  // result.carType.toInt().toString() +
+                                                  vehicleTypes.keys.firstWhere((k) => vehicleTypes[k] == result.carType.toInt(), orElse: () => 'Not Set Yet') +
+                                                  '\nCar State: ' +
+                                                  // result.carState.toInt().toString()
+                                                  vehicleStates.keys
+                                                      .firstWhere((k) => vehicleStates[k] == result.carState.toInt() + 1, orElse: () => 'Not Set Yet'),
+                                            ),
+                                            action: SnackBarAction(
+                                              textColor: Theme.of(context).buttonColor,
+                                              label: 'OK',
+                                              onPressed: () {
+                                                // Some code to undo the change.
+                                              },
+                                            ),
+                                          );
+                                          // Find the Scaffold in the widget tree and use
+                                          // it to show a SnackBar.
+                                          Scaffold.of(context).showSnackBar(snackBar);
+
+                                          setState(() {
+                                            stateCallSmartContractFunctionButton = ButtonState.success;
+                                          });
+                                          Timer(Duration(seconds: 3), () {
+                                            setState(() {
+                                              stateCallSmartContractFunctionButton = ButtonState.idle;
+                                            });
+                                          });
+                                        }
+                                        print('Got a Car: ' + result.toString());
+                                      } catch (e) {
+                                        final snackBar = SnackBar(
+                                          duration: Duration(seconds: 10),
+                                          content: Text('error: getCar button ' + e.toString()),
                                           action: SnackBarAction(
                                             textColor: Theme.of(context).buttonColor,
                                             label: 'OK',
@@ -896,3 +1005,157 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
     );
   }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////// Transfer Vehicle ////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+// ExpansionPanel(
+//   isExpanded: _data[3].isExpanded,
+//   canTapOnHeader: true,
+//   headerBuilder: (BuildContext context, bool isExpanded) {
+//     return ListTile(
+//       title: Text(_data[3].name),
+//     );
+//   },
+//   body: Form(
+//     key: _formKeyRegister,
+//     child: Padding(
+//       padding: const EdgeInsets.all(20.0),
+//       child: Column(
+//         children: [
+//           SizedBox(height: 20.0),
+//           Text(
+//             _data[3].shortDiscribe,
+//           ),
+//           SizedBox(height: 20.0),
+//           DropdownButtonFormField(
+//             items: () {
+//               List<DropdownMenuItem> dropList = new List<DropdownMenuItem>();
+//               for (var i = 0; i < vehicleAssetContractService.usersTotalNumberOwnedVehicles.toInt(); i++) {
+//                 String shortCarAddr = vehicleAssetContractService.usersListOwnedVehicles[i].address.toString().substring(0, 8);
+//                 dropList.add(DropdownMenuItem(value: i, child: Text('Vehicle No.' + (i + 1).toString() + ', ' + shortCarAddr)));
+//               }
+//               return dropList;
+//             }(),
+//             decoration: InputDecoration().copyWith(hintText: 'Car Index'),
+//             onChanged: (val) => tockenIndex = val,
+//           ),
+//           SizedBox(height: 20.0),
+//           // new TextFormField(
+//           //   decoration: InputDecoration().copyWith(hintText: 'To Ethereum address'),
+//           //   validator: (val) => val.isEmpty ? 'Enter a valid Vehicle Id' : null,
+//           //   onChanged: (val) {
+//           //     toAddress = EthereumAddress.fromHex(val);
+//           //   },
+//           // ),
+//           Row(
+//             children: [
+//               Expanded(
+//                 child: TextFormField(
+//                     key: Key(toAddress.toString()),
+//                     initialValue: toAddress,
+//                     decoration: InputDecoration().copyWith(hintText: 'To Address'),
+//                     validator: (val) => val.isEmpty ? 'Enter a valid To Address' : null,
+//                     onChanged: (val) {
+//                       toAddress = val;
+//                     }),
+//               ),
+//               IconButton(
+//                 icon: Icon(Icons.qr_code_scanner),
+//                 onPressed: () async {
+//                   try {
+//                     String qrResult = await BarcodeScanner.scan();
+//                     print('qrResult: ' + qrResult);
+//                     setState(() {
+//                       toAddress = qrResult;
+//                     });
+//                   } on PlatformException catch (ex) {
+//                     if (ex.code == BarcodeScanner.CameraAccessDenied) {
+//                       toAddress = "Camera permission was denied";
+//                       print('qrResult: ' + toAddress);
+//                     } else {
+//                       toAddress = "Unknown Error $ex";
+//                       print('qrResult: ' + toAddress);
+//                     }
+//                   } on FormatException {
+//                     toAddress = "You pressed the back button before scanning anything";
+//                     print('qrResult: ' + toAddress);
+//                   } catch (ex) {
+//                     toAddress = "Unknown Error $ex";
+//                     print('qrResult: ' + toAddress);
+//                   }
+//                 },
+//               ),
+//             ],
+//           ),
+//           SizedBox(height: 20.0),
+//           new ProgressButton.icon(
+//             iconedButtons: {
+//               ButtonState.idle: IconedButton(
+//                   text: _data[3].name, icon: Icon(Icons.transform_rounded, color: Colors.white), color: Theme.of(context).buttonColor),
+//               ButtonState.loading: IconedButton(text: "Loading", color: Theme.of(context).buttonColor),
+//               ButtonState.fail:
+//                   IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
+//               ButtonState.success: IconedButton(
+//                   text: "Success",
+//                   icon: Icon(
+//                     Icons.check_circle,
+//                     color: Colors.white,
+//                   ),
+//                   color: Theme.of(context).buttonColor)
+//             },
+//             state: stateCallSmartContractFunctionButton,
+//             onPressed: () async {
+//               if (_formKeyRegister.currentState.validate()) {
+//                 print('button pressed: ' + _data[3].name);
+//                 setState(() {
+//                   stateCallSmartContractFunctionButton = ButtonState.loading;
+//                 });
+//                 try {
+//                   BigInt tokenId = await vehicleAssetContractService.getTockenIdByIndex(BigInt.parse(tockenIndex.toString()));
+//                   String result = await vehicleAssetContractService.transferFrom(EthereumAddress.fromHex(toAddress), tokenId);
+//                   if (result != null) {
+//                     setState(() {
+//                       stateCallSmartContractFunctionButton = ButtonState.success;
+//                     });
+//                     Timer(Duration(seconds: 3), () {
+//                       setState(() {
+//                         stateCallSmartContractFunctionButton = ButtonState.idle;
+//                       });
+//                     });
+//                   }
+//                   print('Got a Car: ' + result.toString());
+//                 } catch (e) {
+//                   final snackBar = SnackBar(
+//                     duration: Duration(seconds: 10),
+//                     content: Text('error: ' + e.toString()),
+//                     action: SnackBarAction(
+//                       textColor: Theme.of(context).buttonColor,
+//                       label: 'OK',
+//                       onPressed: () {
+//                         // Some code to undo the change.
+//                       },
+//                     ),
+//                   );
+//                   Scaffold.of(context).showSnackBar(snackBar);
+//                   setState(() {
+//                     stateCallSmartContractFunctionButton = ButtonState.fail;
+//                   });
+//                   Timer(Duration(seconds: 3), () {
+//                     setState(() {
+//                       stateCallSmartContractFunctionButton = ButtonState.idle;
+//                     });
+//                   });
+//                 }
+//               } else {
+//                 setState(() {
+//                   stateCallSmartContractFunctionButton = ButtonState.idle;
+//                 });
+//               }
+//             },
+//           ),
+//         ],
+//       ),
+//     ),
+//   ),
+// ),

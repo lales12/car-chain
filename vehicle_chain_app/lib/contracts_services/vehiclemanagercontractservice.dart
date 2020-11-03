@@ -12,13 +12,13 @@ import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
 
 // object classes (model)
-class Car {
+class CarGot {
   EthereumAddress address;
   String licensePlate;
   BigInt carType;
   BigInt carState;
 
-  Car({this.address, this.licensePlate, this.carType, this.carState});
+  CarGot({this.address, this.licensePlate, this.carType, this.carState});
 }
 
 // event classes (model)
@@ -47,7 +47,7 @@ class CarManager extends ChangeNotifier {
   ContractFunction _deliverCar;
   ContractFunction _sellCar;
   ContractFunction _registerCar;
-  ContractFunction _updateCarState;
+  // ContractFunction _updateCarStatef;
   ContractFunction _getCar;
   // ContractFunction _getAddress;
   // functions from ERC721
@@ -119,7 +119,7 @@ class CarManager extends ChangeNotifier {
     _deliverCar = _contract.function('deliverCar');
     _sellCar = _contract.function('sellCar');
     _registerCar = _contract.function('registerCar');
-    // _updateCarState = _contract.function('updateCarState');
+    // _updateCarStatef = _contract.function('updateCarState');
     _getCar = _contract.function('getCar');
 
     // _getAddress = _contract.function('getAddress');
@@ -272,29 +272,30 @@ class CarManager extends ChangeNotifier {
   }
 
   Future<String> registerCar(EthereumAddress carAddress, String licensePlate) async {
-    log('VehicleManagerContract: sellCar ' + carAddress.toString() + ' , ' + licensePlate);
+    log('VehicleManagerContract: registerCar ' + carAddress.toString() + ' , ' + licensePlate);
     String res = await _client.sendTransaction(
       _credentials,
-      Transaction.callContract(contract: _contract, function: _registerCar, maxGas: 6721975, parameters: [carAddress]),
+      Transaction.callContract(contract: _contract, function: _registerCar, maxGas: 6721975, parameters: [carAddress, licensePlate]),
       fetchChainIdFromNetworkId: true,
     );
-    log('VehicleManagerContract: sellCar result' + res);
+    log('VehicleManagerContract: registerCar result' + res);
     return res;
   }
 
-  // Future<String> updateCarState(BigInt carID, BigInt carStateIndex) async {
+  // Future<String> updateCarState(EthereumAddress carAddress, BigInt carStateIndex) async {
   //   String res = await _client.sendTransaction(
   //     _credentials,
-  //     Transaction.callContract(contract: _contract, function: _updateCarState, parameters: [carID, carStateIndex]),
+  //     Transaction.callContract(contract: _contract, function: _updateCarStatef, parameters: [carAddress, carStateIndex]),
   //     fetchChainIdFromNetworkId: true,
   //   );
   //   return res;
   // }
 
-  Future<Car> getCar(BigInt tockenId) async {
-    List<dynamic> ret = await _client.call(contract: _contract, function: _getCar, params: [tockenId]);
+  Future<CarGot> getCar(EthereumAddress carAddress) async {
+    log('recieved address: ' + carAddress.toString());
+    List<dynamic> ret = await _client.call(contract: _contract, function: _getCar, params: [carAddress]);
 
-    return Car(
+    return CarGot(
       address: ret[0] as EthereumAddress,
       licensePlate: ret[1] as String,
       carType: ret[2] as BigInt,
