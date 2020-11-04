@@ -82,17 +82,21 @@ contract("Authorizer", async (accounts) => {
 
     it("allows owner to remove a permission", async () => {
         try {
-            await contract.removePermission(_contract, _method, _to, { from: owner });
-            const methodHash = await web3.utils.soliditySha3(_method);
+            await contract.addPermission(_contract, _method, _to, { from: owner });
 
-            const permission = await contract.permissions(_contract, methodHash, _to);
+            await contract.removePermission(_contract, _method, _to, { from: owner });
+
+            const permission = await contract.requestAccess(_contract, _method, _to);
             assert.isNotOk(permission, "error: failed to remove permission as owner");
         } catch (e) {
+            console.log(e.message)
             assert.fail("error: failed to remove permission as owner");
         }
     });
 
     it("emits a 'PermissionRemoved' event correctly", async () => {
+        await contract.addPermission(_contract, _method, _to, { from: owner });
+
         const {
             receipt: {
                 logs: [eventObj],

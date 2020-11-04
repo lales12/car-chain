@@ -1,11 +1,13 @@
 const { assert } = require("chai");
 
 const ITVManager = artifacts.require("ITVManager");
+const CarAsset = artifacts.require("CarAsset");
 const Authorizer = artifacts.require("Authorizer");
 
 contract("ITVManager", (accounts) => {
     let authorizerContract;
     let ITVManagerContract;
+    let CarAssetContract;
 
     const owner = accounts[0];
     const itvAuthorized = accounts[1];
@@ -19,7 +21,8 @@ contract("ITVManager", (accounts) => {
 
     beforeEach(async () => {
         authorizerContract = await Authorizer.new();
-        ITVManagerContract = await ITVManager.new(authorizerContract.address);
+        CarAssetContract = await CarAsset.new();
+        ITVManagerContract = await ITVManager.new(authorizerContract.address, CarAssetContract.address);
     });
 
     it("Sets deploying account as root", async () => {
