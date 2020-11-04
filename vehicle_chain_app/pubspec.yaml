@@ -43,6 +43,7 @@ dependencies:
   progress_state_button: ^1.0.1
   flutter_ble_lib: ^2.3.0
   ethereum_address: ^1.0.1
+  url_launcher: ^5.5.0
 
 dev_dependencies:
   flutter_test:

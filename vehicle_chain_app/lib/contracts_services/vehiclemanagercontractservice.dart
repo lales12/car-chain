@@ -212,7 +212,7 @@ class CarManager extends ChangeNotifier {
   }
 
   // Contract Calls
-  Future<String> createCar(Uint8List carIdHash, Uint8List signiture, BigInt carTypeIndex) async {
+  Future<TransactionReceipt> createCar(Uint8List carIdHash, Uint8List signiture, BigInt carTypeIndex) async {
     log('VehicleManagerContract: addcar ' + carIdHash.toString() + ' ,' + signiture.toString() + ' ,' + carTypeIndex.toString());
     String res = await _client.sendTransaction(
       _credentials,
@@ -220,10 +220,11 @@ class CarManager extends ChangeNotifier {
       fetchChainIdFromNetworkId: true,
     );
     log('VehicleManagerContract: addCar result' + res);
-    return res;
+    TransactionReceipt receipt = await _client.addedBlocks().asyncMap((_) => _client.getTransactionReceipt(res)).firstWhere((receipt) => receipt != null);
+    return receipt;
   }
 
-  Future<String> deliverCar(EthereumAddress carAddress) async {
+  Future<TransactionReceipt> deliverCar(EthereumAddress carAddress) async {
     log('VehicleManagerContract: deliverCar ' + carAddress.toString());
     String res = await _client.sendTransaction(
       _credentials,
@@ -231,10 +232,11 @@ class CarManager extends ChangeNotifier {
       fetchChainIdFromNetworkId: true,
     );
     log('VehicleManagerContract: deliverCar result' + res);
-    return res;
+    TransactionReceipt receipt = await _client.addedBlocks().asyncMap((_) => _client.getTransactionReceipt(res)).firstWhere((receipt) => receipt != null);
+    return receipt;
   }
 
-  Future<String> sellCar(EthereumAddress carAddress) async {
+  Future<TransactionReceipt> sellCar(EthereumAddress carAddress) async {
     log('VehicleManagerContract: sellCar ' + carAddress.toString());
     String res = await _client.sendTransaction(
       _credentials,
@@ -242,10 +244,11 @@ class CarManager extends ChangeNotifier {
       fetchChainIdFromNetworkId: true,
     );
     log('VehicleManagerContract: sellCar result' + res);
-    return res;
+    TransactionReceipt receipt = await _client.addedBlocks().asyncMap((_) => _client.getTransactionReceipt(res)).firstWhere((receipt) => receipt != null);
+    return receipt;
   }
 
-  Future<String> registerCar(EthereumAddress carAddress, String licensePlate) async {
+  Future<TransactionReceipt> registerCar(EthereumAddress carAddress, String licensePlate) async {
     log('VehicleManagerContract: registerCar ' + carAddress.toString() + ' , ' + licensePlate);
     String res = await _client.sendTransaction(
       _credentials,
@@ -253,7 +256,8 @@ class CarManager extends ChangeNotifier {
       fetchChainIdFromNetworkId: true,
     );
     log('VehicleManagerContract: registerCar result' + res);
-    return res;
+    TransactionReceipt receipt = await _client.addedBlocks().asyncMap((_) => _client.getTransactionReceipt(res)).firstWhere((receipt) => receipt != null);
+    return receipt;
   }
 
   Future<CarGot> getCar(EthereumAddress carAddress) async {

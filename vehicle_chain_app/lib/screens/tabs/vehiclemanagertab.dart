@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:ethereum_address/ethereum_address.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vehicle_chain_app/contracts_services/vehicleassetcontractservice.dart';
 import 'package:vehicle_chain_app/contracts_services/vehiclemanagercontractservice.dart';
 import 'package:vehicle_chain_app/services/appsettingservice.dart';
@@ -17,6 +18,7 @@ import 'package:progress_state_button/progress_button.dart';
 import 'package:provider/provider.dart';
 import 'package:web3dart/credentials.dart';
 import 'package:web3dart/crypto.dart';
+import 'package:web3dart/web3dart.dart';
 
 class Item {
   Item({this.name, this.shortDiscribe, this.isExpanded = false});
@@ -197,8 +199,55 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
     ),
   ];
 
+  Future<void> _launchInBrowser(String url) async {
+    if (await canLaunch(url)) {
+      await launch(
+        url,
+        forceSafariVC: false,
+        forceWebView: false,
+        headers: <String, String>{'my_header_key': 'my_header_value'},
+      );
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // hanle tx reciept
+    handleTxRecipt(TransactionReceipt recipt) {
+      final snackBar = SnackBar(
+        duration: Duration(seconds: 10),
+        content: Container(
+          height: 100,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Text(recipt.status ? 'Transaction Id: ' + bytesToHex(recipt.transactionHash, include0x: true) : 'Transaction Failed'),
+              FlatButton(
+                child: Text('Open in EtherScan'),
+                onPressed: () async {
+                  String url = 'https://ropsten.etherscan.io/tx/' + bytesToHex(recipt.transactionHash, include0x: true);
+                  await _launchInBrowser(url);
+                },
+              )
+            ],
+          ),
+        ),
+        action: SnackBarAction(
+          textColor: Theme.of(context).buttonColor,
+          label: 'OK',
+          onPressed: () {
+            // Some code to undo the change.
+          },
+        ),
+      );
+      // Find the Scaffold in the widget tree and use
+      // it to show a SnackBar.
+      Scaffold.of(context).showSnackBar(snackBar);
+    }
+
     // final testContract = Provider.of<TestContract>(context);
     final vehicleManagerContract = Provider.of<CarManager>(context);
     final appUserWallet = Provider.of<WalletManager>(context).getAppUserWallet;
@@ -405,20 +454,33 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
 
                                           log('vin has to send: 0x' + bytesToHex(vinHash));
                                           // String result = await vehicleManagerContract.createCarRaw(vinHash, v, r, s, BigInt.parse(vehicleType.toString()));
-                                          String result = await vehicleManagerContract.createCar(vinHash, signiture, BigInt.parse(vehicleType.toString()));
+                                          TransactionReceipt result =
+                                              await vehicleManagerContract.createCar(vinHash, signiture, BigInt.parse(vehicleType.toString()));
                                           // EthereumAddress result = await vehicleManagerContract.getAddress(vinHash, v, r, s);
                                           log('result: ' + result.toString());
                                           if (result != null) {
-                                            Timer(Duration(seconds: 2), () {
-                                              setState(() {
-                                                stateCallSmartContractFunctionButton = ButtonState.success;
-                                              });
+                                            handleTxRecipt(result);
+                                            if (result.status) {
                                               Timer(Duration(seconds: 2), () {
+                                                setState(() {
+                                                  stateCallSmartContractFunctionButton = ButtonState.success;
+                                                });
+                                                Timer(Duration(seconds: 2), () {
+                                                  setState(() {
+                                                    stateCallSmartContractFunctionButton = ButtonState.idle;
+                                                  });
+                                                });
+                                              });
+                                            } else {
+                                              setState(() {
+                                                stateCallSmartContractFunctionButton = ButtonState.fail;
+                                              });
+                                              Timer(Duration(seconds: 3), () {
                                                 setState(() {
                                                   stateCallSmartContractFunctionButton = ButtonState.idle;
                                                 });
                                               });
-                                            });
+                                            }
                                           }
                                           print('done call tx: ' + result.toString());
                                         } catch (e) {
@@ -519,20 +581,32 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                         try {
                                           OwnedVehicle selectedVehicle = vehicleAssetContractService.usersListOwnedVehicles[tockenIndex];
                                           log('DeliverCar button: ' + selectedVehicle.address.toString());
-                                          String result = await vehicleManagerContract.deliverCar(selectedVehicle.address);
+                                          TransactionReceipt result = await vehicleManagerContract.deliverCar(selectedVehicle.address);
                                           if (result != null) {
-                                            Timer(Duration(seconds: 2), () {
-                                              setState(() {
-                                                stateCallSmartContractFunctionButton = ButtonState.success;
-                                              });
+                                            handleTxRecipt(result);
+                                            if (result.status) {
                                               Timer(Duration(seconds: 2), () {
+                                                setState(() {
+                                                  stateCallSmartContractFunctionButton = ButtonState.success;
+                                                });
+                                                Timer(Duration(seconds: 2), () {
+                                                  setState(() {
+                                                    stateCallSmartContractFunctionButton = ButtonState.idle;
+                                                  });
+                                                });
+                                              });
+                                            } else {
+                                              setState(() {
+                                                stateCallSmartContractFunctionButton = ButtonState.fail;
+                                              });
+                                              Timer(Duration(seconds: 3), () {
                                                 setState(() {
                                                   stateCallSmartContractFunctionButton = ButtonState.idle;
                                                 });
                                               });
-                                            });
+                                            }
                                           }
-                                          print('done call tx: ' + result);
+                                          print('done call tx: ' + result.blockHash.toString());
                                         } catch (e) {
                                           final snackBar = SnackBar(
                                             duration: Duration(seconds: 10),
@@ -629,31 +703,30 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                       try {
                                         OwnedVehicle selectedVehicle = vehicleAssetContractService.usersListOwnedVehicles[tockenIndex];
                                         log('SellCar button: ' + selectedVehicle.address.toString());
-                                        String result = await vehicleManagerContract.sellCar(selectedVehicle.address);
+                                        TransactionReceipt result = await vehicleManagerContract.sellCar(selectedVehicle.address);
                                         if (result != null) {
-                                          final snackBar = SnackBar(
-                                            duration: Duration(seconds: 5),
-                                            content: Text('Transaction Id: ' + result),
-                                            action: SnackBarAction(
-                                              textColor: Theme.of(context).buttonColor,
-                                              label: 'OK',
-                                              onPressed: () {
-                                                // Some code to undo the change.
-                                              },
-                                            ),
-                                          );
-                                          // Find the Scaffold in the widget tree and use
-                                          // it to show a SnackBar.
-                                          Scaffold.of(context).showSnackBar(snackBar);
-
-                                          setState(() {
-                                            stateCallSmartContractFunctionButton = ButtonState.success;
-                                          });
-                                          Timer(Duration(seconds: 3), () {
-                                            setState(() {
-                                              stateCallSmartContractFunctionButton = ButtonState.idle;
+                                          handleTxRecipt(result);
+                                          if (result.status) {
+                                            Timer(Duration(seconds: 2), () {
+                                              setState(() {
+                                                stateCallSmartContractFunctionButton = ButtonState.success;
+                                              });
+                                              Timer(Duration(seconds: 2), () {
+                                                setState(() {
+                                                  stateCallSmartContractFunctionButton = ButtonState.idle;
+                                                });
+                                              });
                                             });
-                                          });
+                                          } else {
+                                            setState(() {
+                                              stateCallSmartContractFunctionButton = ButtonState.fail;
+                                            });
+                                            Timer(Duration(seconds: 3), () {
+                                              setState(() {
+                                                stateCallSmartContractFunctionButton = ButtonState.idle;
+                                              });
+                                            });
+                                          }
                                         }
                                         print('Got a Car: ' + result.toString());
                                       } catch (e) {
@@ -760,16 +833,30 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                       try {
                                         OwnedVehicle selectedVehicle = vehicleAssetContractService.usersListOwnedVehicles[tockenIndex];
                                         log('getCar button: ' + selectedVehicle.address.toString());
-                                        String result = await vehicleManagerContract.registerCar(selectedVehicle.address, inputLicensePlate);
+                                        TransactionReceipt result = await vehicleManagerContract.registerCar(selectedVehicle.address, inputLicensePlate);
                                         if (result != null) {
-                                          setState(() {
-                                            stateCallSmartContractFunctionButton = ButtonState.success;
-                                          });
-                                          Timer(Duration(seconds: 3), () {
-                                            setState(() {
-                                              stateCallSmartContractFunctionButton = ButtonState.idle;
+                                          handleTxRecipt(result);
+                                          if (result.status) {
+                                            Timer(Duration(seconds: 2), () {
+                                              setState(() {
+                                                stateCallSmartContractFunctionButton = ButtonState.success;
+                                              });
+                                              Timer(Duration(seconds: 2), () {
+                                                setState(() {
+                                                  stateCallSmartContractFunctionButton = ButtonState.idle;
+                                                });
+                                              });
                                             });
-                                          });
+                                          } else {
+                                            setState(() {
+                                              stateCallSmartContractFunctionButton = ButtonState.fail;
+                                            });
+                                            Timer(Duration(seconds: 3), () {
+                                              setState(() {
+                                                stateCallSmartContractFunctionButton = ButtonState.idle;
+                                              });
+                                            });
+                                          }
                                         }
                                         print('Got a Car: ' + result.toString());
                                       } catch (e) {
