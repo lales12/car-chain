@@ -42,7 +42,7 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
   String _isNfcAdapterEnabled = 'Unknown Nfc Status.';
   String _nfcCardPubKeyError = 'no error yet';
   String _nfcCardPubKey;
-  String _nfcCardSigniture;
+  String _nfcCardMessage;
   dynamic _nfcCardSignitureList;
 
   Future<void> _getNfcAdapterStatus() async {
@@ -75,7 +75,7 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
     try {
       final bool result = await platformMethods.invokeMethod('runSignStream', {"hash": hash});
       setState(() {
-        _nfcCardSigniture = result ? 'Please attach your KeyCard to your device to Sign.' : 'Somthing is wrong...';
+        result == true ? _nfcCardMessage = 'Please attach your KeyCard to your device to Sign.' : _nfcCardMessage = 'Somthing is wrong...';
       });
       result ? _listenSignedHash() : log('somthing is wrong');
       return true;
@@ -109,8 +109,18 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
     log(event.toString().length.toString());
     // log(ethereumAddressFromPublicKey(event));
     setState(() {
-      _nfcCardSigniture = event.toString();
       _nfcCardSignitureList = json.decode(event);
+      _nfcCardMessage = "Car Signiture:\n" +
+          "R: " +
+          '0x' +
+          _nfcCardSignitureList['r'] +
+          "\n" +
+          "S: " +
+          '0x' +
+          _nfcCardSignitureList['s'] +
+          "\n" +
+          "V: " +
+          (int.parse(_nfcCardSignitureList['v']) + 27).toString();
       stateNFCButton = ButtonState.success;
       Timer(Duration(seconds: 4), () {
         stateNFCButton = ButtonState.idle;
@@ -346,7 +356,7 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                     onChanged: (val) => vehicleType = val,
                                   ),
                                   SizedBox(height: 20.0),
-                                  Text(_nfcCardSigniture != null ? 'Car Signiture: ' + _nfcCardSignitureList.toString() : ''),
+                                  Text(_nfcCardMessage != null ? _nfcCardMessage : ''),
                                   // if (_nfcCardSignitureList != null) ...[
                                   //   Text(MsgSignature(BigInt.parse('0x' + _nfcCardSignitureList['r']), BigInt.parse('0x' + _nfcCardSignitureList['s']),
                                   //           int.parse(_nfcCardSignitureList['v']))
@@ -373,8 +383,9 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                     onPressed: () async {
                                       if (_formKeyAdd.currentState.validate()) {
                                         print('button pressed: Get Car Signiture');
-                                        print(vehicleType);
-                                        print(vehicleVIN);
+                                        setState(() {
+                                          _nfcCardMessage = "Please attach your device to Vehicle's card";
+                                        });
                                         setState(() {
                                           stateNFCButton = ButtonState.loading;
                                         });
@@ -433,7 +444,7 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                     },
                                     state: stateCallSmartContractFunctionButton,
                                     onPressed: () async {
-                                      if (_formKeyAdd.currentState.validate() && _nfcCardSigniture != null) {
+                                      if (_formKeyAdd.currentState.validate()) {
                                         print('button pressed: ' + _data[0].name);
                                         // print(licensePlate);
                                         print(vehicleType);
