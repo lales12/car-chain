@@ -144,12 +144,13 @@ class ItvManager extends ChangeNotifier {
   }
 
   // Contract Calls
-  Future<String> updateITV(BigInt vehicleId, BigInt itvStateIndex) async {
+  Future<TransactionReceipt> updateITV(BigInt vehicleId, BigInt itvStateIndex) async {
     String res = await _client.sendTransaction(
       _credentials,
       Transaction.callContract(contract: _contract, function: _updateITV, maxGas: 6721975, parameters: [vehicleId, itvStateIndex]),
       fetchChainIdFromNetworkId: true,
     );
-    return res;
+    TransactionReceipt receipt = await _client.addedBlocks().asyncMap((_) => _client.getTransactionReceipt(res)).firstWhere((receipt) => receipt != null);
+    return receipt;
   }
 }
