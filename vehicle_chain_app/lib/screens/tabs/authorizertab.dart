@@ -159,7 +159,7 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                     value: contractsList[selectedContractIndex].functionList[selectedFunctionIndex],
                                     items: contractsList[selectedContractIndex].functionList.map((func) {
                                       print('func: ' + func);
-                                      return DropdownMenuItem(value: func, child: Text(func));
+                                      return DropdownMenuItem(value: func, child: Text(func.split('(')[0]));
                                     }).toList(),
                                     decoration: InputDecoration().copyWith(hintText: 'Functions'),
                                     onChanged: (val) => inputFunctionName = val,
@@ -336,7 +336,7 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                     value: contractsList[selectedContractIndex].functionList[selectedFunctionIndex],
                                     items: contractsList[selectedContractIndex].functionList.map((func) {
                                       print('func: ' + func);
-                                      return DropdownMenuItem(value: func, child: Text(func));
+                                      return DropdownMenuItem(value: func, child: Text(func.split('(')[0]));
                                     }).toList(),
                                     decoration: InputDecoration().copyWith(hintText: 'Functions'),
                                     onChanged: (val) => inputFunctionName = val,
@@ -508,7 +508,7 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                   value: contractsList[selectedContractIndex].functionList[selectedFunctionIndex],
                                   items: contractsList[selectedContractIndex].functionList.map((func) {
                                     print('func: ' + func);
-                                    return DropdownMenuItem(value: func, child: Text(func));
+                                    return DropdownMenuItem(value: func, child: Text(func.split('(')[0]));
                                   }).toList(),
                                   decoration: InputDecoration().copyWith(hintText: 'Functions'),
                                   onChanged: (val) => inputFunctionName = val,

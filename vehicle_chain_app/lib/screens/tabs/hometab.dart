@@ -43,7 +43,7 @@ class _HomeTabState extends State<HomeTab> {
                   IconCountCard(
                     cardTitle: 'Vehicles',
                     cardIcon: Icon(Icons.car_rental),
-                    count: vehicleAssetContract.usersOwnedVehicles.toString() ?? '??',
+                    count: vehicleAssetContract.usersTotalNumberOwnedVehicles.toString() ?? '??',
                     subTitle: 'Total Number of Vehicles Owned',
                   ),
                 ],

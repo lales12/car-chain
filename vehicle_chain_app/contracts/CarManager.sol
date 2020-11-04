@@ -81,17 +81,11 @@ contract CarManager is BaseManager {
         emit CarAdded(carAddress);
     }
 
-    function getAddress(bytes32 hash, uint8 v, bytes32 r, bytes32 s) public pure returns(address recoveredAddress) {
-        recoveredAddress = ecrecover(hash, v, r, s);
-    }
-
     function createCarRaw(
         bytes32 carIdHash,
-        uint8 v,
-        bytes32 r,
-        bytes32 s,
+        uint8 v, bytes32 r, bytes32 s,
         uint256 carTypeIndex
-    ) public {
+    ) external onlyAuthorized(CREATE_CAR_RAW_METHOD, msg.sender) {
         //address carAddress = carIdHash.recover(signature);
         address carAddress = ecrecover(carIdHash, v, r, s);
 

@@ -9,6 +9,13 @@ import 'package:http/http.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
 
+class OwnedVehicle {
+  int index;
+  BigInt id;
+  EthereumAddress address;
+  OwnedVehicle({this.index, this.id, this.address});
+}
+
 // events
 // event classes (model)
 class TransferEvent {
@@ -41,13 +48,17 @@ class VehicleAssetContractService extends ChangeNotifier {
   EthereumAddress _userAddress;
   DeployedContract _contract;
   WalletManager _walletManager;
-  BigInt _usersOwnedVehicles;
+  BigInt _usersTotalNumberOwnedVehicles;
+  List<OwnedVehicle> _listOfOwnedVehicles;
 
   // contract functions
   List<ContractFunction> contractFunctionsList;
   ContractFunction _balanceOf;
   ContractFunction _tokenOfOwnerByIndex;
   ContractFunction _transferFrom;
+  ContractFunction _getCarAddress;
+  ContractFunction _transferFromAddress;
+  ContractFunction _burnCar;
 
   // events
   ContractEvent _transferEvent;
@@ -83,6 +94,7 @@ class VehicleAssetContractService extends ChangeNotifier {
     var jsonAbi = jsonDecode(abiStringFile);
     _abiCode = jsonEncode(jsonAbi["abi"]);
     _contractAddress = EthereumAddress.fromHex(jsonAbi["networks"][_walletManager.activeNetwork.networkId]["address"]);
+    // _contractAddress = EthereumAddress.fromHex('0x9B34b92D5C38BCa9E9cE788984Df3321Ad555d78');
     contractAddress = _contractAddress;
     // gettting contractDeployedBlockNumber
     String _deplyTxHash = jsonAbi["networks"][_walletManager.activeNetwork.networkId]["transactionHash"];
@@ -106,6 +118,9 @@ class VehicleAssetContractService extends ChangeNotifier {
     _balanceOf = _contract.function('balanceOf');
     _tokenOfOwnerByIndex = _contract.function('tokenOfOwnerByIndex');
     _transferFrom = _contract.function('transferFrom');
+    _getCarAddress = _contract.function('getCarAddress');
+    _transferFromAddress = _contract.function('transferFromAddress');
+    _burnCar = _contract.function('burn');
 
     contractFunctionsList = _contract.functions;
     log('VehicleAssetContractService: List of functions ' + contractFunctionsList.map<String>((f) => f.name).toList().toString());
@@ -123,21 +138,65 @@ class VehicleAssetContractService extends ChangeNotifier {
     return res;
   }
 
-  Future<void> updateUserOwnedVehicles() async {
-    List<dynamic> balance = await _client.call(contract: _contract, function: _balanceOf, params: [_userAddress]);
-
-    _usersOwnedVehicles = balance[0] as BigInt;
-    log('VehicleAssetContractService: useraddress ' + _userAddress.toString());
-    log('VehicleAssetContractService: usersOwnedVehicles ' + _usersOwnedVehicles.toString());
-    notifyListeners();
+  Future<String> transferFromAddress(EthereumAddress from, EthereumAddress to, EthereumAddress carAddress) async {
+    log('VehicleAssetContractService: transferFromAddress: carAddress ' + carAddress.toString() + ' ,from ' + from.toString() + ' ,to ' + to.toString());
+    String res = await _client.sendTransaction(
+      _credentials,
+      Transaction.callContract(contract: _contract, function: _transferFromAddress, maxGas: 6721975, parameters: [from, to, carAddress]),
+      fetchChainIdFromNetworkId: true,
+    );
+    log('VehicleAssetContractService: transferFromAddress result' + res);
+    return res;
   }
 
-  BigInt get usersOwnedVehicles => _usersOwnedVehicles;
+  Future<String> burnCar(BigInt id) async {
+    log('VehicleAssetContractService: burnCar: id ' + id.toString());
+    String res = await _client.sendTransaction(
+      _credentials,
+      Transaction.callContract(contract: _contract, function: _burnCar, maxGas: 6721975, parameters: [id]),
+      fetchChainIdFromNetworkId: true,
+    );
+    log('VehicleAssetContractService: burnCar result' + res);
+    return res;
+  }
 
   Future<BigInt> getTockenIdByIndex(BigInt index) async {
     List<dynamic> ret = await _client.call(contract: _contract, function: _tokenOfOwnerByIndex, params: [_userAddress, index]);
     return ret[0] as BigInt;
   }
+
+  Future<EthereumAddress> getVehicleAddressById(BigInt id) async {
+    List<dynamic> ret = await _client.call(contract: _contract, function: _getCarAddress, params: [id]);
+    return ret[0] as EthereumAddress;
+  }
+
+  Future<void> updateUserOwnedVehicles() async {
+    List<dynamic> balance = await _client.call(contract: _contract, function: _balanceOf, params: [_userAddress]);
+
+    _usersTotalNumberOwnedVehicles = balance[0] as BigInt;
+
+    log('VehicleAssetContractService: useraddress ' + _userAddress.toString());
+    log('VehicleAssetContractService: usersOwnedVehicles ' + _usersTotalNumberOwnedVehicles.toString());
+
+    _listOfOwnedVehicles = new List<OwnedVehicle>();
+    for (var i = 0; i < _usersTotalNumberOwnedVehicles.toInt(); i++) {
+      BigInt id = await getTockenIdByIndex(BigInt.from(i));
+      EthereumAddress carAddress = await getVehicleAddressById(id);
+      OwnedVehicle currentVehicle = new OwnedVehicle(index: i, id: id, address: carAddress);
+      log('VehicleAssetContractService: usersCurrentVehicles: ' +
+          currentVehicle.index.toString() +
+          ', ' +
+          currentVehicle.address.toString() +
+          ', ' +
+          currentVehicle.id.toString());
+      _listOfOwnedVehicles.add(currentVehicle);
+    }
+
+    notifyListeners();
+  }
+
+  BigInt get usersTotalNumberOwnedVehicles => _usersTotalNumberOwnedVehicles;
+  List<OwnedVehicle> get usersListOwnedVehicles => _listOfOwnedVehicles;
 
   // Streams
   Stream<List<TransferEvent>> get transferEventListStream {
