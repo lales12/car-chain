@@ -19,7 +19,6 @@ contract CarAsset is ERC721 {
     }
 
     modifier onlyManager() {
-        emit test(msg.sender);
         require(authorizedManagers[msg.sender], "Only authorized managers can perform this acction");
         _;
     }
