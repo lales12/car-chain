@@ -51,7 +51,7 @@ contract("CarManager", (accounts) => {
         authorizerContract = await Authorizer.new();
         carAssetContract = await CarAsset.new();
         carManagerContract = await CarManager.new(authorizerContract.address, carAssetContract.address);
-
+        
         CREATE_CAR_METHOD = await carManagerContract.CREATE_CAR_METHOD();
         SELL_CAR_METHOD = await carManagerContract.SELL_CAR_METHOD();
         DELIVER_CAR_METHOD = await carManagerContract.DELIVER_CAR_METHOD();
@@ -65,6 +65,8 @@ contract("CarManager", (accounts) => {
             authorizerContract.address, 
             carAssetContract.address
         );
+
+        await carAssetContract.addManager(carManagerContract.address, {from: root})
 
         authorizerContract.addPermission(
             carManagerContract.address, 
