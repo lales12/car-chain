@@ -80,6 +80,11 @@ contract CarManager is BaseManager {
             carState: CarState.SHIPPED
         });
 
+         _updateCarState(
+            carAddress,
+            uint256(CarState.SHIPPED)
+        );
+
         emit CarAdded(carAddress);
     }
 

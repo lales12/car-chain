@@ -3,7 +3,7 @@ const Authorizer = artifacts.require("Authorizer");
 const CarAsset = artifacts.require("CarAsset");
 
 const CAR_ADDED_EVENT = 'CarAdded';
-
+const CAR_UPDATED_EVENT = 'CarStateUpdated';
 
 const REVERT_ERROR = 'Reason given: Unauthorized';
 
@@ -127,7 +127,7 @@ contract("CarManager", (accounts) => {
 
         const carAddedEvent = events[0];
         
-        assert.equal(carAddedEvent.event, CAR_ADDED_EVENT);
+        assert.equal(carAddedEvent.event, CAR_UPDATED_EVENT);
         assert.equal(carAddedEvent.returnValues.carAddress, carAddress);
     });
 
