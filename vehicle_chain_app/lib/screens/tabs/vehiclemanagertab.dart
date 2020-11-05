@@ -923,17 +923,57 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                     _data[3].shortDiscribe,
                                   ),
                                   SizedBox(height: 20.0),
-                                  DropdownButtonFormField(
-                                    items: () {
-                                      List<DropdownMenuItem> dropList = new List<DropdownMenuItem>();
-                                      for (var i = 0; i < vehicleAssetContractService.usersTotalNumberOwnedVehicles.toInt(); i++) {
-                                        String shortCarAddr = vehicleAssetContractService.usersListOwnedVehicles[i].address.toString().substring(0, 8);
-                                        dropList.add(DropdownMenuItem(value: i, child: Text('Vehicle No.' + (i + 1).toString() + ', ' + shortCarAddr)));
-                                      }
-                                      return dropList;
-                                    }(),
-                                    decoration: InputDecoration().copyWith(hintText: 'Car Index'),
-                                    onChanged: (val) => tockenIndex = val,
+                                  // DropdownButtonFormField(
+                                  //   items: () {
+                                  //     List<DropdownMenuItem> dropList = new List<DropdownMenuItem>();
+                                  //     for (var i = 0; i < vehicleAssetContractService.usersTotalNumberOwnedVehicles.toInt(); i++) {
+                                  //       String shortCarAddr = vehicleAssetContractService.usersListOwnedVehicles[i].address.toString().substring(0, 8);
+                                  //       dropList.add(DropdownMenuItem(value: i, child: Text('Vehicle No.' + (i + 1).toString() + ', ' + shortCarAddr)));
+                                  //     }
+                                  //     return dropList;
+                                  //   }(),
+                                  //   decoration: InputDecoration().copyWith(hintText: 'Car Index'),
+                                  //   onChanged: (val) => tockenIndex = val,
+                                  // ),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextFormField(
+                                            key: Key(toAddress.toString()),
+                                            initialValue: toAddress,
+                                            decoration: InputDecoration().copyWith(hintText: 'To Address'),
+                                            validator: (val) => val.isEmpty ? 'Enter a valid To Address' : null,
+                                            onChanged: (val) {
+                                              toAddress = val;
+                                            }),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.qr_code_scanner),
+                                        onPressed: () async {
+                                          try {
+                                            String qrResult = await BarcodeScanner.scan();
+                                            print('qrResult: ' + qrResult);
+                                            setState(() {
+                                              toAddress = qrResult;
+                                            });
+                                          } on PlatformException catch (ex) {
+                                            if (ex.code == BarcodeScanner.CameraAccessDenied) {
+                                              toAddress = "Camera permission was denied";
+                                              print('qrResult: ' + toAddress);
+                                            } else {
+                                              toAddress = "Unknown Error $ex";
+                                              print('qrResult: ' + toAddress);
+                                            }
+                                          } on FormatException {
+                                            toAddress = "You pressed the back button before scanning anything";
+                                            print('qrResult: ' + toAddress);
+                                          } catch (ex) {
+                                            toAddress = "Unknown Error $ex";
+                                            print('qrResult: ' + toAddress);
+                                          }
+                                        },
+                                      ),
+                                    ],
                                   ),
                                   SizedBox(height: 20.0),
                                   new TextFormField(
@@ -968,9 +1008,10 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                           stateCallSmartContractFunctionButton = ButtonState.loading;
                                         });
                                         try {
-                                          OwnedVehicle selectedVehicle = vehicleAssetContractService.usersListOwnedVehicles[tockenIndex];
-                                          log('getCar button: ' + selectedVehicle.address.toString());
-                                          TransactionReceipt result = await vehicleManagerContract.registerCar(selectedVehicle.address, inputLicensePlate);
+                                          // OwnedVehicle selectedVehicle = vehicleAssetContractService.usersListOwnedVehicles[tockenIndex];
+                                          // log('getCar button: ' + selectedVehicle.address.toString());
+                                          TransactionReceipt result =
+                                              await vehicleManagerContract.registerCar(EthereumAddress.fromHex(toAddress), inputLicensePlate);
                                           if (result != null) {
                                             handleTxRecipt(result);
                                             if (result.status) {

@@ -32,7 +32,7 @@ contract ITVManager  is BaseManager {
         ITVState itvStateIndex
     ) 
         public
-        onlyAuthorized (UPDATE_METHOD, msg.sender)
+        // onlyAuthorized (UPDATE_METHOD, msg.sender)
     {
         address carAddress = carIdHash.recover(signature);
 

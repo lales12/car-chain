@@ -80,6 +80,7 @@ class _NfcTesterState extends State<NfcTester> {
     // log(ethereumAddressFromPublicKey(event));
     setState(() {
       _nfcCardPubKey = ethereumAddressFromPublicKey(event);
+      log(_nfcCardPubKey);
     });
   }
 

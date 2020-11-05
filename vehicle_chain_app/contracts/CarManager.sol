@@ -141,7 +141,7 @@ contract CarManager is BaseManager {
     )
         public
         onlyAuthorized(REGISTER_CAR_METHOD, msg.sender)
-        onlyAssetOwner(carAddress, msg.sender)
+        // onlyAssetOwner(carAddress, msg.sender)
     {
         require(
             CarState.SOLD == trackedCars[carAddress].carState,

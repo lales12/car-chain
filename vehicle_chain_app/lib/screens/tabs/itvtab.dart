@@ -445,6 +445,7 @@ class _ItvTabState extends State<ItvTab> {
                                     Expanded(
                                       child: TextFormField(
                                           key: Key(carAddress.toString()),
+                                          initialValue: carAddress,
                                           decoration: InputDecoration().copyWith(hintText: 'Vehicle Address'),
                                           validator: (val) => val.isEmpty ? 'Enter a valid Vehicle Address' : null,
                                           onChanged: (val) {
