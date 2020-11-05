@@ -16,14 +16,8 @@ class HomeTab extends StatefulWidget {
 
 class _HomeTabState extends State<HomeTab> {
   int carIndex;
+  OwnedVehicle selectedVehicle;
   final Map<String, int> vehicleStates = {'SHIPPED': 1, 'FOR_SALE': 2, 'SOLD': 3, 'REGISTERED': 4};
-  @override
-  void dispose() {
-    super.dispose();
-    setState(() {
-      carIndex = null;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,102 +77,117 @@ class _HomeTabState extends State<HomeTab> {
                           onChanged: (val) {
                             setState(() {
                               carIndex = val;
+                              selectedVehicle = vehicleAssetContract.usersListOwnedVehicles[val];
                             });
                           },
                         ),
                       ],
                     ),
                   ),
-                  Divider(thickness: 2.0, height: 40.0),
-                  StreamBuilder(
-                    stream: vehicleAssetContract.transferEventListStream,
-                    builder: (context, AsyncSnapshot<List<TransferEvent>> snapShot) {
-                      if (snapShot.hasError) {
-                        return Text('error: ' + snapShot.toString());
-                      } else if (snapShot.connectionState == ConnectionState.waiting) {
-                        return Text('Transfer Vehicle Event waiting...');
-                      } else {
-                        if (carIndex != null && snapShot.data.length > 0) {
-                          OwnedVehicle selectedVehicle = vehicleAssetContract.usersListOwnedVehicles[carIndex];
-                          snapShot.data.removeWhere((element) => element.tokenId != selectedVehicle.id);
-                          if (snapShot.data.length > 0) {
-                            return Column(
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                Center(
-                                  child: Text(
-                                    'Vehicle Transfer History',
-                                    style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorLight),
-                                  ),
-                                ),
-                                ...snapShot.data.map(
-                                  (event) {
-                                    return ListTile(
-                                      contentPadding: EdgeInsets.all(5.0),
-                                      isThreeLine: true,
-                                      title: SelectableText('Vehicle Id: ' + event.tokenId.toString()),
-                                      subtitle: SelectableText('From: ' + event.from.toString() + '\n' + 'To: ' + event.to.toString()),
-                                    );
-                                  },
-                                ).toList(),
-                              ],
-                            );
-                          } else {
-                            return Text('No history yet.');
-                          }
+                  SizedBox(height: 20.0),
+                  if (selectedVehicle != null) ...[
+                    Card(
+                      margin: EdgeInsets.all(5.0),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            Text('Vehicle Information'),
+                            Text('Vehicle address: ' + ((selectedVehicle.address != null) ? selectedVehicle.address.toString() : '')),
+                            Text('Vehicle Id: ' + (selectedVehicle.id != null ? selectedVehicle.id.toString() : '')),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Divider(thickness: 2.0, height: 40.0),
+                    StreamBuilder(
+                      stream: vehicleAssetContract.transferEventListStream,
+                      builder: (context, AsyncSnapshot<List<TransferEvent>> snapShot) {
+                        if (snapShot.hasError) {
+                          return Text('error: ' + snapShot.toString());
+                        } else if (snapShot.connectionState == ConnectionState.waiting) {
+                          return Text('Transfer Vehicle Event waiting...');
                         } else {
-                          return Text('No Vehicle is selected.');
-                        }
-                      }
-                    },
-                  ),
-                  Divider(thickness: 2.0, height: 40.0),
-                  StreamBuilder(
-                    stream: vehicleManagerContract.carStateUpdatedEventListStream,
-                    builder: (context, AsyncSnapshot<List<CarStateUpdatedEvent>> snapShot) {
-                      if (snapShot.hasError) {
-                        return Text('error: ' + snapShot.toString());
-                      } else if (snapShot.connectionState == ConnectionState.waiting) {
-                        return Text('Transfer Vehicle Event waiting...');
-                      } else {
-                        if (carIndex != null && snapShot.data.length > 0) {
-                          OwnedVehicle selectedVehicle = vehicleAssetContract.usersListOwnedVehicles[carIndex];
-                          snapShot.data.removeWhere((element) => element.carAddress != selectedVehicle.address);
-                          if (snapShot.data.length > 0) {
-                            return Column(
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                Center(
-                                  child: Text(
-                                    'Vehicle Update History',
-                                    style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorLight),
+                          if (carIndex != null && snapShot.data.length >= 0) {
+                            snapShot.data.removeWhere((element) => element.tokenId != selectedVehicle.id);
+                            if (snapShot.data.length > 0) {
+                              return Column(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Center(
+                                    child: Text(
+                                      'Vehicle Transfer History',
+                                      style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorLight),
+                                    ),
                                   ),
-                                ),
-                                ...snapShot.data.map(
-                                  (event) {
-                                    return ListTile(
-                                      contentPadding: EdgeInsets.all(5.0),
-                                      isThreeLine: true,
-                                      title: SelectableText('Vehicle address: ' + event.carAddress.toString()),
-                                      subtitle: SelectableText('Updated to State: ' +
-                                          vehicleStates.keys.firstWhere((k) => vehicleStates[k] == event.state.toInt() + 1, orElse: () => 'Not Set Yet') +
-                                          '\n' +
-                                          'Update at block: ' +
-                                          event.blockNumber.toString()),
-                                    );
-                                  },
-                                ).toList(),
-                              ],
-                            );
+                                  ...snapShot.data.map(
+                                    (event) {
+                                      return ListTile(
+                                        contentPadding: EdgeInsets.all(5.0),
+                                        isThreeLine: true,
+                                        title: SelectableText('Vehicle Id: ' + event.tokenId.toString()),
+                                        subtitle: SelectableText('From: ' + event.from.toString() + '\n' + 'To: ' + event.to.toString()),
+                                      );
+                                    },
+                                  ).toList(),
+                                ],
+                              );
+                            } else {
+                              return Text('No history yet.');
+                            }
                           } else {
-                            return Text('No history yet.');
+                            return Text('No Vehicle is selected.');
                           }
-                        } else {
-                          return Text('No Vehicle is selected.');
                         }
-                      }
-                    },
-                  ),
+                      },
+                    ),
+                    Divider(thickness: 2.0, height: 40.0),
+                    StreamBuilder(
+                      stream: vehicleManagerContract.carStateUpdatedEventListStream,
+                      builder: (context, AsyncSnapshot<List<CarStateUpdatedEvent>> snapShot) {
+                        if (snapShot.hasError) {
+                          return Text('error: ' + snapShot.toString());
+                        } else if (snapShot.connectionState == ConnectionState.waiting) {
+                          return Text('Transfer Vehicle Event waiting...');
+                        } else {
+                          if (carIndex != null && snapShot.data.length >= 0) {
+                            snapShot.data.removeWhere((element) => element.carAddress != selectedVehicle.address);
+                            if (snapShot.data.length > 0) {
+                              return Column(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Center(
+                                    child: Text(
+                                      'Vehicle Update History',
+                                      style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorLight),
+                                    ),
+                                  ),
+                                  ...snapShot.data.map(
+                                    (event) {
+                                      return ListTile(
+                                        contentPadding: EdgeInsets.all(5.0),
+                                        isThreeLine: true,
+                                        title: SelectableText('Vehicle address: ' + event.carAddress.toString()),
+                                        subtitle: SelectableText('Updated to State: ' +
+                                            vehicleStates.keys.firstWhere((k) => vehicleStates[k] == event.state.toInt() + 1, orElse: () => 'Not Set Yet') +
+                                            '\n' +
+                                            'Update at block: ' +
+                                            event.blockNumber.toString()),
+                                      );
+                                    },
+                                  ).toList(),
+                                ],
+                              );
+                            } else {
+                              return Text('No history yet.');
+                            }
+                          } else {
+                            return Text('No Vehicle updates.');
+                          }
+                        }
+                      },
+                    ),
+                  ],
                 ],
                 if (vehicleAssetContract.usersTotalNumberOwnedVehicles == BigInt.zero) ...[
                   Center(

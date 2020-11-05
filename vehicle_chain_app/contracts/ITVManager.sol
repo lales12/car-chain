@@ -1,15 +1,10 @@
 pragma solidity >=0.4.21 <0.7.0;
 
-import { ECDSA } from  "./libraries/ECDSA.sol";
-
-
 import "./interfaces/CarInterface.sol";
 import "./BaseManager.sol";
 
 
 contract ITVManager  is BaseManager {
-    using ECDSA for bytes32;
-
     string constant UPDATE_METHOD = 'updateITV(uint256,uint256)';
 
     enum ITVState {PASSED, NOT_PASSED, NEGATIVE}
@@ -19,48 +14,24 @@ contract ITVManager  is BaseManager {
         uint256 date;
     }
 
-    mapping(address => ITVInspection[]) ITVs;
+    mapping(uint256 => ITVInspection[]) ITVs;
 
-    event ITVInspectionEvent(address carAddress, ITVState state);
+    event ITVInspectionEvent(uint256 carID, ITVState state);
 
     constructor(
         address authorizerContractAddress,
         address carAssetContractAddress
     ) BaseManager(authorizerContractAddress, carAssetContractAddress) public {}
 
-    function updateITV(
-        bytes32 carIdHash,
-        bytes calldata signature,
-        ITVState itvStateIndex
-    ) 
+    function updateITV(uint256 carId, ITVState itvStateIndex) 
         public
         onlyAuthorized (UPDATE_METHOD, msg.sender)
     {
-        address carAddress = carIdHash.recover(signature);
-
-        require(carAddress != address(0), "car address not found.");
-
-        ITVs[carAddress].push(
+        ITVs[carId].push(
             ITVInspection(itvStateIndex, now)
         );
         
-        emit ITVInspectionEvent(carAddress, itvStateIndex);
+        emit ITVInspectionEvent(carId, itvStateIndex);
     }
 
-
-    function getITVState(
-        address carAddress
-    )
-        public 
-        view
-        returns(ITVState state, uint256 date)
-    {
-        uint256 itvLength = ITVs[carAddress].length;
-
-        require(itvLength, "This car don't have inspection")
-        return (
-            ITVs[carAddress][itvLength].state,
-            ITVs[carAddress][itvLength].date,
-        )
-    } 
 }

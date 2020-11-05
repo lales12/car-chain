@@ -135,7 +135,7 @@ contract CarManager is BaseManager {
         string memory licensePlate
     )
         public
-        onlyAuthorized(SELL_CAR_METHOD, msg.sender)
+        onlyAuthorized(REGISTER_CAR_METHOD, msg.sender)
         onlyAssetOwner(carAddress, msg.sender)
     {
         require(
