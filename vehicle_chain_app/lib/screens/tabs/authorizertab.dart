@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:barcode_scan/barcode_scan.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vehicle_chain_app/contracts_services/itvmanagercontractservice.dart';
 import 'package:vehicle_chain_app/contracts_services/vehiclemanagercontractservice.dart';
 import 'package:vehicle_chain_app/contracts_services/authorizercontractservice.dart';
@@ -13,6 +14,7 @@ import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
 import 'package:provider/provider.dart';
 import 'package:web3dart/credentials.dart';
+import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 
 class ExpandingItem {
@@ -72,8 +74,55 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
   int selectedContractIndex = 0;
   int selectedFunctionIndex = 0;
 
+  Future<void> _launchInBrowser(String url) async {
+    if (await canLaunch(url)) {
+      await launch(
+        url,
+        forceSafariVC: false,
+        forceWebView: false,
+        headers: <String, String>{'my_header_key': 'my_header_value'},
+      );
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // hanle tx reciept
+    handleTxRecipt(TransactionReceipt recipt) {
+      final snackBar = SnackBar(
+        duration: Duration(seconds: 10),
+        content: Container(
+          height: 100,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Text(recipt.status ? 'Transaction Id: ' + bytesToHex(recipt.transactionHash, include0x: true) : 'Transaction Failed'),
+              FlatButton(
+                child: Text('Open in EtherScan'),
+                onPressed: () async {
+                  String url = 'https://ropsten.etherscan.io/tx/' + bytesToHex(recipt.transactionHash, include0x: true);
+                  await _launchInBrowser(url);
+                },
+              )
+            ],
+          ),
+        ),
+        action: SnackBarAction(
+          textColor: Theme.of(context).buttonColor,
+          label: 'OK',
+          onPressed: () {
+            // Some code to undo the change.
+          },
+        ),
+      );
+      // Find the Scaffold in the widget tree and use
+      // it to show a SnackBar.
+      Scaffold.of(context).showSnackBar(snackBar);
+    }
+
     final authorizerContract = Provider.of<AuthorizerContract>(context);
     final carManagerContract = Provider.of<CarManager>(context);
     final itvManagerContract = Provider.of<ItvManager>(context);
@@ -233,9 +282,10 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                           stateCallSmartContractFunctionButton = ButtonState.loading;
                                         });
                                         try {
-                                          String result = await authorizerContract.addPermission(
+                                          TransactionReceipt result = await authorizerContract.addPermission(
                                               EthereumAddress.fromHex(inputContractAddress), inputFunctionName, EthereumAddress.fromHex(inputToAddress));
                                           if (result != null) {
+                                            handleTxRecipt(result);
                                             Timer(Duration(seconds: 2), () {
                                               setState(() {
                                                 stateCallSmartContractFunctionButton = ButtonState.success;
@@ -247,7 +297,7 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                               });
                                             });
                                           }
-                                          print('done call tx: ' + result);
+                                          print('done call tx: ' + result.status.toString());
                                         } catch (e) {
                                           final snackBar = SnackBar(
                                             duration: Duration(seconds: 10),
@@ -404,9 +454,10 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                           stateCallSmartContractFunctionButton = ButtonState.loading;
                                         });
                                         try {
-                                          String result = await authorizerContract.removePermission(
+                                          TransactionReceipt result = await authorizerContract.removePermission(
                                               EthereumAddress.fromHex(inputContractAddress), inputFunctionName, EthereumAddress.fromHex(inputToAddress));
                                           if (result != null) {
+                                            handleTxRecipt(result);
                                             Timer(Duration(seconds: 2), () {
                                               setState(() {
                                                 stateCallSmartContractFunctionButton = ButtonState.success;
@@ -418,7 +469,7 @@ class _AuthorizerTabState extends State<AuthorizerTab> {
                                               });
                                             });
                                           }
-                                          print('done call tx: ' + result);
+                                          print('done call tx: ' + result.status.toString());
                                         } catch (e) {
                                           final snackBar = SnackBar(
                                             duration: Duration(seconds: 10),

@@ -11,7 +11,6 @@ import 'package:vehicle_chain_app/contracts_services/itvmanagercontractservice.d
 import 'package:vehicle_chain_app/screens/tabs/authorizertab.dart';
 import 'package:vehicle_chain_app/services/walletmanager.dart';
 import 'package:vehicle_chain_app/util/loading.dart';
-import 'package:web3dart/credentials.dart';
 
 class ItvTab extends StatefulWidget {
   @override
@@ -287,7 +286,7 @@ class _ItvTabState extends State<ItvTab> {
                         children: [
                           Center(
                             child: Text(
-                              'Added Authorizations History',
+                              'Technical Inspection History',
                               style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorLight),
                             ),
                           ),

@@ -7,6 +7,7 @@ import 'package:vehicle_chain_app/services/walletmanager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
+import 'package:web3dart/crypto.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -32,7 +33,8 @@ class CarStateUpdatedEvent {
   EthereumAddress carAddress;
   int blockNumber;
   String transactionHash;
-  CarStateUpdatedEvent({this.carAddress, this.blockNumber, this.transactionHash});
+  BigInt state;
+  CarStateUpdatedEvent({this.carAddress, this.blockNumber, this.transactionHash, this.state});
 }
 
 // contract class
@@ -119,14 +121,13 @@ class CarManager extends ChangeNotifier {
 
     log('VehicleManager: list of functions:' + _contract.functions.map((e) => e.name).toList().toString());
     // set functions list
-    const String CREATE_CAR_METHOD = "createCar(bytes32,bytes,uint256)";
-    const String CREATE_CAR_RAW_METHOD = "createCarRaw(bytes32,uint8, bytes32, bytes32,uint256)";
+    const String CREATE_CAR_METHOD = "create(bytes32,bytes,uint256)";
     const String DELIVER_CAR_METHOD = "deliverCar(address)";
     const String SELL_CAR_METHOD = "sellCar(address)";
     const String REGISTER_CAR_METHOD = "registerCar()";
     const String UPDATE_CAR_METHOD = "updateCarState(bytes,uint256)";
 
-    contractFunctionsList = [CREATE_CAR_METHOD, CREATE_CAR_RAW_METHOD, DELIVER_CAR_METHOD, SELL_CAR_METHOD, REGISTER_CAR_METHOD, UPDATE_CAR_METHOD];
+    contractFunctionsList = [CREATE_CAR_METHOD, DELIVER_CAR_METHOD, SELL_CAR_METHOD, REGISTER_CAR_METHOD, UPDATE_CAR_METHOD];
   }
 
   // Stream Events
@@ -171,24 +172,36 @@ class CarManager extends ChangeNotifier {
   }
 
   Stream<List<CarStateUpdatedEvent>> get carStateUpdatedEventListStream {
-    print('carStateUpdatedEventListStream from block: ' + contractDeployedBlockNumber.blockNum.toString());
-
+    log('addPermissionEventHistoryStream from block: ' + contractDeployedBlockNumber.blockNum.toString());
     StreamController<List<CarStateUpdatedEvent>> controller;
     List<CarStateUpdatedEvent> temp = new List<CarStateUpdatedEvent>();
+    final filter = FilterOptions(
+      address: _contractAddress,
+      fromBlock: contractDeployedBlockNumber,
+      topics: [
+        [bytesToHex(_carStateUpdatedEvent.signature, padToEvenLength: true, include0x: true)],
+      ],
+    );
     void start() {
       // first get historical events
       _client
           .getLogs(
-        // filter,
-        FilterOptions.events(contract: _contract, event: _carStateUpdatedEvent, fromBlock: contractDeployedBlockNumber),
+        filter,
       )
           .then(
         (List<FilterEvent> eventsList) {
           eventsList.forEach(
             (FilterEvent event) {
-              final decoded = _carAddedEvent.decodeResults(event.topics, event.data);
+              final decoded = _carStateUpdatedEvent.decodeResults(event.topics, event.data);
+              // log('full event: ' + event.toString());
+              // print('from stream listen: addPermissionEventHistoryStream');
+              // print(decoded.toString());
               temp.add(
-                CarStateUpdatedEvent(carAddress: decoded[0] as EthereumAddress, blockNumber: event.blockNum, transactionHash: event.transactionHash),
+                CarStateUpdatedEvent(
+                    carAddress: decoded[0] as EthereumAddress,
+                    state: decoded[1] as BigInt,
+                    blockNumber: event.blockNum,
+                    transactionHash: event.transactionHash),
               );
             },
           );
@@ -210,6 +223,52 @@ class CarManager extends ChangeNotifier {
 
     return controller.stream;
   }
+
+  // Stream<List<CarStateUpdatedEvent>> get carStateUpdatedEventListStream {
+  //   print('carStateUpdatedEventListStream from block: ' + contractDeployedBlockNumber.blockNum.toString());
+
+  //   StreamController<List<CarStateUpdatedEvent>> controller;
+  //   List<CarStateUpdatedEvent> temp = new List<CarStateUpdatedEvent>();
+  //   void start() {
+  //     // first get historical events
+  //     _client
+  //         .getLogs(
+  //       // filter,
+  //       FilterOptions.events(contract: _contract, event: _carStateUpdatedEvent, fromBlock: contractDeployedBlockNumber),
+  //     )
+  //         .then(
+  //       (List<FilterEvent> eventsList) {
+  //         eventsList.forEach(
+  //           (FilterEvent event) {
+  //             final decoded = _carAddedEvent.decodeResults(event.topics, event.data);
+  //             log(decoded.toString());
+  //             temp.add(
+  //               CarStateUpdatedEvent(
+  //                   carAddress: decoded[0] as EthereumAddress,
+  //                   blockNumber: event.blockNum,
+  //                   transactionHash: event.transactionHash,
+  //                   state: decoded[1] as BigInt),
+  //             );
+  //           },
+  //         );
+  //         controller.add(temp);
+  //       },
+  //     ); // end of then
+  //   }
+
+  //   void stop() {
+  //     controller.close();
+  //   }
+
+  //   controller = StreamController<List<CarStateUpdatedEvent>>(
+  //     onListen: start,
+  //     onPause: stop,
+  //     onResume: start,
+  //     onCancel: stop,
+  //   );
+
+  //   return controller.stream;
+  // }
 
   // Contract Calls
   Future<TransactionReceipt> createCar(Uint8List carIdHash, Uint8List signiture, BigInt carTypeIndex) async {

@@ -565,6 +565,47 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                     onChanged: (val) => tockenIndex = val,
                                   ),
                                   SizedBox(height: 20.0),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextFormField(
+                                            key: Key(toAddress.toString()),
+                                            initialValue: toAddress,
+                                            decoration: InputDecoration().copyWith(hintText: 'To Address'),
+                                            validator: (val) => val.isEmpty ? 'Enter a valid to Address' : null,
+                                            onChanged: (val) {
+                                              toAddress = val;
+                                            }),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.qr_code_scanner),
+                                        onPressed: () async {
+                                          try {
+                                            String qrResult = await BarcodeScanner.scan();
+                                            print('qrResult: ' + qrResult);
+                                            setState(() {
+                                              toAddress = qrResult;
+                                            });
+                                          } on PlatformException catch (ex) {
+                                            if (ex.code == BarcodeScanner.CameraAccessDenied) {
+                                              toAddress = "Camera permission was denied";
+                                              print('qrResult: ' + toAddress);
+                                            } else {
+                                              toAddress = "Unknown Error $ex";
+                                              print('qrResult: ' + toAddress);
+                                            }
+                                          } on FormatException {
+                                            toAddress = "You pressed the back button before scanning anything";
+                                            print('qrResult: ' + toAddress);
+                                          } catch (ex) {
+                                            toAddress = "Unknown Error $ex";
+                                            print('qrResult: ' + toAddress);
+                                          }
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 20.0),
                                   new ProgressButton.icon(
                                     iconedButtons: {
                                       ButtonState.idle: IconedButton(
@@ -595,6 +636,11 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                           TransactionReceipt result = await vehicleManagerContract.deliverCar(selectedVehicle.address);
                                           if (result != null) {
                                             handleTxRecipt(result);
+                                            EthereumAddress to = EthereumAddress.fromHex(toAddress);
+                                            TransactionReceipt resultTransfer =
+                                                await vehicleAssetContractService.transferFromAddress(to, selectedVehicle.address);
+
+                                            handleTxRecipt(resultTransfer);
                                             if (result.status) {
                                               Timer(Duration(seconds: 2), () {
                                                 setState(() {
@@ -689,6 +735,47 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                   onChanged: (val) => tockenIndex = val,
                                 ),
                                 SizedBox(height: 20.0),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextFormField(
+                                          key: Key(toAddress.toString()),
+                                          initialValue: toAddress,
+                                          decoration: InputDecoration().copyWith(hintText: 'To Address'),
+                                          validator: (val) => val.isEmpty ? 'Enter a valid to Address' : null,
+                                          onChanged: (val) {
+                                            toAddress = val;
+                                          }),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.qr_code_scanner),
+                                      onPressed: () async {
+                                        try {
+                                          String qrResult = await BarcodeScanner.scan();
+                                          print('qrResult: ' + qrResult);
+                                          setState(() {
+                                            toAddress = qrResult;
+                                          });
+                                        } on PlatformException catch (ex) {
+                                          if (ex.code == BarcodeScanner.CameraAccessDenied) {
+                                            toAddress = "Camera permission was denied";
+                                            print('qrResult: ' + toAddress);
+                                          } else {
+                                            toAddress = "Unknown Error $ex";
+                                            print('qrResult: ' + toAddress);
+                                          }
+                                        } on FormatException {
+                                          toAddress = "You pressed the back button before scanning anything";
+                                          print('qrResult: ' + toAddress);
+                                        } catch (ex) {
+                                          toAddress = "Unknown Error $ex";
+                                          print('qrResult: ' + toAddress);
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 20.0),
                                 new ProgressButton.icon(
                                   iconedButtons: {
                                     ButtonState.idle: IconedButton(
@@ -717,6 +804,10 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                         TransactionReceipt result = await vehicleManagerContract.sellCar(selectedVehicle.address);
                                         if (result != null) {
                                           handleTxRecipt(result);
+                                          EthereumAddress to = EthereumAddress.fromHex(toAddress);
+                                          TransactionReceipt resultTransfer =
+                                              await vehicleAssetContractService.transferFromAddress(to, selectedVehicle.address);
+                                          handleTxRecipt(resultTransfer);
                                           if (result.status) {
                                             Timer(Duration(seconds: 2), () {
                                               setState(() {
@@ -1078,47 +1169,6 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                   children: [
                                     Expanded(
                                       child: TextFormField(
-                                          key: Key(fromAddress.toString()),
-                                          initialValue: fromAddress,
-                                          decoration: InputDecoration().copyWith(hintText: 'from Address'),
-                                          validator: (val) => val.isEmpty ? 'Enter a valid From Address' : null,
-                                          onChanged: (val) {
-                                            fromAddress = val;
-                                          }),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.qr_code_scanner),
-                                      onPressed: () async {
-                                        try {
-                                          String qrResult = await BarcodeScanner.scan();
-                                          print('qrResult: ' + qrResult);
-                                          setState(() {
-                                            fromAddress = qrResult;
-                                          });
-                                        } on PlatformException catch (ex) {
-                                          if (ex.code == BarcodeScanner.CameraAccessDenied) {
-                                            fromAddress = "Camera permission was denied";
-                                            print('qrResult: ' + fromAddress);
-                                          } else {
-                                            fromAddress = "Unknown Error $ex";
-                                            print('qrResult: ' + fromAddress);
-                                          }
-                                        } on FormatException {
-                                          fromAddress = "You pressed the back button before scanning anything";
-                                          print('qrResult: ' + fromAddress);
-                                        } catch (ex) {
-                                          fromAddress = "Unknown Error $ex";
-                                          print('qrResult: ' + fromAddress);
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 20.0),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextFormField(
                                           key: Key(toAddress.toString()),
                                           initialValue: toAddress,
                                           decoration: InputDecoration().copyWith(hintText: 'To Address'),
@@ -1183,25 +1233,11 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                       try {
                                         OwnedVehicle selectedVehicle = vehicleAssetContractService.usersListOwnedVehicles[tockenIndex];
                                         log('getCar button: ' + selectedVehicle.address.toString());
-                                        EthereumAddress from = EthereumAddress.fromHex(fromAddress);
+                                        // EthereumAddress from = EthereumAddress.fromHex(fromAddress);
                                         EthereumAddress to = EthereumAddress.fromHex(toAddress);
-                                        String result = await vehicleAssetContractService.transferFromAddress(from, to, selectedVehicle.address);
+                                        TransactionReceipt result = await vehicleAssetContractService.transferFromAddress(to, selectedVehicle.address);
                                         if (result != null) {
-                                          final snackBar = SnackBar(
-                                            duration: Duration(seconds: 30),
-                                            content: Text('Transaction Id: ' + result),
-                                            action: SnackBarAction(
-                                              textColor: Theme.of(context).buttonColor,
-                                              label: 'OK',
-                                              onPressed: () {
-                                                // Some code to undo the change.
-                                              },
-                                            ),
-                                          );
-                                          // Find the Scaffold in the widget tree and use
-                                          // it to show a SnackBar.
-                                          Scaffold.of(context).showSnackBar(snackBar);
-
+                                          handleTxRecipt(result);
                                           setState(() {
                                             stateCallSmartContractFunctionButton = ButtonState.success;
                                           });
@@ -1422,7 +1458,10 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                             (event) {
                               return ListTile(
                                 title: SelectableText('Vehicle Address: ' + event.carAddress.toString()),
-                                subtitle: Text('Vehicle Status Updated at block:' + event.blockNumber.toString()),
+                                subtitle: Text('Vehicle Status Update:' +
+                                    vehicleStates.keys.firstWhere((k) => vehicleStates[k] == event.state.toInt() + 1, orElse: () => 'Not Set Yet') +
+                                    '\nUpdated at block:' +
+                                    event.blockNumber.toString()),
                               );
                             },
                           ).toList(),

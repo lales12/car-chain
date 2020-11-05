@@ -138,15 +138,16 @@ class VehicleAssetContractService extends ChangeNotifier {
     return res;
   }
 
-  Future<String> transferFromAddress(EthereumAddress from, EthereumAddress to, EthereumAddress carAddress) async {
-    log('VehicleAssetContractService: transferFromAddress: carAddress ' + carAddress.toString() + ' ,from ' + from.toString() + ' ,to ' + to.toString());
+  Future<TransactionReceipt> transferFromAddress(EthereumAddress to, EthereumAddress carAddress) async {
+    log('VehicleAssetContractService: transferFromAddress: carAddress ' + carAddress.toString() + ' ,to ' + to.toString());
     String res = await _client.sendTransaction(
       _credentials,
-      Transaction.callContract(contract: _contract, function: _transferFromAddress, maxGas: 6721975, parameters: [from, to, carAddress]),
+      Transaction.callContract(contract: _contract, function: _transferFromAddress, maxGas: 6721975, parameters: [_userAddress, to, carAddress]),
       fetchChainIdFromNetworkId: true,
     );
     log('VehicleAssetContractService: transferFromAddress result' + res);
-    return res;
+    TransactionReceipt receipt = await _client.addedBlocks().asyncMap((_) => _client.getTransactionReceipt(res)).firstWhere((receipt) => receipt != null);
+    return receipt;
   }
 
   Future<String> burnCar(BigInt id) async {

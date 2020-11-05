@@ -126,21 +126,6 @@ class _NfcTesterState extends State<NfcTester> {
               ),
             ),
             SizedBox(height: 20.0),
-            Text('thiscouldbeahashintheorysoitisok'),
-            SizedBox(height: 20.0),
-            RaisedButton(
-              child: Text('Listen for Sign'),
-              onPressed: () async {
-                await _runCardSignerOnPlatform('thiscouldbeahashintheorysoitisok');
-              },
-            ),
-            SizedBox(height: 20.0),
-            Center(
-              child: Text(
-                _nfcCardSigniture != null ? 'Signiture byte[]: ' + _nfcCardSigniture.toString() : _nfcCardPubKeyError,
-                textAlign: TextAlign.center,
-              ),
-            ),
           ],
         ),
       ),

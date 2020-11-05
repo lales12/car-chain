@@ -280,22 +280,24 @@ class AuthorizerContract extends ChangeNotifier {
   }
 
   // callable functions
-  Future<String> addPermission(EthereumAddress contractAddress, String functionName, EthereumAddress toAddress) async {
+  Future<TransactionReceipt> addPermission(EthereumAddress contractAddress, String functionName, EthereumAddress toAddress) async {
     String res = await _client.sendTransaction(
       _credentials,
       Transaction.callContract(contract: _contract, function: _addPermission, parameters: [contractAddress, functionName, toAddress]),
       fetchChainIdFromNetworkId: true,
     );
-    return res;
+    TransactionReceipt receipt = await _client.addedBlocks().asyncMap((_) => _client.getTransactionReceipt(res)).firstWhere((receipt) => receipt != null);
+    return receipt;
   }
 
-  Future<String> removePermission(EthereumAddress contractAddress, String functionName, EthereumAddress toAddress) async {
+  Future<TransactionReceipt> removePermission(EthereumAddress contractAddress, String functionName, EthereumAddress toAddress) async {
     String res = await _client.sendTransaction(
       _credentials,
       Transaction.callContract(contract: _contract, function: _removePermission, parameters: [contractAddress, functionName, toAddress]),
       fetchChainIdFromNetworkId: true,
     );
-    return res;
+    TransactionReceipt receipt = await _client.addedBlocks().asyncMap((_) => _client.getTransactionReceipt(res)).firstWhere((receipt) => receipt != null);
+    return receipt;
   }
 
   Future<bool> requestAccess(EthereumAddress contractAddress, String functionName, EthereumAddress toAddress) async {
