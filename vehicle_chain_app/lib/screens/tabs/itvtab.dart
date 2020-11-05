@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:progress_state_button/iconed_button.dart';
 import 'package:progress_state_button/progress_button.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vehicle_chain_app/contracts_services/itvmanagercontractservice.dart';
 import 'package:vehicle_chain_app/screens/tabs/authorizertab.dart';
 import 'package:vehicle_chain_app/services/walletmanager.dart';
@@ -140,19 +141,72 @@ class _ItvTabState extends State<ItvTab> {
       shortDiscribe: "Update vehicle's inspection state",
       isExpanded: false,
     ),
+    ExpandingItem(
+      name: 'Inspection Status',
+      shortDiscribe: "Get last inspection status",
+      isExpanded: false,
+    ),
   ];
 
   final _formKeyUpdateInspection = GlobalKey<FormState>();
+  final _formKeyInspectionState = GlobalKey<FormState>();
   String vinId = '';
   ButtonState stateNFCButton = ButtonState.idle;
   String inputFunctionName = '';
   ButtonState stateCallSmartContractFunctionButton = ButtonState.idle;
-  String inputToAddress = '';
+  String carAddress;
   int selectedvehicleStates;
   final Map<String, int> vehicleStates = {'PASSED': 1, 'NOT_PASSED': 2, 'NEGATIVE': 3};
 
+  Future<void> _launchInBrowser(String url) async {
+    if (await canLaunch(url)) {
+      await launch(
+        url,
+        forceSafariVC: false,
+        forceWebView: false,
+        headers: <String, String>{'my_header_key': 'my_header_value'},
+      );
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // hanle tx reciept
+    handleTxRecipt(TransactionReceipt recipt) {
+      final snackBar = SnackBar(
+        duration: Duration(seconds: 10),
+        content: Container(
+          height: 100,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Text(recipt.status ? 'Transaction Id: ' + bytesToHex(recipt.transactionHash, include0x: true) : 'Transaction Failed'),
+              FlatButton(
+                child: Text('Open in EtherScan'),
+                onPressed: () async {
+                  String url = 'https://ropsten.etherscan.io/tx/' + bytesToHex(recipt.transactionHash, include0x: true);
+                  await _launchInBrowser(url);
+                },
+              )
+            ],
+          ),
+        ),
+        action: SnackBarAction(
+          textColor: Theme.of(context).buttonColor,
+          label: 'OK',
+          onPressed: () {
+            // Some code to undo the change.
+          },
+        ),
+      );
+      // Find the Scaffold in the widget tree and use
+      // it to show a SnackBar.
+      Scaffold.of(context).showSnackBar(snackBar);
+    }
+
     // final authorizerContract = Provider.of<AuthorizerContract>(context);
     // final carManagerContract = Provider.of<CarManager>(context);
     final itvManagerContract = Provider.of<ItvManager>(context);
@@ -220,6 +274,8 @@ class _ItvTabState extends State<ItvTab> {
                                     log('selected nex state: ' + val.toString());
                                   },
                                 ),
+                                SizedBox(height: 20.0),
+                                Text(_nfcCardMessage != null ? _nfcCardMessage : ''),
                                 SizedBox(height: 20.0),
                                 new ProgressButton.icon(
                                   iconedButtons: {
@@ -305,13 +361,21 @@ class _ItvTabState extends State<ItvTab> {
                                       print('button pressed: ' + _data[0].name);
                                       print(vinId);
                                       print(inputFunctionName);
-                                      print(inputToAddress);
                                       setState(() {
                                         stateCallSmartContractFunctionButton = ButtonState.loading;
                                       });
                                       try {
-                                        TransactionReceipt result = null;
+                                        Uint8List vinHash = keccak256(Uint8List.fromList(vinId.codeUnits));
+                                        Uint8List r = hexToBytes(_nfcCardSignitureList['r']);
+                                        Uint8List s = hexToBytes(_nfcCardSignitureList['s']);
+                                        BigInt v = BigInt.from(int.parse(_nfcCardSignitureList['v']) + 27);
+                                        int vInt = int.parse(_nfcCardSignitureList['v']) + 27;
+                                        List<int> rsv = [...r, ...s, vInt];
+                                        Uint8List signiture = Uint8List.fromList(rsv);
+
+                                        TransactionReceipt result = await itvManagerContract.updateITV(vinHash, signiture, BigInt.from(selectedvehicleStates));
                                         if (result != null) {
+                                          handleTxRecipt(result);
                                           setState(() {
                                             stateCallSmartContractFunctionButton = ButtonState.success;
                                           });
@@ -321,7 +385,150 @@ class _ItvTabState extends State<ItvTab> {
                                             });
                                           });
                                         }
-                                        print('done call have access: ' + result.toString());
+                                        print('done call updateITV: ' + result.status.toString());
+                                      } catch (e) {
+                                        final snackBar = SnackBar(
+                                          duration: Duration(seconds: 10),
+                                          content: Text('error: ' + e.toString()),
+                                          action: SnackBarAction(
+                                            textColor: Theme.of(context).buttonColor,
+                                            label: 'OK',
+                                            onPressed: () {
+                                              // Some code to undo the change.
+                                            },
+                                          ),
+                                        );
+                                        Scaffold.of(context).showSnackBar(snackBar);
+                                        setState(() {
+                                          stateCallSmartContractFunctionButton = ButtonState.fail;
+                                        });
+                                        Timer(Duration(seconds: 3), () {
+                                          setState(() {
+                                            stateCallSmartContractFunctionButton = ButtonState.idle;
+                                          });
+                                        });
+                                      }
+                                    } else {
+                                      setState(() {
+                                        stateCallSmartContractFunctionButton = ButtonState.idle;
+                                      });
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      //////////////////////////////////
+                      ExpansionPanel(
+                        isExpanded: _data[1].isExpanded,
+                        canTapOnHeader: true,
+                        headerBuilder: (BuildContext context, bool isExpanded) {
+                          return ListTile(
+                            title: Text(_data[1].name),
+                          );
+                        },
+                        body: Form(
+                          key: _formKeyInspectionState,
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              children: [
+                                SizedBox(height: 20.0),
+                                Text(
+                                  _data[1].shortDiscribe,
+                                ),
+                                SizedBox(height: 20.0),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextFormField(
+                                          key: Key(carAddress.toString()),
+                                          decoration: InputDecoration().copyWith(hintText: 'Vehicle Address'),
+                                          validator: (val) => val.isEmpty ? 'Enter a valid Vehicle Address' : null,
+                                          onChanged: (val) {
+                                            carAddress = val;
+                                          }),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.qr_code_scanner),
+                                      onPressed: () async {
+                                        try {
+                                          String qrResult = await BarcodeScanner.scan();
+                                          print('qrResult: ' + qrResult);
+                                          setState(() {
+                                            carAddress = qrResult;
+                                          });
+                                        } on PlatformException catch (ex) {
+                                          if (ex.code == BarcodeScanner.CameraAccessDenied) {
+                                            carAddress = "Camera permission was denied";
+                                            print('qrResult: ' + carAddress);
+                                          } else {
+                                            carAddress = "Unknown Error $ex";
+                                            print('qrResult: ' + carAddress);
+                                          }
+                                        } on FormatException {
+                                          carAddress = "You pressed the back button before scanning anything";
+                                          print('qrResult: ' + carAddress);
+                                        } catch (ex) {
+                                          carAddress = "Unknown Error $ex";
+                                          print('qrResult: ' + carAddress);
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 20.0),
+                                new ProgressButton.icon(
+                                  iconedButtons: {
+                                    ButtonState.idle:
+                                        IconedButton(text: _data[1].name, icon: Icon(Icons.search, color: Colors.white), color: Theme.of(context).buttonColor),
+                                    ButtonState.loading: IconedButton(text: "Loading", color: Theme.of(context).buttonColor),
+                                    ButtonState.fail:
+                                        IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
+                                    ButtonState.success: IconedButton(
+                                        text: "Success",
+                                        icon: Icon(
+                                          Icons.check_circle,
+                                          color: Colors.white,
+                                        ),
+                                        color: Theme.of(context).buttonColor)
+                                  },
+                                  state: stateCallSmartContractFunctionButton,
+                                  onPressed: () async {
+                                    if (_formKeyInspectionState.currentState.validate()) {
+                                      print('button pressed: ' + _data[1].name);
+                                      setState(() {
+                                        stateCallSmartContractFunctionButton = ButtonState.loading;
+                                      });
+                                      try {
+                                        ITVInspection result = await itvManagerContract.getITVState(EthereumAddress.fromHex(carAddress));
+                                        if (result != null) {
+                                          final snackBar = SnackBar(
+                                            duration: Duration(seconds: 30),
+                                            content: Text('Vehicle \nState: ' + result.state.toString() + '\nDate: ' + result.date.toString()),
+                                            action: SnackBarAction(
+                                              textColor: Theme.of(context).buttonColor,
+                                              label: 'OK',
+                                              onPressed: () {
+                                                // Some code to undo the change.
+                                              },
+                                            ),
+                                          );
+                                          // Find the Scaffold in the widget tree and use
+                                          // it to show a SnackBar.
+                                          Scaffold.of(context).showSnackBar(snackBar);
+                                          setState(() {
+                                            stateCallSmartContractFunctionButton = ButtonState.success;
+                                          });
+                                          Timer(Duration(seconds: 3), () {
+                                            setState(() {
+                                              stateCallSmartContractFunctionButton = ButtonState.idle;
+                                            });
+                                          });
+                                        }
+                                        print('done call getITVState: ' + result.state.toString());
                                       } catch (e) {
                                         final snackBar = SnackBar(
                                           duration: Duration(seconds: 10),

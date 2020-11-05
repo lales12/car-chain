@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:vehicle_chain_app/services/walletmanager.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +34,7 @@ class ItvManager extends ChangeNotifier {
 
   // contract functions
   ContractFunction _updateITV;
+  ContractFunction _getITVState;
   List<String> contractFunctionsList;
 
   // events
@@ -88,6 +90,7 @@ class ItvManager extends ChangeNotifier {
     _iTVInspectionEvent = _contract.event('ITVInspectionEvent');
     // set functions
     _updateITV = _contract.function('updateITV');
+    _getITVState = _contract.function('getITVState');
 
     const String UPDATE_METHOD = 'updateITV(uint256,uint256)';
 
@@ -144,13 +147,23 @@ class ItvManager extends ChangeNotifier {
   }
 
   // Contract Calls
-  Future<TransactionReceipt> updateITV(BigInt vehicleId, BigInt itvStateIndex) async {
+  Future<TransactionReceipt> updateITV(Uint8List carIdHash, Uint8List signiture, BigInt itvStateIndex) async {
     String res = await _client.sendTransaction(
       _credentials,
-      Transaction.callContract(contract: _contract, function: _updateITV, maxGas: 6721975, parameters: [vehicleId, itvStateIndex]),
+      Transaction.callContract(contract: _contract, function: _updateITV, maxGas: 6721975, parameters: [carIdHash, signiture, itvStateIndex]),
       fetchChainIdFromNetworkId: true,
     );
     TransactionReceipt receipt = await _client.addedBlocks().asyncMap((_) => _client.getTransactionReceipt(res)).firstWhere((receipt) => receipt != null);
     return receipt;
+  }
+
+  Future<ITVInspection> getITVState(EthereumAddress carAddress) async {
+    log('recieved address: ' + carAddress.toString());
+    List<dynamic> ret = await _client.call(contract: _contract, function: _getITVState, params: [carAddress]);
+
+    return ITVInspection(
+      state: ret[0] as BigInt,
+      date: ret[1] as BigInt,
+    );
   }
 }
