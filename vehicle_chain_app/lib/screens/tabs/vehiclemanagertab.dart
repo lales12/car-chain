@@ -8,6 +8,7 @@ import 'package:ethereum_address/ethereum_address.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:vehicle_chain_app/contracts_services/vehicleassetcontractservice.dart';
 import 'package:vehicle_chain_app/contracts_services/vehiclemanagercontractservice.dart';
+import 'package:vehicle_chain_app/models/OwnedVehicle.dart';
 import 'package:vehicle_chain_app/services/appsettingservice.dart';
 import 'package:vehicle_chain_app/services/walletmanager.dart';
 import 'package:vehicle_chain_app/util/loading.dart';
@@ -296,15 +297,48 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                           item.isExpanded = false;
                         });
                       });
-                      if (!['manufacturer', 'concessionaire', 'admin'].contains(appSetting.activeAppRole.key)) {
-                        index = index + 2;
+                      if (['manufacturer'].contains(appSetting.activeAppRole.key)) {
+                        switch (index) {
+                          case 2:
+                            index = 4;
+                            break;
+                          default:
+                        }
+                      }
+                      if (['concessionaire'].contains(appSetting.activeAppRole.key)) {
+                        switch (index) {
+                          case 0:
+                            index = 2;
+                            break;
+                          case 1:
+                            index = 3;
+                            break;
+                          case 2:
+                            index = 4;
+                            break;
+                          default:
+                        }
+                      }
+                      if (['user'].contains(appSetting.activeAppRole.key)) {
+                        switch (index) {
+                          case 0:
+                            index = 4;
+                            break;
+                          case 1:
+                            index = 5;
+                            break;
+                          case 2:
+                            index = 6;
+                            break;
+                          default:
+                        }
                       }
                       setState(() {
                         _data[index].isExpanded = !isExpanded;
                       });
                     },
                     children: [
-                      if (['manufacturer', 'concessionaire', 'admin'].contains(appSetting.activeAppRole.key)) ...[
+                      if (['manufacturer', 'admin'].contains(appSetting.activeAppRole.key)) ...[
                         ///////////////////////////////////////////////////////////////////////////////
                         ////////////////////////////// Create Vehicle /////////////////////////////////
                         ///////////////////////////////////////////////////////////////////////////////
@@ -700,302 +734,303 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                         ),
                       ],
 
-                      ///////////////////////////////////////////////////////////////////////////////
-                      /////////////////////////////// Sell Vehicle //////////////////////////////////
-                      ///////////////////////////////////////////////////////////////////////////////
-                      ExpansionPanel(
-                        isExpanded: _data[2].isExpanded,
-                        canTapOnHeader: true,
-                        headerBuilder: (BuildContext context, bool isExpanded) {
-                          return ListTile(
-                            title: Text(_data[2].name),
-                          );
-                        },
-                        body: Form(
-                          key: _formKeySell,
-                          child: Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Column(
-                              children: [
-                                SizedBox(height: 20.0),
-                                Text(
-                                  _data[2].shortDiscribe,
-                                ),
-                                SizedBox(height: 20.0),
-                                DropdownButtonFormField(
-                                  items: () {
-                                    List<DropdownMenuItem> dropList = new List<DropdownMenuItem>();
-                                    for (var i = 0; i < vehicleAssetContractService.usersTotalNumberOwnedVehicles.toInt(); i++) {
-                                      String shortCarAddr = vehicleAssetContractService.usersListOwnedVehicles[i].address.toString().substring(0, 8);
-                                      dropList.add(DropdownMenuItem(value: i, child: Text('Vehicle No.' + (i + 1).toString() + ', ' + shortCarAddr)));
-                                    }
-                                    return dropList;
-                                  }(),
-                                  decoration: InputDecoration().copyWith(hintText: 'Car Index'),
-                                  onChanged: (val) => tockenIndex = val,
-                                ),
-                                SizedBox(height: 20.0),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextFormField(
-                                          key: Key(toAddress.toString()),
-                                          initialValue: toAddress,
-                                          decoration: InputDecoration().copyWith(hintText: 'To Address'),
-                                          validator: (val) => val.isEmpty ? 'Enter a valid to Address' : null,
-                                          onChanged: (val) {
-                                            toAddress = val;
-                                          }),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.qr_code_scanner),
-                                      onPressed: () async {
-                                        try {
-                                          String qrResult = await BarcodeScanner.scan();
-                                          print('qrResult: ' + qrResult);
-                                          setState(() {
-                                            toAddress = qrResult;
-                                          });
-                                        } on PlatformException catch (ex) {
-                                          if (ex.code == BarcodeScanner.CameraAccessDenied) {
-                                            toAddress = "Camera permission was denied";
+                      if (['concessionaire', 'admin'].contains(appSetting.activeAppRole.key)) ...[
+                        ///////////////////////////////////////////////////////////////////////////////
+                        /////////////////////////////// Sell Vehicle //////////////////////////////////
+                        ///////////////////////////////////////////////////////////////////////////////
+                        ExpansionPanel(
+                          isExpanded: _data[2].isExpanded,
+                          canTapOnHeader: true,
+                          headerBuilder: (BuildContext context, bool isExpanded) {
+                            return ListTile(
+                              title: Text(_data[2].name),
+                            );
+                          },
+                          body: Form(
+                            key: _formKeySell,
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(
+                                children: [
+                                  SizedBox(height: 20.0),
+                                  Text(
+                                    _data[2].shortDiscribe,
+                                  ),
+                                  SizedBox(height: 20.0),
+                                  DropdownButtonFormField(
+                                    items: () {
+                                      List<DropdownMenuItem> dropList = new List<DropdownMenuItem>();
+                                      for (var i = 0; i < vehicleAssetContractService.usersTotalNumberOwnedVehicles.toInt(); i++) {
+                                        String shortCarAddr = vehicleAssetContractService.usersListOwnedVehicles[i].address.toString().substring(0, 8);
+                                        dropList.add(DropdownMenuItem(value: i, child: Text('Vehicle No.' + (i + 1).toString() + ', ' + shortCarAddr)));
+                                      }
+                                      return dropList;
+                                    }(),
+                                    decoration: InputDecoration().copyWith(hintText: 'Car Index'),
+                                    onChanged: (val) => tockenIndex = val,
+                                  ),
+                                  SizedBox(height: 20.0),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextFormField(
+                                            key: Key(toAddress.toString()),
+                                            initialValue: toAddress,
+                                            decoration: InputDecoration().copyWith(hintText: 'To Address'),
+                                            validator: (val) => val.isEmpty ? 'Enter a valid to Address' : null,
+                                            onChanged: (val) {
+                                              toAddress = val;
+                                            }),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.qr_code_scanner),
+                                        onPressed: () async {
+                                          try {
+                                            String qrResult = await BarcodeScanner.scan();
+                                            print('qrResult: ' + qrResult);
+                                            setState(() {
+                                              toAddress = qrResult;
+                                            });
+                                          } on PlatformException catch (ex) {
+                                            if (ex.code == BarcodeScanner.CameraAccessDenied) {
+                                              toAddress = "Camera permission was denied";
+                                              print('qrResult: ' + toAddress);
+                                            } else {
+                                              toAddress = "Unknown Error $ex";
+                                              print('qrResult: ' + toAddress);
+                                            }
+                                          } on FormatException {
+                                            toAddress = "You pressed the back button before scanning anything";
                                             print('qrResult: ' + toAddress);
-                                          } else {
+                                          } catch (ex) {
                                             toAddress = "Unknown Error $ex";
                                             print('qrResult: ' + toAddress);
                                           }
-                                        } on FormatException {
-                                          toAddress = "You pressed the back button before scanning anything";
-                                          print('qrResult: ' + toAddress);
-                                        } catch (ex) {
-                                          toAddress = "Unknown Error $ex";
-                                          print('qrResult: ' + toAddress);
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 20.0),
-                                new ProgressButton.icon(
-                                  iconedButtons: {
-                                    ButtonState.idle: IconedButton(
-                                        text: _data[2].name, icon: Icon(Icons.car_rental, color: Colors.white), color: Theme.of(context).buttonColor),
-                                    ButtonState.loading: IconedButton(text: "Loading", color: Theme.of(context).buttonColor),
-                                    ButtonState.fail:
-                                        IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
-                                    ButtonState.success: IconedButton(
-                                        text: "Success",
-                                        icon: Icon(
-                                          Icons.check_circle,
-                                          color: Colors.white,
-                                        ),
-                                        color: Theme.of(context).buttonColor)
-                                  },
-                                  state: stateCallSmartContractFunctionButton,
-                                  onPressed: () async {
-                                    if (_formKeySell.currentState.validate()) {
-                                      print('button pressed: ' + _data[2].name);
-                                      setState(() {
-                                        stateCallSmartContractFunctionButton = ButtonState.loading;
-                                      });
-                                      try {
-                                        OwnedVehicle selectedVehicle = vehicleAssetContractService.usersListOwnedVehicles[tockenIndex];
-                                        log('SellCar button: ' + selectedVehicle.address.toString());
-                                        TransactionReceipt result = await vehicleManagerContract.sellCar(selectedVehicle.address);
-                                        if (result != null) {
-                                          handleTxRecipt(result);
-                                          EthereumAddress to = EthereumAddress.fromHex(toAddress);
-                                          TransactionReceipt resultTransfer =
-                                              await vehicleAssetContractService.transferFromAddress(to, selectedVehicle.address);
-                                          handleTxRecipt(resultTransfer);
-                                          if (result.status) {
-                                            Timer(Duration(seconds: 2), () {
-                                              setState(() {
-                                                stateCallSmartContractFunctionButton = ButtonState.success;
-                                              });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 20.0),
+                                  new ProgressButton.icon(
+                                    iconedButtons: {
+                                      ButtonState.idle: IconedButton(
+                                          text: _data[2].name, icon: Icon(Icons.car_rental, color: Colors.white), color: Theme.of(context).buttonColor),
+                                      ButtonState.loading: IconedButton(text: "Loading", color: Theme.of(context).buttonColor),
+                                      ButtonState.fail:
+                                          IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
+                                      ButtonState.success: IconedButton(
+                                          text: "Success",
+                                          icon: Icon(
+                                            Icons.check_circle,
+                                            color: Colors.white,
+                                          ),
+                                          color: Theme.of(context).buttonColor)
+                                    },
+                                    state: stateCallSmartContractFunctionButton,
+                                    onPressed: () async {
+                                      if (_formKeySell.currentState.validate()) {
+                                        print('button pressed: ' + _data[2].name);
+                                        setState(() {
+                                          stateCallSmartContractFunctionButton = ButtonState.loading;
+                                        });
+                                        try {
+                                          OwnedVehicle selectedVehicle = vehicleAssetContractService.usersListOwnedVehicles[tockenIndex];
+                                          log('SellCar button: ' + selectedVehicle.address.toString());
+                                          TransactionReceipt result = await vehicleManagerContract.sellCar(selectedVehicle.address);
+                                          if (result != null) {
+                                            handleTxRecipt(result);
+                                            EthereumAddress to = EthereumAddress.fromHex(toAddress);
+                                            TransactionReceipt resultTransfer =
+                                                await vehicleAssetContractService.transferFromAddress(to, selectedVehicle.address);
+                                            handleTxRecipt(resultTransfer);
+                                            if (result.status) {
                                               Timer(Duration(seconds: 2), () {
+                                                setState(() {
+                                                  stateCallSmartContractFunctionButton = ButtonState.success;
+                                                });
+                                                Timer(Duration(seconds: 2), () {
+                                                  setState(() {
+                                                    stateCallSmartContractFunctionButton = ButtonState.idle;
+                                                  });
+                                                });
+                                              });
+                                            } else {
+                                              setState(() {
+                                                stateCallSmartContractFunctionButton = ButtonState.fail;
+                                              });
+                                              Timer(Duration(seconds: 3), () {
                                                 setState(() {
                                                   stateCallSmartContractFunctionButton = ButtonState.idle;
                                                 });
                                               });
-                                            });
-                                          } else {
-                                            setState(() {
-                                              stateCallSmartContractFunctionButton = ButtonState.fail;
-                                            });
-                                            Timer(Duration(seconds: 3), () {
-                                              setState(() {
-                                                stateCallSmartContractFunctionButton = ButtonState.idle;
-                                              });
-                                            });
+                                            }
                                           }
-                                        }
-                                        print('Got a Car: ' + result.toString());
-                                      } catch (e) {
-                                        final snackBar = SnackBar(
-                                          duration: Duration(seconds: 10),
-                                          content: Text('error: ' + e.toString()),
-                                          action: SnackBarAction(
-                                            textColor: Theme.of(context).buttonColor,
-                                            label: 'OK',
-                                            onPressed: () {
-                                              // Some code to undo the change.
-                                            },
-                                          ),
-                                        );
-                                        Scaffold.of(context).showSnackBar(snackBar);
-                                        setState(() {
-                                          stateCallSmartContractFunctionButton = ButtonState.fail;
-                                        });
-                                        Timer(Duration(seconds: 3), () {
+                                          print('Got a Car: ' + result.toString());
+                                        } catch (e) {
+                                          final snackBar = SnackBar(
+                                            duration: Duration(seconds: 10),
+                                            content: Text('error: ' + e.toString()),
+                                            action: SnackBarAction(
+                                              textColor: Theme.of(context).buttonColor,
+                                              label: 'OK',
+                                              onPressed: () {
+                                                // Some code to undo the change.
+                                              },
+                                            ),
+                                          );
+                                          Scaffold.of(context).showSnackBar(snackBar);
                                           setState(() {
-                                            stateCallSmartContractFunctionButton = ButtonState.idle;
+                                            stateCallSmartContractFunctionButton = ButtonState.fail;
                                           });
+                                          Timer(Duration(seconds: 3), () {
+                                            setState(() {
+                                              stateCallSmartContractFunctionButton = ButtonState.idle;
+                                            });
+                                          });
+                                        }
+                                      } else {
+                                        setState(() {
+                                          stateCallSmartContractFunctionButton = ButtonState.idle;
                                         });
                                       }
-                                    } else {
-                                      setState(() {
-                                        stateCallSmartContractFunctionButton = ButtonState.idle;
-                                      });
-                                    }
-                                  },
-                                ),
-                              ],
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
 
-                      ///////////////////////////////////////////////////////////////////////////////
-                      ///////////////////////////// Register Vehicle ////////////////////////////////
-                      ///////////////////////////////////////////////////////////////////////////////
-                      ExpansionPanel(
-                        isExpanded: _data[3].isExpanded,
-                        canTapOnHeader: true,
-                        headerBuilder: (BuildContext context, bool isExpanded) {
-                          return ListTile(
-                            title: Text(_data[3].name),
-                          );
-                        },
-                        body: Form(
-                          key: _formKeyRegister,
-                          child: Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Column(
-                              children: [
-                                SizedBox(height: 20.0),
-                                Text(
-                                  _data[3].shortDiscribe,
-                                ),
-                                SizedBox(height: 20.0),
-                                DropdownButtonFormField(
-                                  items: () {
-                                    List<DropdownMenuItem> dropList = new List<DropdownMenuItem>();
-                                    for (var i = 0; i < vehicleAssetContractService.usersTotalNumberOwnedVehicles.toInt(); i++) {
-                                      String shortCarAddr = vehicleAssetContractService.usersListOwnedVehicles[i].address.toString().substring(0, 8);
-                                      dropList.add(DropdownMenuItem(value: i, child: Text('Vehicle No.' + (i + 1).toString() + ', ' + shortCarAddr)));
-                                    }
-                                    return dropList;
-                                  }(),
-                                  decoration: InputDecoration().copyWith(hintText: 'Car Index'),
-                                  onChanged: (val) => tockenIndex = val,
-                                ),
-                                SizedBox(height: 20.0),
-                                new TextFormField(
-                                    key: Key(inputLicensePlate),
-                                    initialValue: inputLicensePlate,
-                                    decoration: InputDecoration().copyWith(hintText: 'License Plate'),
-                                    validator: (val) => val.isEmpty ? 'Enter a valid License Plate' : null,
-                                    onChanged: (val) {
-                                      inputLicensePlate = val;
-                                    }),
-                                SizedBox(height: 20.0),
-                                new ProgressButton.icon(
-                                  iconedButtons: {
-                                    ButtonState.idle: IconedButton(
-                                        text: _data[3].name, icon: Icon(Icons.transform_rounded, color: Colors.white), color: Theme.of(context).buttonColor),
-                                    ButtonState.loading: IconedButton(text: "Loading", color: Theme.of(context).buttonColor),
-                                    ButtonState.fail:
-                                        IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
-                                    ButtonState.success: IconedButton(
-                                        text: "Success",
-                                        icon: Icon(
-                                          Icons.check_circle,
-                                          color: Colors.white,
-                                        ),
-                                        color: Theme.of(context).buttonColor)
-                                  },
-                                  state: stateCallSmartContractFunctionButton,
-                                  onPressed: () async {
-                                    if (_formKeyRegister.currentState.validate()) {
-                                      print('button pressed: ' + _data[3].name);
-                                      setState(() {
-                                        stateCallSmartContractFunctionButton = ButtonState.loading;
-                                      });
-                                      try {
-                                        OwnedVehicle selectedVehicle = vehicleAssetContractService.usersListOwnedVehicles[tockenIndex];
-                                        log('getCar button: ' + selectedVehicle.address.toString());
-                                        TransactionReceipt result = await vehicleManagerContract.registerCar(selectedVehicle.address, inputLicensePlate);
-                                        if (result != null) {
-                                          handleTxRecipt(result);
-                                          if (result.status) {
-                                            Timer(Duration(seconds: 2), () {
-                                              setState(() {
-                                                stateCallSmartContractFunctionButton = ButtonState.success;
-                                              });
+                        ///////////////////////////////////////////////////////////////////////////////
+                        ///////////////////////////// Register Vehicle ////////////////////////////////
+                        ///////////////////////////////////////////////////////////////////////////////
+                        ExpansionPanel(
+                          isExpanded: _data[3].isExpanded,
+                          canTapOnHeader: true,
+                          headerBuilder: (BuildContext context, bool isExpanded) {
+                            return ListTile(
+                              title: Text(_data[3].name),
+                            );
+                          },
+                          body: Form(
+                            key: _formKeyRegister,
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(
+                                children: [
+                                  SizedBox(height: 20.0),
+                                  Text(
+                                    _data[3].shortDiscribe,
+                                  ),
+                                  SizedBox(height: 20.0),
+                                  DropdownButtonFormField(
+                                    items: () {
+                                      List<DropdownMenuItem> dropList = new List<DropdownMenuItem>();
+                                      for (var i = 0; i < vehicleAssetContractService.usersTotalNumberOwnedVehicles.toInt(); i++) {
+                                        String shortCarAddr = vehicleAssetContractService.usersListOwnedVehicles[i].address.toString().substring(0, 8);
+                                        dropList.add(DropdownMenuItem(value: i, child: Text('Vehicle No.' + (i + 1).toString() + ', ' + shortCarAddr)));
+                                      }
+                                      return dropList;
+                                    }(),
+                                    decoration: InputDecoration().copyWith(hintText: 'Car Index'),
+                                    onChanged: (val) => tockenIndex = val,
+                                  ),
+                                  SizedBox(height: 20.0),
+                                  new TextFormField(
+                                      key: Key(inputLicensePlate),
+                                      initialValue: inputLicensePlate,
+                                      decoration: InputDecoration().copyWith(hintText: 'License Plate'),
+                                      validator: (val) => val.isEmpty ? 'Enter a valid License Plate' : null,
+                                      onChanged: (val) {
+                                        inputLicensePlate = val;
+                                      }),
+                                  SizedBox(height: 20.0),
+                                  new ProgressButton.icon(
+                                    iconedButtons: {
+                                      ButtonState.idle: IconedButton(
+                                          text: _data[3].name, icon: Icon(Icons.transform_rounded, color: Colors.white), color: Theme.of(context).buttonColor),
+                                      ButtonState.loading: IconedButton(text: "Loading", color: Theme.of(context).buttonColor),
+                                      ButtonState.fail:
+                                          IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
+                                      ButtonState.success: IconedButton(
+                                          text: "Success",
+                                          icon: Icon(
+                                            Icons.check_circle,
+                                            color: Colors.white,
+                                          ),
+                                          color: Theme.of(context).buttonColor)
+                                    },
+                                    state: stateCallSmartContractFunctionButton,
+                                    onPressed: () async {
+                                      if (_formKeyRegister.currentState.validate()) {
+                                        print('button pressed: ' + _data[3].name);
+                                        setState(() {
+                                          stateCallSmartContractFunctionButton = ButtonState.loading;
+                                        });
+                                        try {
+                                          OwnedVehicle selectedVehicle = vehicleAssetContractService.usersListOwnedVehicles[tockenIndex];
+                                          log('getCar button: ' + selectedVehicle.address.toString());
+                                          TransactionReceipt result = await vehicleManagerContract.registerCar(selectedVehicle.address, inputLicensePlate);
+                                          if (result != null) {
+                                            handleTxRecipt(result);
+                                            if (result.status) {
                                               Timer(Duration(seconds: 2), () {
+                                                setState(() {
+                                                  stateCallSmartContractFunctionButton = ButtonState.success;
+                                                });
+                                                Timer(Duration(seconds: 2), () {
+                                                  setState(() {
+                                                    stateCallSmartContractFunctionButton = ButtonState.idle;
+                                                  });
+                                                });
+                                              });
+                                            } else {
+                                              setState(() {
+                                                stateCallSmartContractFunctionButton = ButtonState.fail;
+                                              });
+                                              Timer(Duration(seconds: 3), () {
                                                 setState(() {
                                                   stateCallSmartContractFunctionButton = ButtonState.idle;
                                                 });
                                               });
-                                            });
-                                          } else {
-                                            setState(() {
-                                              stateCallSmartContractFunctionButton = ButtonState.fail;
-                                            });
-                                            Timer(Duration(seconds: 3), () {
-                                              setState(() {
-                                                stateCallSmartContractFunctionButton = ButtonState.idle;
-                                              });
-                                            });
+                                            }
                                           }
-                                        }
-                                        print('Got a Car: ' + result.toString());
-                                      } catch (e) {
-                                        final snackBar = SnackBar(
-                                          duration: Duration(seconds: 10),
-                                          content: Text('error: ' + e.toString()),
-                                          action: SnackBarAction(
-                                            textColor: Theme.of(context).buttonColor,
-                                            label: 'OK',
-                                            onPressed: () {
-                                              // Some code to undo the change.
-                                            },
-                                          ),
-                                        );
-                                        Scaffold.of(context).showSnackBar(snackBar);
-                                        setState(() {
-                                          stateCallSmartContractFunctionButton = ButtonState.fail;
-                                        });
-                                        Timer(Duration(seconds: 3), () {
+                                          print('Got a Car: ' + result.toString());
+                                        } catch (e) {
+                                          final snackBar = SnackBar(
+                                            duration: Duration(seconds: 10),
+                                            content: Text('error: ' + e.toString()),
+                                            action: SnackBarAction(
+                                              textColor: Theme.of(context).buttonColor,
+                                              label: 'OK',
+                                              onPressed: () {
+                                                // Some code to undo the change.
+                                              },
+                                            ),
+                                          );
+                                          Scaffold.of(context).showSnackBar(snackBar);
                                           setState(() {
-                                            stateCallSmartContractFunctionButton = ButtonState.idle;
+                                            stateCallSmartContractFunctionButton = ButtonState.fail;
                                           });
+                                          Timer(Duration(seconds: 3), () {
+                                            setState(() {
+                                              stateCallSmartContractFunctionButton = ButtonState.idle;
+                                            });
+                                          });
+                                        }
+                                      } else {
+                                        setState(() {
+                                          stateCallSmartContractFunctionButton = ButtonState.idle;
                                         });
                                       }
-                                    } else {
-                                      setState(() {
-                                        stateCallSmartContractFunctionButton = ButtonState.idle;
-                                      });
-                                    }
-                                  },
-                                ),
-                              ],
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
-
+                      ],
                       ///////////////////////////////////////////////////////////////////////////////
                       //////////////////////////////// Get Vehicle //////////////////////////////////
                       ///////////////////////////////////////////////////////////////////////////////
@@ -1130,224 +1165,129 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                         ),
                       ),
 
-                      ///////////////////////////////////////////////////////////////////////////////
-                      ///////////////////////////// Transfer Vehicle ////////////////////////////////
-                      ///////////////////////////////////////////////////////////////////////////////
-                      ExpansionPanel(
-                        isExpanded: _data[5].isExpanded,
-                        canTapOnHeader: true,
-                        headerBuilder: (BuildContext context, bool isExpanded) {
-                          return ListTile(
-                            title: Text(_data[5].name),
-                          );
-                        },
-                        body: Form(
-                          key: _formKeyTransfer,
-                          child: Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Column(
-                              children: [
-                                SizedBox(height: 20.0),
-                                Text(
-                                  _data[5].shortDiscribe,
-                                ),
-                                SizedBox(height: 20.0),
-                                DropdownButtonFormField(
-                                  items: () {
-                                    List<DropdownMenuItem> dropList = new List<DropdownMenuItem>();
-                                    for (var i = 0; i < vehicleAssetContractService.usersTotalNumberOwnedVehicles.toInt(); i++) {
-                                      String shortCarAddr = vehicleAssetContractService.usersListOwnedVehicles[i].address.toString().substring(0, 8);
-                                      dropList.add(DropdownMenuItem(value: i, child: Text('Vehicle No.' + (i + 1).toString() + ', ' + shortCarAddr)));
-                                    }
-                                    return dropList;
-                                  }(),
-                                  decoration: InputDecoration().copyWith(hintText: 'Car Index'),
-                                  onChanged: (val) => tockenIndex = val,
-                                ),
-                                SizedBox(height: 20.0),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextFormField(
-                                          key: Key(toAddress.toString()),
-                                          initialValue: toAddress,
-                                          decoration: InputDecoration().copyWith(hintText: 'To Address'),
-                                          validator: (val) => val.isEmpty ? 'Enter a valid To Address' : null,
-                                          onChanged: (val) {
-                                            toAddress = val;
-                                          }),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.qr_code_scanner),
-                                      onPressed: () async {
-                                        try {
-                                          String qrResult = await BarcodeScanner.scan();
-                                          print('qrResult: ' + qrResult);
-                                          setState(() {
-                                            toAddress = qrResult;
-                                          });
-                                        } on PlatformException catch (ex) {
-                                          if (ex.code == BarcodeScanner.CameraAccessDenied) {
-                                            toAddress = "Camera permission was denied";
+                      if (['user', 'admin'].contains(appSetting.activeAppRole.key)) ...[
+                        ///////////////////////////////////////////////////////////////////////////////
+                        ///////////////////////////// Transfer Vehicle ////////////////////////////////
+                        ///////////////////////////////////////////////////////////////////////////////
+                        ExpansionPanel(
+                          isExpanded: _data[5].isExpanded,
+                          canTapOnHeader: true,
+                          headerBuilder: (BuildContext context, bool isExpanded) {
+                            return ListTile(
+                              title: Text(_data[5].name),
+                            );
+                          },
+                          body: Form(
+                            key: _formKeyTransfer,
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(
+                                children: [
+                                  SizedBox(height: 20.0),
+                                  Text(
+                                    _data[5].shortDiscribe,
+                                  ),
+                                  SizedBox(height: 20.0),
+                                  DropdownButtonFormField(
+                                    items: () {
+                                      List<DropdownMenuItem> dropList = new List<DropdownMenuItem>();
+                                      for (var i = 0; i < vehicleAssetContractService.usersTotalNumberOwnedVehicles.toInt(); i++) {
+                                        String shortCarAddr = vehicleAssetContractService.usersListOwnedVehicles[i].address.toString().substring(0, 8);
+                                        dropList.add(DropdownMenuItem(value: i, child: Text('Vehicle No.' + (i + 1).toString() + ', ' + shortCarAddr)));
+                                      }
+                                      return dropList;
+                                    }(),
+                                    decoration: InputDecoration().copyWith(hintText: 'Car Index'),
+                                    onChanged: (val) => tockenIndex = val,
+                                  ),
+                                  SizedBox(height: 20.0),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextFormField(
+                                            key: Key(toAddress.toString()),
+                                            initialValue: toAddress,
+                                            decoration: InputDecoration().copyWith(hintText: 'To Address'),
+                                            validator: (val) => val.isEmpty ? 'Enter a valid To Address' : null,
+                                            onChanged: (val) {
+                                              toAddress = val;
+                                            }),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.qr_code_scanner),
+                                        onPressed: () async {
+                                          try {
+                                            String qrResult = await BarcodeScanner.scan();
+                                            print('qrResult: ' + qrResult);
+                                            setState(() {
+                                              toAddress = qrResult;
+                                            });
+                                          } on PlatformException catch (ex) {
+                                            if (ex.code == BarcodeScanner.CameraAccessDenied) {
+                                              toAddress = "Camera permission was denied";
+                                              print('qrResult: ' + toAddress);
+                                            } else {
+                                              toAddress = "Unknown Error $ex";
+                                              print('qrResult: ' + toAddress);
+                                            }
+                                          } on FormatException {
+                                            toAddress = "You pressed the back button before scanning anything";
                                             print('qrResult: ' + toAddress);
-                                          } else {
+                                          } catch (ex) {
                                             toAddress = "Unknown Error $ex";
                                             print('qrResult: ' + toAddress);
                                           }
-                                        } on FormatException {
-                                          toAddress = "You pressed the back button before scanning anything";
-                                          print('qrResult: ' + toAddress);
-                                        } catch (ex) {
-                                          toAddress = "Unknown Error $ex";
-                                          print('qrResult: ' + toAddress);
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 20.0),
-                                new ProgressButton.icon(
-                                  iconedButtons: {
-                                    ButtonState.idle: IconedButton(
-                                        text: _data[5].name,
-                                        icon: Icon(Icons.transfer_within_a_station, color: Colors.white),
-                                        color: Theme.of(context).buttonColor),
-                                    ButtonState.loading: IconedButton(text: "Loading", color: Theme.of(context).buttonColor),
-                                    ButtonState.fail:
-                                        IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
-                                    ButtonState.success: IconedButton(
-                                        text: "Success",
-                                        icon: Icon(
-                                          Icons.check_circle,
-                                          color: Colors.white,
-                                        ),
-                                        color: Theme.of(context).buttonColor)
-                                  },
-                                  state: stateCallSmartContractFunctionButton,
-                                  onPressed: () async {
-                                    if (_formKeyTransfer.currentState.validate()) {
-                                      print('button pressed: ' + _data[5].name);
-                                      setState(() {
-                                        stateCallSmartContractFunctionButton = ButtonState.loading;
-                                      });
-                                      try {
-                                        OwnedVehicle selectedVehicle = vehicleAssetContractService.usersListOwnedVehicles[tockenIndex];
-                                        log('getCar button: ' + selectedVehicle.address.toString());
-                                        // EthereumAddress from = EthereumAddress.fromHex(fromAddress);
-                                        EthereumAddress to = EthereumAddress.fromHex(toAddress);
-                                        TransactionReceipt result = await vehicleAssetContractService.transferFromAddress(to, selectedVehicle.address);
-                                        if (result != null) {
-                                          handleTxRecipt(result);
-                                          setState(() {
-                                            stateCallSmartContractFunctionButton = ButtonState.success;
-                                          });
-                                          Timer(Duration(seconds: 3), () {
-                                            setState(() {
-                                              stateCallSmartContractFunctionButton = ButtonState.idle;
-                                            });
-                                          });
-                                        }
-                                        print('transfer tx: ' + result.toString());
-                                      } catch (e) {
-                                        final snackBar = SnackBar(
-                                          duration: Duration(seconds: 10),
-                                          content: Text('error: Transfer button ' + e.toString()),
-                                          action: SnackBarAction(
-                                            textColor: Theme.of(context).buttonColor,
-                                            label: 'OK',
-                                            onPressed: () {
-                                              // Some code to undo the change.
-                                            },
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 20.0),
+                                  new ProgressButton.icon(
+                                    iconedButtons: {
+                                      ButtonState.idle: IconedButton(
+                                          text: _data[5].name,
+                                          icon: Icon(Icons.transfer_within_a_station, color: Colors.white),
+                                          color: Theme.of(context).buttonColor),
+                                      ButtonState.loading: IconedButton(text: "Loading", color: Theme.of(context).buttonColor),
+                                      ButtonState.fail:
+                                          IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
+                                      ButtonState.success: IconedButton(
+                                          text: "Success",
+                                          icon: Icon(
+                                            Icons.check_circle,
+                                            color: Colors.white,
                                           ),
-                                        );
-                                        Scaffold.of(context).showSnackBar(snackBar);
+                                          color: Theme.of(context).buttonColor)
+                                    },
+                                    state: stateCallSmartContractFunctionButton,
+                                    onPressed: () async {
+                                      if (_formKeyTransfer.currentState.validate()) {
+                                        print('button pressed: ' + _data[5].name);
                                         setState(() {
-                                          stateCallSmartContractFunctionButton = ButtonState.fail;
+                                          stateCallSmartContractFunctionButton = ButtonState.loading;
                                         });
-                                        Timer(Duration(seconds: 3), () {
-                                          setState(() {
-                                            stateCallSmartContractFunctionButton = ButtonState.idle;
-                                          });
-                                        });
-                                      }
-                                    } else {
-                                      setState(() {
-                                        stateCallSmartContractFunctionButton = ButtonState.idle;
-                                      });
-                                    }
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      ///////////////////////////////////////////////////////////////////////////////
-                      ////////////////////////////// Destory Vehicle ////////////////////////////////
-                      ///////////////////////////////////////////////////////////////////////////////
-                      ExpansionPanel(
-                        isExpanded: _data[6].isExpanded,
-                        canTapOnHeader: true,
-                        headerBuilder: (BuildContext context, bool isExpanded) {
-                          return ListTile(
-                            title: Text(_data[6].name),
-                          );
-                        },
-                        body: Form(
-                          key: _formKeyDestroy,
-                          child: Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Column(
-                              children: [
-                                SizedBox(height: 20.0),
-                                Text(
-                                  _data[6].shortDiscribe,
-                                ),
-                                SizedBox(height: 20.0),
-                                DropdownButtonFormField(
-                                  items: () {
-                                    List<DropdownMenuItem> dropList = new List<DropdownMenuItem>();
-                                    for (var i = 0; i < vehicleAssetContractService.usersTotalNumberOwnedVehicles.toInt(); i++) {
-                                      String shortCarAddr = vehicleAssetContractService.usersListOwnedVehicles[i].address.toString().substring(0, 8);
-                                      dropList.add(DropdownMenuItem(value: i, child: Text('Vehicle No.' + (i + 1).toString() + ', ' + shortCarAddr)));
-                                    }
-                                    return dropList;
-                                  }(),
-                                  decoration: InputDecoration().copyWith(hintText: 'Car Index'),
-                                  onChanged: (val) => tockenIndex = val,
-                                ),
-                                SizedBox(height: 20.0),
-                                new ProgressButton.icon(
-                                  iconedButtons: {
-                                    ButtonState.idle: IconedButton(
-                                        text: _data[6].name, icon: Icon(Icons.fireplace_rounded, color: Colors.white), color: Theme.of(context).accentColor),
-                                    ButtonState.loading: IconedButton(text: "Loading", color: Theme.of(context).buttonColor),
-                                    ButtonState.fail:
-                                        IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
-                                    ButtonState.success: IconedButton(
-                                        text: "Success",
-                                        icon: Icon(
-                                          Icons.check_circle,
-                                          color: Colors.white,
-                                        ),
-                                        color: Theme.of(context).buttonColor)
-                                  },
-                                  state: stateCallSmartContractFunctionButton,
-                                  onPressed: () async {
-                                    if (_formKeyDestroy.currentState.validate()) {
-                                      print('button pressed: ' + _data[6].name);
-                                      setState(() {
-                                        stateCallSmartContractFunctionButton = ButtonState.loading;
-                                      });
-                                      try {
-                                        OwnedVehicle selectedVehicle = vehicleAssetContractService.usersListOwnedVehicles[tockenIndex];
-                                        log('getCar button: ' + selectedVehicle.address.toString());
-                                        String result = await vehicleAssetContractService.burnCar(selectedVehicle.id);
-                                        if (result != null) {
+                                        try {
+                                          OwnedVehicle selectedVehicle = vehicleAssetContractService.usersListOwnedVehicles[tockenIndex];
+                                          log('getCar button: ' + selectedVehicle.address.toString());
+                                          // EthereumAddress from = EthereumAddress.fromHex(fromAddress);
+                                          EthereumAddress to = EthereumAddress.fromHex(toAddress);
+                                          TransactionReceipt result = await vehicleAssetContractService.transferFromAddress(to, selectedVehicle.address);
+                                          if (result != null) {
+                                            handleTxRecipt(result);
+                                            setState(() {
+                                              stateCallSmartContractFunctionButton = ButtonState.success;
+                                            });
+                                            Timer(Duration(seconds: 3), () {
+                                              setState(() {
+                                                stateCallSmartContractFunctionButton = ButtonState.idle;
+                                              });
+                                            });
+                                          }
+                                          print('transfer tx: ' + result.toString());
+                                        } catch (e) {
                                           final snackBar = SnackBar(
-                                            duration: Duration(seconds: 30),
-                                            content: Text('Transaction Id: ' + result),
+                                            duration: Duration(seconds: 10),
+                                            content: Text('error: Transfer button ' + e.toString()),
                                             action: SnackBarAction(
                                               textColor: Theme.of(context).buttonColor,
                                               label: 'OK',
@@ -1356,12 +1296,9 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                               },
                                             ),
                                           );
-                                          // Find the Scaffold in the widget tree and use
-                                          // it to show a SnackBar.
                                           Scaffold.of(context).showSnackBar(snackBar);
-
                                           setState(() {
-                                            stateCallSmartContractFunctionButton = ButtonState.success;
+                                            stateCallSmartContractFunctionButton = ButtonState.fail;
                                           });
                                           Timer(Duration(seconds: 3), () {
                                             setState(() {
@@ -1369,41 +1306,141 @@ class _VehicleManagerTabState extends State<VehicleManagerTab> {
                                             });
                                           });
                                         }
-                                        print('Got a Car: ' + result.toString());
-                                      } catch (e) {
-                                        final snackBar = SnackBar(
-                                          duration: Duration(seconds: 10),
-                                          content: Text('error: getCar button ' + e.toString()),
-                                          action: SnackBarAction(
-                                            textColor: Theme.of(context).buttonColor,
-                                            label: 'OK',
-                                            onPressed: () {
-                                              // Some code to undo the change.
-                                            },
-                                          ),
-                                        );
-                                        Scaffold.of(context).showSnackBar(snackBar);
+                                      } else {
                                         setState(() {
-                                          stateCallSmartContractFunctionButton = ButtonState.fail;
-                                        });
-                                        Timer(Duration(seconds: 3), () {
-                                          setState(() {
-                                            stateCallSmartContractFunctionButton = ButtonState.idle;
-                                          });
+                                          stateCallSmartContractFunctionButton = ButtonState.idle;
                                         });
                                       }
-                                    } else {
-                                      setState(() {
-                                        stateCallSmartContractFunctionButton = ButtonState.idle;
-                                      });
-                                    }
-                                  },
-                                ),
-                              ],
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
+
+                        ///////////////////////////////////////////////////////////////////////////////
+                        ////////////////////////////// Destory Vehicle ////////////////////////////////
+                        ///////////////////////////////////////////////////////////////////////////////
+                        ExpansionPanel(
+                          isExpanded: _data[6].isExpanded,
+                          canTapOnHeader: true,
+                          headerBuilder: (BuildContext context, bool isExpanded) {
+                            return ListTile(
+                              title: Text(_data[6].name),
+                            );
+                          },
+                          body: Form(
+                            key: _formKeyDestroy,
+                            child: Padding(
+                              padding: const EdgeInsets.all(20.0),
+                              child: Column(
+                                children: [
+                                  SizedBox(height: 20.0),
+                                  Text(
+                                    _data[6].shortDiscribe,
+                                  ),
+                                  SizedBox(height: 20.0),
+                                  DropdownButtonFormField(
+                                    items: () {
+                                      List<DropdownMenuItem> dropList = new List<DropdownMenuItem>();
+                                      for (var i = 0; i < vehicleAssetContractService.usersTotalNumberOwnedVehicles.toInt(); i++) {
+                                        String shortCarAddr = vehicleAssetContractService.usersListOwnedVehicles[i].address.toString().substring(0, 8);
+                                        dropList.add(DropdownMenuItem(value: i, child: Text('Vehicle No.' + (i + 1).toString() + ', ' + shortCarAddr)));
+                                      }
+                                      return dropList;
+                                    }(),
+                                    decoration: InputDecoration().copyWith(hintText: 'Car Index'),
+                                    onChanged: (val) => tockenIndex = val,
+                                  ),
+                                  SizedBox(height: 20.0),
+                                  new ProgressButton.icon(
+                                    iconedButtons: {
+                                      ButtonState.idle: IconedButton(
+                                          text: _data[6].name, icon: Icon(Icons.fireplace_rounded, color: Colors.white), color: Theme.of(context).accentColor),
+                                      ButtonState.loading: IconedButton(text: "Loading", color: Theme.of(context).buttonColor),
+                                      ButtonState.fail:
+                                          IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
+                                      ButtonState.success: IconedButton(
+                                          text: "Success",
+                                          icon: Icon(
+                                            Icons.check_circle,
+                                            color: Colors.white,
+                                          ),
+                                          color: Theme.of(context).buttonColor)
+                                    },
+                                    state: stateCallSmartContractFunctionButton,
+                                    onPressed: () async {
+                                      if (_formKeyDestroy.currentState.validate()) {
+                                        print('button pressed: ' + _data[6].name);
+                                        setState(() {
+                                          stateCallSmartContractFunctionButton = ButtonState.loading;
+                                        });
+                                        try {
+                                          OwnedVehicle selectedVehicle = vehicleAssetContractService.usersListOwnedVehicles[tockenIndex];
+                                          log('getCar button: ' + selectedVehicle.address.toString());
+                                          String result = await vehicleAssetContractService.burnCar(selectedVehicle.id);
+                                          if (result != null) {
+                                            final snackBar = SnackBar(
+                                              duration: Duration(seconds: 30),
+                                              content: Text('Transaction Id: ' + result),
+                                              action: SnackBarAction(
+                                                textColor: Theme.of(context).buttonColor,
+                                                label: 'OK',
+                                                onPressed: () {
+                                                  // Some code to undo the change.
+                                                },
+                                              ),
+                                            );
+                                            // Find the Scaffold in the widget tree and use
+                                            // it to show a SnackBar.
+                                            Scaffold.of(context).showSnackBar(snackBar);
+
+                                            setState(() {
+                                              stateCallSmartContractFunctionButton = ButtonState.success;
+                                            });
+                                            Timer(Duration(seconds: 3), () {
+                                              setState(() {
+                                                stateCallSmartContractFunctionButton = ButtonState.idle;
+                                              });
+                                            });
+                                          }
+                                          print('Got a Car: ' + result.toString());
+                                        } catch (e) {
+                                          final snackBar = SnackBar(
+                                            duration: Duration(seconds: 10),
+                                            content: Text('error: getCar button ' + e.toString()),
+                                            action: SnackBarAction(
+                                              textColor: Theme.of(context).buttonColor,
+                                              label: 'OK',
+                                              onPressed: () {
+                                                // Some code to undo the change.
+                                              },
+                                            ),
+                                          );
+                                          Scaffold.of(context).showSnackBar(snackBar);
+                                          setState(() {
+                                            stateCallSmartContractFunctionButton = ButtonState.fail;
+                                          });
+                                          Timer(Duration(seconds: 3), () {
+                                            setState(() {
+                                              stateCallSmartContractFunctionButton = ButtonState.idle;
+                                            });
+                                          });
+                                        }
+                                      } else {
+                                        setState(() {
+                                          stateCallSmartContractFunctionButton = ButtonState.idle;
+                                        });
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

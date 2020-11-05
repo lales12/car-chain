@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:vehicle_chain_app/contracts_services/vehicleassetcontractservice.dart';
 import 'package:vehicle_chain_app/contracts_services/vehiclemanagercontractservice.dart';
+import 'package:vehicle_chain_app/models/OwnedVehicle.dart';
 import 'package:vehicle_chain_app/services/walletmanager.dart';
 import 'package:vehicle_chain_app/util/cards.dart';
 import 'package:vehicle_chain_app/util/loading.dart';
@@ -18,6 +19,7 @@ class _HomeTabState extends State<HomeTab> {
   int carIndex;
   OwnedVehicle selectedVehicle;
   final Map<String, int> vehicleStates = {'SHIPPED': 1, 'FOR_SALE': 2, 'SOLD': 3, 'REGISTERED': 4};
+  final Map<String, int> vehicleTypes = {'TWO_WHEEL': 1, 'THREE_WHEEL': 2, 'FOUR_WHEEL': 3, 'HEAVY': 4, 'AGRICULTURE': 5, 'SERVICE': 6};
 
   @override
   Widget build(BuildContext context) {
@@ -74,11 +76,21 @@ class _HomeTabState extends State<HomeTab> {
                             return dropList;
                           }(),
                           decoration: InputDecoration().copyWith(hintText: 'Car Index'),
-                          onChanged: (val) {
+                          onChanged: (val) async {
+                            CarGot result = await vehicleManagerContract.getCar(vehicleAssetContract.usersListOwnedVehicles[val].address);
                             setState(() {
                               carIndex = val;
                               selectedVehicle = vehicleAssetContract.usersListOwnedVehicles[val];
                             });
+
+                            log('vehicle type: ' + result.carType.toString());
+                            if (result != null) {
+                              setState(() {
+                                selectedVehicle.vehicleSate = result.carState;
+                                selectedVehicle.vehicleType = result.carType;
+                                selectedVehicle.licensePlate = result.licensePlate;
+                              });
+                            }
                           },
                         ),
                       ],
@@ -92,9 +104,38 @@ class _HomeTabState extends State<HomeTab> {
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
                           children: [
-                            Text('Vehicle Information'),
-                            Text('Vehicle address: ' + ((selectedVehicle.address != null) ? selectedVehicle.address.toString() : '')),
-                            Text('Vehicle Id: ' + (selectedVehicle.id != null ? selectedVehicle.id.toString() : '')),
+                            Text(
+                              'Vehicle Information',
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            SizedBox(height: 10.0),
+                            ListTile(
+                              leading: Icon(Icons.wallet_membership),
+                              title: Text('Vehicle Address: ' + ((selectedVehicle.address != null) ? selectedVehicle.address.toString() : '')),
+                            ),
+                            ListTile(
+                              leading: Icon(Icons.wallet_giftcard),
+                              title: Text('Vehicle Id: ' + (selectedVehicle.id != null ? selectedVehicle.id.toString() : '')),
+                            ),
+                            ListTile(
+                              leading: Icon(Icons.car_repair),
+                              title: Text('Vehicle State: ' +
+                                  (selectedVehicle.vehicleSate != null
+                                      ? vehicleStates.keys
+                                          .firstWhere((k) => vehicleStates[k] == selectedVehicle.vehicleSate.toInt() + 1, orElse: () => 'Not Set Yet')
+                                      : '')),
+                            ),
+                            ListTile(
+                              leading: Icon(Icons.car_rental),
+                              title: Text('Vehicle Type: ' +
+                                  (selectedVehicle.vehicleType != null
+                                      ? vehicleTypes.keys.firstWhere((k) => vehicleTypes[k] == selectedVehicle.vehicleType.toInt(), orElse: () => 'Not Set Yet')
+                                      : '')),
+                            ),
+                            ListTile(
+                              leading: Icon(Icons.palette_sharp),
+                              title: Text('Vehicle license Plate: ' + ((selectedVehicle.licensePlate != null) ? selectedVehicle.licensePlate.toString() : '')),
+                            ),
                           ],
                         ),
                       ),
@@ -120,13 +161,13 @@ class _HomeTabState extends State<HomeTab> {
                                       style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorLight),
                                     ),
                                   ),
-                                  ...snapShot.data.map(
+                                  ...snapShot.data.asMap().entries.map(
                                     (event) {
                                       return ListTile(
                                         contentPadding: EdgeInsets.all(5.0),
                                         isThreeLine: true,
-                                        title: SelectableText('Vehicle Id: ' + event.tokenId.toString()),
-                                        subtitle: SelectableText('From: ' + event.from.toString() + '\n' + 'To: ' + event.to.toString()),
+                                        title: SelectableText('Vehicle Transfer: ' + (event.key + 1).toString()),
+                                        subtitle: SelectableText('From: ' + event.value.from.toString() + '\n' + 'To: ' + event.value.to.toString()),
                                       );
                                     },
                                   ).toList(),
@@ -162,17 +203,18 @@ class _HomeTabState extends State<HomeTab> {
                                       style: TextStyle(fontSize: 18.0, color: Theme.of(context).primaryColorLight),
                                     ),
                                   ),
-                                  ...snapShot.data.map(
+                                  ...snapShot.data.asMap().entries.map(
                                     (event) {
                                       return ListTile(
                                         contentPadding: EdgeInsets.all(5.0),
                                         isThreeLine: true,
-                                        title: SelectableText('Vehicle address: ' + event.carAddress.toString()),
+                                        title: SelectableText('Vehicle Update: ' + (event.key + 1).toString()),
                                         subtitle: SelectableText('Updated to State: ' +
-                                            vehicleStates.keys.firstWhere((k) => vehicleStates[k] == event.state.toInt() + 1, orElse: () => 'Not Set Yet') +
+                                            vehicleStates.keys
+                                                .firstWhere((k) => vehicleStates[k] == event.value.state.toInt() + 1, orElse: () => 'Not Set Yet') +
                                             '\n' +
                                             'Update at block: ' +
-                                            event.blockNumber.toString()),
+                                            event.value.blockNumber.toString()),
                                       );
                                     },
                                   ).toList(),

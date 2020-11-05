@@ -2,19 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:vehicle_chain_app/models/OwnedVehicle.dart';
 import 'package:vehicle_chain_app/services/walletmanager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
-
-class OwnedVehicle {
-  int index;
-  BigInt id;
-  EthereumAddress address;
-  OwnedVehicle({this.index, this.id, this.address});
-}
 
 // events
 // event classes (model)

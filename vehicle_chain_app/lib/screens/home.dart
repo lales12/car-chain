@@ -37,7 +37,9 @@ class _HomeState extends State<Home> {
       // tabs
       final tabs = [
         Container(child: HomeTab()),
-        Container(child: VehicleManagerTab()),
+        if (!['itv'].contains(appSetting.activeAppRole.key)) ...[
+          Container(child: VehicleManagerTab()),
+        ],
         if (['itv', 'admin'].contains(appSetting.activeAppRole.key)) ...[
           Container(child: ItvTab()),
         ],
@@ -51,10 +53,12 @@ class _HomeState extends State<Home> {
           label: 'Home',
           icon: Icon(Icons.home),
         ),
-        BottomNavigationBarItem(
-          label: 'Vehicles',
-          icon: Icon(Icons.car_rental),
-        ),
+        if (!['itv'].contains(appSetting.activeAppRole.key)) ...[
+          BottomNavigationBarItem(
+            label: 'Vehicles',
+            icon: Icon(Icons.car_rental),
+          ),
+        ],
         if (['itv', 'admin'].contains(appSetting.activeAppRole.key)) ...[
           BottomNavigationBarItem(
             label: 'ITV',
@@ -138,6 +142,14 @@ class _HomeState extends State<Home> {
             currentIndex: selectedIndex,
             items: navItems,
             onTap: (index) {
+              // if (['itv'].contains(appSetting.activeAppRole.key)) {
+              //   switch (index) {
+              //     case 1:
+              //       index = 2;
+              //       break;
+              //     default:
+              //   }
+              // }
               setState(() {
                 selectedIndex = index;
               });

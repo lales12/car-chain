@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:barcode_scan/barcode_scan.dart';
+import 'package:ethereum_address/ethereum_address.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:progress_state_button/iconed_button.dart';
@@ -11,6 +14,8 @@ import 'package:vehicle_chain_app/contracts_services/itvmanagercontractservice.d
 import 'package:vehicle_chain_app/screens/tabs/authorizertab.dart';
 import 'package:vehicle_chain_app/services/walletmanager.dart';
 import 'package:vehicle_chain_app/util/loading.dart';
+import 'package:web3dart/crypto.dart';
+import 'package:web3dart/web3dart.dart';
 
 class ItvTab extends StatefulWidget {
   @override
@@ -18,6 +23,117 @@ class ItvTab extends StatefulWidget {
 }
 
 class _ItvTabState extends State<ItvTab> {
+  // nfc
+  static const platformMethods = const MethodChannel('carChain.com/methodsChannel');
+  static const platformEvents = const EventChannel('carChain.com/getCardInfoEvent');
+  static const platformSignEvents = const EventChannel('carChain.com/signEvent');
+
+  String _isNfcAdapterEnabled = 'Unknown Nfc Status.';
+  String _nfcCardPubKeyError = 'no error yet';
+  String _nfcCardPubKey;
+  String _nfcCardMessage;
+  dynamic _nfcCardSignitureList;
+
+  Future<void> _getNfcAdapterStatus() async {
+    String isNfcAdapterEnabled;
+    try {
+      final bool result = await platformMethods.invokeMethod('getNfcStatus');
+      isNfcAdapterEnabled = 'Nfc Status: $result ';
+    } on PlatformException catch (e) {
+      isNfcAdapterEnabled = "Failed to get Nfc Status: '${e.message}'.";
+    }
+
+    setState(() {
+      _isNfcAdapterEnabled = isNfcAdapterEnabled;
+    });
+  }
+
+  Future<void> _runCardInfoStreamOnPlatform() async {
+    try {
+      final bool result = await platformMethods.invokeMethod('runCardInfoStream');
+      setState(() {
+        _nfcCardPubKey = result ? 'Please attach your KeyCard to your device.' : 'Somthing is wrong...';
+      });
+      result ? _listenForCardInfo() : log('somthing is wrong');
+    } on PlatformException catch (e) {
+      log("Failed to launch a new stream for card info: '${e.message}'.");
+    }
+  }
+
+  Future<bool> _runCardSignerOnPlatform(Uint8List hash) async {
+    try {
+      final bool result = await platformMethods.invokeMethod('runSignStream', {"hash": hash});
+      setState(() {
+        result == true ? _nfcCardMessage = 'Please attach your KeyCard to your device to Sign.' : _nfcCardMessage = 'Somthing is wrong...';
+      });
+      result ? _listenSignedHash() : log('somthing is wrong');
+      return true;
+    } on PlatformException catch (e) {
+      log("Failed to launch a new stream for card info: '${e.message}'.");
+      return false;
+    }
+  }
+
+  void _listenForCardInfo() {
+    platformEvents.receiveBroadcastStream().listen(_onEvent, onError: _onError);
+  }
+
+  StreamSubscription signitureSubscription;
+
+  void _listenSignedHash() {
+    signitureSubscription = platformSignEvents.receiveBroadcastStream().listen(_onSignEvent, onError: _onError);
+  }
+
+  @override
+  void dispose() {
+    log('vehicleManager Tab dispose');
+    super.dispose();
+    if (signitureSubscription != null) {
+      signitureSubscription.cancel();
+    }
+  }
+
+  void _onSignEvent(Object event) {
+    log(event.toString());
+    log(event.toString().length.toString());
+    // log(ethereumAddressFromPublicKey(event));
+    setState(() {
+      _nfcCardSignitureList = json.decode(event);
+      _nfcCardMessage = "Car Signiture:\n" +
+          "R: " +
+          '0x' +
+          _nfcCardSignitureList['r'] +
+          "\n" +
+          "S: " +
+          '0x' +
+          _nfcCardSignitureList['s'] +
+          "\n" +
+          "V: " +
+          (int.parse(_nfcCardSignitureList['v']) + 27).toString();
+      stateNFCButton = ButtonState.success;
+      Timer(Duration(seconds: 4), () {
+        stateNFCButton = ButtonState.idle;
+      });
+    });
+  }
+
+  void _onEvent(Object event) {
+    // log(event.toString());
+    // log(event.toString().length.toString());
+    // log(ethereumAddressFromPublicKey(event));
+    setState(() {
+      _nfcCardPubKey = ethereumAddressFromPublicKey(event);
+    });
+  }
+
+  void _onError(Object error) {
+    log(error.toString());
+    setState(() {
+      _nfcCardPubKeyError = error.toString();
+    });
+  }
+
+  ////////////////////////////////////////////////
   List<ExpandingItem> _data = [
     ExpandingItem(
       name: 'Inspection Update',
@@ -27,12 +143,13 @@ class _ItvTabState extends State<ItvTab> {
   ];
 
   final _formKeyUpdateInspection = GlobalKey<FormState>();
-  String inputContractAddress = '';
+  String vinId = '';
+  ButtonState stateNFCButton = ButtonState.idle;
   String inputFunctionName = '';
   ButtonState stateCallSmartContractFunctionButton = ButtonState.idle;
   String inputToAddress = '';
-  int selectedContractIndex = 0;
-  int selectedFunctionIndex = 0;
+  int selectedvehicleStates;
+  final Map<String, int> vehicleStates = {'PASSED': 1, 'NOT_PASSED': 2, 'NEGATIVE': 3};
 
   @override
   Widget build(BuildContext context) {
@@ -42,14 +159,6 @@ class _ItvTabState extends State<ItvTab> {
     final appUserWallet = Provider.of<WalletManager>(context).getAppUserWallet;
 
     if (appUserWallet != null && itvManagerContract.doneLoading) {
-      // set
-      // List<ContractFunction> carManagerFunctionList = carManagerContract.contractFunctionsList;
-      // inputContractAddress = carManagerContract.contractAddress.toString();
-      // contractsList[0].address = carManagerContract.contractAddress.toString();
-      // contractsList[1].address = itvManagerContract.contractAddress.toString();
-      // contractsList[0].functionList = carManagerContract.contractFunctionsList;
-      // contractsList[1].functionList = itvManagerContract.contractFunctionsList;
-      // log('list of carManager funcs: ' + carManagerContract.contractFunctionsList.toString());
       return Scaffold(
         body: SingleChildScrollView(
           child: Padding(
@@ -89,81 +198,90 @@ class _ItvTabState extends State<ItvTab> {
                                   _data[0].shortDiscribe,
                                 ),
                                 SizedBox(height: 20.0),
-                                // new TextFormField(
-                                //     initialValue: inputContractAddress,
-                                //     decoration: InputDecoration().copyWith(hintText: 'Contract Address'),
-                                //     validator: (val) => val.isEmpty ? 'Enter a valid Contract Address' : null,
-                                //     onChanged: (val) {
-                                //       inputContractAddress = val;
-                                //     }),
-                                // DropdownButtonFormField(
-                                //   items: contractsList.map((inputContract) {
-                                //     print('func: ' + inputContract.name);
-                                //     return DropdownMenuItem(value: inputContract, child: Text(inputContract.name));
-                                //   }).toList(),
-                                //   decoration: InputDecoration().copyWith(hintText: 'Contract'),
-                                //   onChanged: (InputContract val) {
-                                //     inputContractAddress = val.address;
-                                //     setState(() {
-                                //       selectedFunctionIndex = 0;
-                                //       selectedContractIndex = contractsList.indexOf(val);
-                                //     });
-                                //     log('index of selected contract: ' + selectedContractIndex.toString());
-                                //   },
-                                // ),
+                                new TextFormField(
+                                  // initialValue: vinId,
+                                  decoration: InputDecoration().copyWith(hintText: 'VIN Id'),
+                                  validator: (val) => val.isEmpty ? 'Enter a valid VIN Id' : null,
+                                  onChanged: (val) {
+                                    vinId = val;
+                                  },
+                                ),
                                 SizedBox(height: 20.0),
-                                // DropdownButtonFormField(
-                                //   items: carManagerFunctionList.map((func) {
-                                //     print('func: ' + func.encodeName());
-                                //     return DropdownMenuItem(value: func.encodeName(), child: Text(func.name));
-                                //   }).toList(),
-                                //   decoration: InputDecoration().copyWith(hintText: 'Functions'),
-                                //   onChanged: (val) => inputFunctionName = val,
-                                // ),
-                                // DropdownButtonFormField(
-                                //   value: contractsList[selectedContractIndex].functionList[selectedFunctionIndex],
-                                //   items: contractsList[selectedContractIndex].functionList.map((func) {
-                                //     print('func: ' + func);
-                                //     return DropdownMenuItem(value: func, child: Text(func.split('(')[0]));
-                                //   }).toList(),
-                                //   decoration: InputDecoration().copyWith(hintText: 'Functions'),
-                                //   onChanged: (val) => inputFunctionName = val,
-                                // ),
+                                DropdownButtonFormField(
+                                  items: vehicleStates.entries.map((entry) {
+                                    print('key: ' + entry.key);
+                                    return DropdownMenuItem(value: entry.value, child: Text(entry.key));
+                                  }).toList(),
+                                  decoration: InputDecoration().copyWith(hintText: 'Next vehicle state'),
+                                  onChanged: (val) {
+                                    setState(() {
+                                      selectedvehicleStates = val;
+                                    });
+                                    log('selected nex state: ' + val.toString());
+                                  },
+                                ),
                                 SizedBox(height: 20.0),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: new TextFormField(
-                                          key: Key(inputToAddress),
-                                          initialValue: inputToAddress,
-                                          decoration: InputDecoration().copyWith(hintText: 'To Address'),
-                                          validator: (val) => val.isEmpty ? 'Enter a valid To Address' : null,
-                                          onChanged: (val) {
-                                            inputToAddress = val;
-                                          }),
-                                    ),
-                                    IconButton(
-                                        icon: Icon(Icons.qr_code_scanner),
-                                        onPressed: () async {
-                                          try {
-                                            String qrResult = await BarcodeScanner.scan();
-                                            print('qrResult: ' + qrResult);
-                                            setState(() {
-                                              inputToAddress = qrResult;
-                                            });
-                                          } on PlatformException catch (ex) {
-                                            if (ex.code == BarcodeScanner.CameraAccessDenied) {
-                                              inputToAddress = "Camera permission was denied";
-                                            } else {
-                                              inputToAddress = "Unknown Error $ex";
-                                            }
-                                          } on FormatException {
-                                            inputToAddress = "You pressed the back button before scanning anything";
-                                          } catch (ex) {
-                                            inputToAddress = "Unknown Error $ex";
-                                          }
-                                        }),
-                                  ],
+                                new ProgressButton.icon(
+                                  iconedButtons: {
+                                    ButtonState.idle: IconedButton(
+                                        text: 'Get Car Signiture', icon: Icon(Icons.credit_card, color: Colors.white), color: Theme.of(context).buttonColor),
+                                    ButtonState.loading: IconedButton(text: "Changing", color: Theme.of(context).buttonColor),
+                                    ButtonState.fail:
+                                        IconedButton(text: "Failed", icon: Icon(Icons.cancel, color: Colors.white), color: Theme.of(context).accentColor),
+                                    ButtonState.success: IconedButton(
+                                        text: "Success",
+                                        icon: Icon(
+                                          Icons.check_circle,
+                                          color: Colors.white,
+                                        ),
+                                        color: Theme.of(context).buttonColor)
+                                  },
+                                  state: stateNFCButton,
+                                  onPressed: () async {
+                                    if (_formKeyUpdateInspection.currentState.validate()) {
+                                      print('button pressed: Get Car Signiture');
+                                      setState(() {
+                                        _nfcCardMessage = "Please attach your device to Vehicle's card";
+                                      });
+                                      setState(() {
+                                        stateNFCButton = ButtonState.loading;
+                                      });
+                                      try {
+                                        Uint8List vinHash = keccak256(Uint8List.fromList(vinId.codeUnits));
+                                        // log('hash of vin in flutter: ' + vinHash.toString());
+                                        log('hash of vin in hex: ' + bytesToHex(vinHash));
+
+                                        await _runCardSignerOnPlatform(vinHash);
+
+                                        print('done NFC signing: ' + _nfcCardSignitureList.toString());
+                                      } catch (e) {
+                                        final snackBar = SnackBar(
+                                          duration: Duration(seconds: 10),
+                                          content: Text('error: ' + e.toString()),
+                                          action: SnackBarAction(
+                                            textColor: Theme.of(context).buttonColor,
+                                            label: 'OK',
+                                            onPressed: () {
+                                              // Some code to undo the change.
+                                            },
+                                          ),
+                                        );
+                                        Scaffold.of(context).showSnackBar(snackBar);
+                                        setState(() {
+                                          stateNFCButton = ButtonState.fail;
+                                        });
+                                        // Timer(Duration(seconds: 3), () {
+                                        //   setState(() {
+                                        //     stateNFCButton = ButtonState.idle;
+                                        //   });
+                                        // });
+                                      }
+                                    } else {
+                                      setState(() {
+                                        stateNFCButton = ButtonState.idle;
+                                      });
+                                    }
+                                  },
                                 ),
                                 SizedBox(height: 20.0),
                                 new ProgressButton.icon(
@@ -185,46 +303,15 @@ class _ItvTabState extends State<ItvTab> {
                                   onPressed: () async {
                                     if (_formKeyUpdateInspection.currentState.validate()) {
                                       print('button pressed: ' + _data[0].name);
-                                      print(inputContractAddress);
+                                      print(vinId);
                                       print(inputFunctionName);
                                       print(inputToAddress);
                                       setState(() {
                                         stateCallSmartContractFunctionButton = ButtonState.loading;
                                       });
                                       try {
-                                        bool result = null;
+                                        TransactionReceipt result = null;
                                         if (result != null) {
-                                          if (result) {
-                                            final snackBar = SnackBar(
-                                              duration: Duration(seconds: 10),
-                                              content: Text('Access is granted.'),
-                                              action: SnackBarAction(
-                                                textColor: Theme.of(context).buttonColor,
-                                                label: 'OK',
-                                                onPressed: () {
-                                                  // Some code to undo the change.
-                                                },
-                                              ),
-                                            );
-                                            // Find the Scaffold in the widget tree and use
-                                            // it to show a SnackBar.
-                                            Scaffold.of(context).showSnackBar(snackBar);
-                                          } else {
-                                            final snackBar = SnackBar(
-                                              duration: Duration(seconds: 10),
-                                              content: Text('Access is not granted.'),
-                                              action: SnackBarAction(
-                                                textColor: Theme.of(context).buttonColor,
-                                                label: 'OK',
-                                                onPressed: () {
-                                                  // Some code to undo the change.
-                                                },
-                                              ),
-                                            );
-                                            // Find the Scaffold in the widget tree and use
-                                            // it to show a SnackBar.
-                                            Scaffold.of(context).showSnackBar(snackBar);
-                                          }
                                           setState(() {
                                             stateCallSmartContractFunctionButton = ButtonState.success;
                                           });
